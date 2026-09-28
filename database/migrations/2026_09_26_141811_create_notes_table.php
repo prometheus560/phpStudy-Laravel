@@ -8,27 +8,29 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('notes', function (Blueprint $table) {
-            $table->increments('id');
+        if (!Schema::hasTable('notes')) {
+            Schema::create('notes', function (Blueprint $table) {
+                $table->increments('id');
 
-            $table->integer('user_id');
-            $table->integer('subject_id')->nullable();
+                $table->integer('user_id');
+                $table->integer('subject_id')->nullable();
 
-            $table->string('title');
-            $table->text('content');
+                $table->string('title');
+                $table->text('content');
 
-            $table->timestamps();
+                $table->timestamps();
 
-            $table->foreign('user_id')
-                ->references('id')
-                ->on('users')
-                ->onDelete('cascade');
+                $table->foreign('user_id')
+                    ->references('id')
+                    ->on('users')
+                    ->onDelete('cascade');
 
-            $table->foreign('subject_id')
-                ->references('id')
-                ->on('subjects')
-                ->onDelete('cascade');
-        });
+                $table->foreign('subject_id')
+                    ->references('id')
+                    ->on('subjects')
+                    ->onDelete('cascade');
+            });
+        }
     }
 
     public function down(): void
