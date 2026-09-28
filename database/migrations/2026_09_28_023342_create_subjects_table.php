@@ -12,7 +12,7 @@ return new class extends Migration
             Schema::create('subjects', function (Blueprint $table) {
                 $table->increments('id');
 
-                $table->integer('user_id');
+                $table->unsignedInteger('user_id');
 
                 $table->string('subject_name');
 
