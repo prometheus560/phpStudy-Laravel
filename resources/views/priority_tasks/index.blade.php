@@ -62,7 +62,7 @@
 
                 <div class="mt-4">
                     <a href="{{ route('tasks.index') }}"
-                       class="inline-block bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg px-4 py-2 text-sm font-medium hover:from-blue-500 hover:to-blue-600 shadow-lg shadow-blue-900/30">
+                       class="inline-block bg-blue-700 text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-blue-800">
                         View Tasks
                     </a>
                 </div>

@@ -29,17 +29,17 @@
 
                 {{-- Task Name --}}
                 <div class="sm:col-span-2">
-                    <label for="task_name" class="block text-sm font-semibold text-gray-300 mb-1.5">Task Name</label>
+                    <label for="task_name" class="block text-sm font-semibold text-gray-200 mb-1.5">Task Name</label>
                     <input id="task_name" type="text" name="task_name" value="{{ old('task_name') }}"
                            placeholder="Enter task name" maxlength="150" required
-                           class="w-full border border-[#2a2a38] rounded-lg px-3.5 py-2.5 text-sm bg-[#1b1b28] text-gray-200 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                           class="w-full border border-[#2a2a38] bg-[#1b1b28] text-gray-200 placeholder-gray-500 [color-scheme:dark] focus:outline-none focus:border-blue-500 rounded-lg px-3.5 py-2.5 text-sm">
                 </div>
 
                 {{-- Subject --}}
                 <div>
-                    <label for="subject_id" class="block text-sm font-semibold text-gray-300 mb-1.5">Subject</label>
+                    <label for="subject_id" class="block text-sm font-semibold text-gray-200 mb-1.5">Subject</label>
                     <select id="subject_id" name="subject_id" required
-                            class="w-full border border-[#2a2a38] rounded-lg px-3.5 py-2.5 text-sm bg-[#1b1b28] text-gray-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                            class="w-full border border-[#2a2a38] bg-[#1b1b28] text-gray-200 placeholder-gray-500 [color-scheme:dark] focus:outline-none focus:border-blue-500 rounded-lg px-3.5 py-2.5 text-sm">
                         <option value="">Select Subject</option>
                         @foreach ($subjects as $subject)
                             <option value="{{ $subject->id }}" @selected(old('subject_id') == $subject->id)>
@@ -51,16 +51,16 @@
 
                 {{-- Deadline --}}
                 <div>
-                    <label for="deadline" class="block text-sm font-semibold text-gray-300 mb-1.5">Deadline</label>
+                    <label for="deadline" class="block text-sm font-semibold text-gray-200 mb-1.5">Deadline</label>
                     <input id="deadline" type="date" name="deadline" value="{{ old('deadline') }}" required
-                           class="w-full border border-[#2a2a38] rounded-lg px-3.5 py-2.5 text-sm bg-[#1b1b28] text-gray-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                           class="w-full border border-[#2a2a38] bg-[#1b1b28] text-gray-200 placeholder-gray-500 [color-scheme:dark] focus:outline-none focus:border-blue-500 rounded-lg px-3.5 py-2.5 text-sm">
                 </div>
 
                 {{-- Priority --}}
                 <div>
-                    <label for="priority" class="block text-sm font-semibold text-gray-300 mb-1.5">Priority</label>
+                    <label for="priority" class="block text-sm font-semibold text-gray-200 mb-1.5">Priority</label>
                     <select id="priority" name="priority" required
-                            class="w-full border border-[#2a2a38] rounded-lg px-3.5 py-2.5 text-sm bg-[#1b1b28] text-gray-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                            class="w-full border border-[#2a2a38] bg-[#1b1b28] text-gray-200 placeholder-gray-500 [color-scheme:dark] focus:outline-none focus:border-blue-500 rounded-lg px-3.5 py-2.5 text-sm">
                         <option value="High" @selected(old('priority') === 'High')>High</option>
                         <option value="Medium" @selected(old('priority', 'Medium') === 'Medium')>Medium</option>
                         <option value="Low" @selected(old('priority') === 'Low')>Low</option>
@@ -70,7 +70,7 @@
                 {{-- Submit --}}
                 <div class="flex items-end">
                     <button type="submit"
-                            class="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg px-4 py-2.5 text-sm font-medium hover:from-blue-500 hover:to-blue-600 shadow-lg shadow-blue-900/30">
+                            class="w-full bg-blue-700 text-white rounded-lg px-4 py-2.5 text-sm font-medium hover:bg-blue-800">
                         Add Task
                     </button>
                 </div>
@@ -84,7 +84,7 @@
                 <p class="text-gray-400 text-sm mt-1">You need to create a subject before adding a task.</p>
                 <div class="mt-4">
                     <a href="{{ route('subjects.index') }}"
-                       class="inline-block bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg px-4 py-2 text-sm font-medium hover:from-blue-500 hover:to-blue-600 shadow-lg shadow-blue-900/30">
+                       class="inline-block bg-blue-700 text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-blue-800">
                         Add Subject
                     </a>
                 </div>

@@ -29,9 +29,9 @@
 
                 {{-- Subject --}}
                 <div class="sm:col-span-2">
-                    <label for="subject_id" class="block text-sm font-semibold text-gray-300 mb-1.5">Subject</label>
+                    <label for="subject_id" class="block text-sm font-semibold text-gray-200 mb-1.5">Subject</label>
                     <select id="subject_id" name="subject_id" required
-                            class="w-full border border-[#2a2a38] rounded-lg px-3.5 py-2.5 text-sm bg-[#1b1b28] text-gray-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                            class="w-full border border-[#2a2a38] bg-[#1b1b28] text-gray-200 placeholder-gray-500 [color-scheme:dark] focus:outline-none focus:border-blue-500 rounded-lg px-3.5 py-2.5 text-sm">
                         <option value="">Select Subject</option>
                         @foreach ($subjects as $subject)
                             <option value="{{ $subject->id }}" @selected(old('subject_id') == $subject->id)>
@@ -43,29 +43,29 @@
 
                 {{-- Study Date --}}
                 <div>
-                    <label for="study_date" class="block text-sm font-semibold text-gray-300 mb-1.5">Study Date</label>
+                    <label for="study_date" class="block text-sm font-semibold text-gray-200 mb-1.5">Study Date</label>
                     <input id="study_date" type="date" name="study_date" value="{{ old('study_date') }}" required
-                           class="w-full border border-[#2a2a38] rounded-lg px-3.5 py-2.5 text-sm bg-[#1b1b28] text-gray-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                           class="w-full border border-[#2a2a38] bg-[#1b1b28] text-gray-200 placeholder-gray-500 [color-scheme:dark] focus:outline-none focus:border-blue-500 rounded-lg px-3.5 py-2.5 text-sm">
                 </div>
 
                 {{-- Start Time --}}
                 <div>
-                    <label for="start_time" class="block text-sm font-semibold text-gray-300 mb-1.5">Start Time</label>
+                    <label for="start_time" class="block text-sm font-semibold text-gray-200 mb-1.5">Start Time</label>
                     <input id="start_time" type="time" name="start_time" value="{{ old('start_time') }}" required
-                           class="w-full border border-[#2a2a38] rounded-lg px-3.5 py-2.5 text-sm bg-[#1b1b28] text-gray-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                           class="w-full border border-[#2a2a38] bg-[#1b1b28] text-gray-200 placeholder-gray-500 [color-scheme:dark] focus:outline-none focus:border-blue-500 rounded-lg px-3.5 py-2.5 text-sm">
                 </div>
 
                 {{-- End Time --}}
                 <div>
-                    <label for="end_time" class="block text-sm font-semibold text-gray-300 mb-1.5">End Time</label>
+                    <label for="end_time" class="block text-sm font-semibold text-gray-200 mb-1.5">End Time</label>
                     <input id="end_time" type="time" name="end_time" value="{{ old('end_time') }}" required
-                           class="w-full border border-[#2a2a38] rounded-lg px-3.5 py-2.5 text-sm bg-[#1b1b28] text-gray-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                           class="w-full border border-[#2a2a38] bg-[#1b1b28] text-gray-200 placeholder-gray-500 [color-scheme:dark] focus:outline-none focus:border-blue-500 rounded-lg px-3.5 py-2.5 text-sm">
                 </div>
 
                 {{-- Submit --}}
                 <div class="flex items-end">
                     <button type="submit"
-                            class="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg px-4 py-2.5 text-sm font-medium hover:from-blue-500 hover:to-blue-600 shadow-lg shadow-blue-900/30">
+                            class="w-full bg-blue-700 text-white rounded-lg px-4 py-2.5 text-sm font-medium hover:bg-blue-800">
                         Add Schedule
                     </button>
                 </div>
@@ -79,7 +79,7 @@
                 <p class="text-gray-400 text-sm mt-1">You need to create a subject before creating a schedule.</p>
                 <div class="mt-4">
                     <a href="{{ route('subjects.index') }}"
-                       class="inline-block bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg px-4 py-2 text-sm font-medium hover:from-blue-500 hover:to-blue-600 shadow-lg shadow-blue-900/30">
+                       class="inline-block bg-blue-700 text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-blue-800">
                         Add Subject
                     </a>
                 </div>

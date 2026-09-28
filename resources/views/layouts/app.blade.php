@@ -11,9 +11,9 @@
         body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="bg-[#f5f5f5] min-h-screen">
+<body class="bg-[#0a0a12] text-gray-200 min-h-screen">
 
-    <header class="bg-[#0d0d0d] border-b border-white/10 relative z-20">
+    <header class="bg-[#0f0f1a] border-b border-[#23232f] relative z-20">
 
         {{-- Top bar --}}
         <nav class="px-4 sm:px-6 py-3 flex items-center justify-between">
@@ -42,7 +42,7 @@
                             Study Space <span class="text-xs">▾</span>
                         </button>
                         <div id="studySpaceMenu" class="dropdown-menu hidden absolute left-0 top-full pt-2 w-44 z-30">
-                            <div class="bg-[#0d0d0d] border border-white/10 rounded-lg py-1 shadow-lg">
+                            <div class="bg-[#0f0f1a] border border-[#23232f] rounded-lg py-1 shadow-lg">
                                 <a href="{{ route('notes.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white">My Notes</a>
                                 <a href="{{ route('study_files.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white">My Files</a>
                             </div>
@@ -56,7 +56,7 @@
                             Tools <span class="text-xs">▾</span>
                         </button>
                         <div id="toolsMenu" class="dropdown-menu hidden absolute left-0 top-full pt-2 w-48 z-30">
-                            <div class="bg-[#0d0d0d] border border-white/10 rounded-lg py-1 shadow-lg">
+                            <div class="bg-[#0f0f1a] border border-[#23232f] rounded-lg py-1 shadow-lg">
                                 <a href="{{ route('completed_tasks.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white">Completed Tasks</a>
                                 <a href="{{ route('upcoming_tasks.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white">Upcoming Tasks</a>
                                 <a href="{{ route('priority_tasks.index') }}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-white/5 hover:text-white">Priority Tasks</a>
@@ -89,7 +89,7 @@
         </nav>
 
         {{-- Mobile menu --}}
-        <div id="mobileMenu" class="hidden lg:hidden border-t border-white/10 px-4 py-3 text-sm">
+        <div id="mobileMenu" class="hidden lg:hidden border-t border-[#23232f] px-4 py-3 text-sm">
             <a href="{{ route('home') }}" class="block px-3 py-2.5 rounded-lg {{ request()->routeIs('home') ? 'bg-white/10 text-white' : 'text-gray-300 hover:bg-white/5' }}">Home</a>
             <a href="{{ route('subjects.index') }}" class="block px-3 py-2.5 rounded-lg {{ request()->routeIs('subjects.*') ? 'bg-white/10 text-white' : 'text-gray-300 hover:bg-white/5' }}">Subjects</a>
             <a href="{{ route('tasks.index') }}" class="block px-3 py-2.5 rounded-lg {{ request()->routeIs('tasks.*') ? 'bg-white/10 text-white' : 'text-gray-300 hover:bg-white/5' }}">Tasks</a>
@@ -107,7 +107,7 @@
             <a href="{{ route('binary_search.index') }}" class="block px-3 py-2.5 rounded-lg text-gray-300 hover:bg-white/5">Binary Search</a>
             <a href="{{ route('selection_sort.index') }}" class="block px-3 py-2.5 rounded-lg text-gray-300 hover:bg-white/5">Selection Sort</a>
 
-            <div class="border-t border-white/10 mt-3 pt-3">
+            <div class="border-t border-[#23232f] mt-3 pt-3">
                 <a href="{{ route('account.index') }}" class="block px-3 py-2.5 rounded-lg text-gray-300 hover:bg-white/5">Account</a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf

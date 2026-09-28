@@ -10,7 +10,7 @@
             <p class="text-gray-400 text-sm mt-1">Keep track of everything you're studying.</p>
         </div>
         <button onclick="document.getElementById('newNoteModal').classList.remove('hidden')"
-                class="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg px-4 py-2 text-sm font-medium hover:from-blue-500 hover:to-blue-600 shadow-lg shadow-blue-900/30">
+                class="bg-blue-700 text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-blue-800">
             + New Note
         </button>
     </div>
@@ -24,9 +24,9 @@
     {{-- Search + subject filter --}}
     <form method="GET" action="{{ route('notes.index') }}" class="flex flex-wrap gap-3 mb-6">
         <input type="text" name="search" value="{{ request('search') }}" placeholder="Search notes..."
-               class="border border-[#2a2a38] rounded-lg px-3 py-2 text-sm bg-[#1b1b28] text-gray-200 placeholder-gray-500 flex-1 min-w-[200px] focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+               class="border border-[#2a2a38] bg-[#1b1b28] text-gray-200 placeholder-gray-500 [color-scheme:dark] focus:outline-none focus:border-blue-500 rounded-lg px-3 py-2 text-sm flex-1 min-w-[200px]">
 
-        <select name="subject_id" class="border border-[#2a2a38] rounded-lg px-3 py-2 text-sm bg-[#1b1b28] text-gray-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+        <select name="subject_id" class="border border-[#2a2a38] bg-[#1b1b28] text-gray-200 placeholder-gray-500 [color-scheme:dark] focus:outline-none focus:border-blue-500 rounded-lg px-3 py-2 text-sm">
             <option value="">All subjects</option>
             @foreach ($subjects as $subject)
                 <option value="{{ $subject->id }}" @selected(request('subject_id') == $subject->id)>
@@ -35,7 +35,7 @@
             @endforeach
         </select>
 
-        <button type="submit" class="border border-[#2a2a38] rounded-lg px-4 py-2 text-sm text-gray-300 hover:bg-white/5">
+        <button type="submit" class="border border-[#2a2a38] bg-[#1b1b28] text-gray-200 placeholder-gray-500 [color-scheme:dark] focus:outline-none focus:border-blue-500 rounded-lg px-4 py-2 text-sm hover:bg-white/5">
             Filter
         </button>
 
@@ -49,7 +49,7 @@
     {{-- Notes grid --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         @forelse ($notes as $note)
-            <div class="bg-[#14141f] border border-[#23232f] rounded-xl p-4 shadow-sm flex flex-col justify-between">
+            <div class="bg-[#1b1b28] border border-[#23232f] rounded-xl p-4 shadow-sm flex flex-col justify-between">
                 <div>
                     <div class="flex items-start justify-between mb-2 gap-2">
                         <h3 class="font-semibold text-white">{{ $note->title }}</h3>
@@ -66,27 +66,27 @@
                     </div>
 
                     @if ($note->subject)
-                        <span class="inline-block bg-blue-500/15 text-blue-400 text-xs rounded-full px-2 py-0.5 mb-2">
+                        <span class="inline-block bg-blue-500/15 text-blue-300 text-xs rounded-full px-2 py-0.5 mb-2">
                             {{ $note->subject->subject_name }}
                         </span>
                     @endif
 
                     <p class="text-gray-400 text-sm whitespace-pre-line line-clamp-5">{{ $note->content }}</p>
                 </div>
-                <p class="text-xs text-gray-500 mt-3">Updated {{ $note->updated_at->diffForHumans() }}</p>
+                <p class="text-xs text-gray-400 mt-3">Updated {{ $note->updated_at->diffForHumans() }}</p>
             </div>
 
             {{-- Edit modal for this note --}}
-            <div id="editNoteModal{{ $note->id }}" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-                <div class="bg-[#14141f] border border-[#23232f] rounded-xl p-6 w-full max-w-md">
+            <div id="editNoteModal{{ $note->id }}" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                <div class="bg-[#1b1b28] rounded-xl p-6 w-full max-w-md">
                     <h3 class="font-semibold text-lg mb-4 text-white">Edit Note</h3>
                     <form action="{{ route('notes.update', $note) }}" method="POST" class="space-y-3">
                         @csrf
                         @method('PATCH')
                         <input type="text" name="title" value="{{ $note->title }}" required
-                               class="w-full border border-[#2a2a38] rounded-lg px-3 py-2 text-sm bg-[#1b1b28] text-gray-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                               class="w-full border border-[#2a2a38] bg-[#1b1b28] text-gray-200 placeholder-gray-500 [color-scheme:dark] focus:outline-none focus:border-blue-500 rounded-lg px-3 py-2 text-sm">
 
-                        <select name="subject_id" class="w-full border border-[#2a2a38] rounded-lg px-3 py-2 text-sm bg-[#1b1b28] text-gray-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                        <select name="subject_id" class="w-full border border-[#2a2a38] bg-[#1b1b28] text-gray-200 placeholder-gray-500 [color-scheme:dark] focus:outline-none focus:border-blue-500 rounded-lg px-3 py-2 text-sm">
                             <option value="">No subject</option>
                             @foreach ($subjects as $subject)
                                 <option value="{{ $subject->id }}" @selected($note->subject_id == $subject->id)>
@@ -96,18 +96,18 @@
                         </select>
 
                         <textarea name="content" rows="5" required
-                                  class="w-full border border-[#2a2a38] rounded-lg px-3 py-2 text-sm bg-[#1b1b28] text-gray-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">{{ $note->content }}</textarea>
+                                  class="w-full border border-[#2a2a38] bg-[#1b1b28] text-gray-200 placeholder-gray-500 [color-scheme:dark] focus:outline-none focus:border-blue-500 rounded-lg px-3 py-2 text-sm">{{ $note->content }}</textarea>
                         <div class="flex justify-end gap-2 pt-2">
                             <button type="button"
                                     onclick="document.getElementById('editNoteModal{{ $note->id }}').classList.add('hidden')"
-                                    class="px-4 py-2 text-sm rounded-lg border border-[#2a2a38] text-gray-300 hover:bg-white/5">Cancel</button>
-                            <button type="submit" class="px-4 py-2 text-sm rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-500 hover:to-blue-600">Save</button>
+                                    class="px-4 py-2 text-sm rounded-lg border border-[#2a2a38] bg-[#1b1b28] text-gray-200 placeholder-gray-500 [color-scheme:dark] focus:outline-none focus:border-blue-500">Cancel</button>
+                            <button type="submit" class="px-4 py-2 text-sm rounded-lg bg-blue-700 text-white">Save</button>
                         </div>
                     </form>
                 </div>
             </div>
         @empty
-            <div class="col-span-full text-center py-16 bg-[#14141f] border border-[#23232f] rounded-xl">
+            <div class="col-span-full text-center py-16 bg-[#1b1b28] border border-[#23232f] rounded-xl">
                 <p class="text-white font-semibold mb-1">
                     {{ request('search') || request('subject_id') ? 'No notes match your search' : 'No notes yet' }}
                 </p>
@@ -116,7 +116,7 @@
                 </p>
                 @unless (request('search') || request('subject_id'))
                     <button onclick="document.getElementById('newNoteModal').classList.remove('hidden')"
-                            class="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg px-4 py-2 text-sm font-medium hover:from-blue-500 hover:to-blue-600 shadow-lg shadow-blue-900/30">
+                            class="bg-blue-700 text-white rounded-lg px-4 py-2 text-sm font-medium hover:bg-blue-800">
                         + New Note
                     </button>
                 @endunless
@@ -125,8 +125,8 @@
     </div>
 
     {{-- New note modal --}}
-    <div id="newNoteModal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-        <div class="bg-[#14141f] border border-[#23232f] rounded-xl p-6 w-full max-w-md">
+    <div id="newNoteModal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-[#1b1b28] rounded-xl p-6 w-full max-w-md">
             <h3 class="font-semibold text-lg mb-4 text-white">New Note</h3>
 
             @if ($errors->any())
@@ -138,9 +138,9 @@
             <form action="{{ route('notes.store') }}" method="POST" class="space-y-3">
                 @csrf
                 <input type="text" name="title" placeholder="Title" required
-                       class="w-full border border-[#2a2a38] rounded-lg px-3 py-2 text-sm bg-[#1b1b28] text-gray-200 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                       class="w-full border border-[#2a2a38] bg-[#1b1b28] text-gray-200 placeholder-gray-500 [color-scheme:dark] focus:outline-none focus:border-blue-500 rounded-lg px-3 py-2 text-sm">
 
-                <select name="subject_id" class="w-full border border-[#2a2a38] rounded-lg px-3 py-2 text-sm bg-[#1b1b28] text-gray-200 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                <select name="subject_id" class="w-full border border-[#2a2a38] bg-[#1b1b28] text-gray-200 placeholder-gray-500 [color-scheme:dark] focus:outline-none focus:border-blue-500 rounded-lg px-3 py-2 text-sm">
                     <option value="">No subject</option>
                     @foreach ($subjects as $subject)
                         <option value="{{ $subject->id }}">{{ $subject->subject_name }}</option>
@@ -148,11 +148,11 @@
                 </select>
 
                 <textarea name="content" rows="5" placeholder="Write your note..." required
-                          class="w-full border border-[#2a2a38] rounded-lg px-3 py-2 text-sm bg-[#1b1b28] text-gray-200 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"></textarea>
+                          class="w-full border border-[#2a2a38] bg-[#1b1b28] text-gray-200 placeholder-gray-500 [color-scheme:dark] focus:outline-none focus:border-blue-500 rounded-lg px-3 py-2 text-sm"></textarea>
                 <div class="flex justify-end gap-2 pt-2">
                     <button type="button" onclick="document.getElementById('newNoteModal').classList.add('hidden')"
-                            class="px-4 py-2 text-sm rounded-lg border border-[#2a2a38] text-gray-300 hover:bg-white/5">Cancel</button>
-                    <button type="submit" class="px-4 py-2 text-sm rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-500 hover:to-blue-600">Save Note</button>
+                            class="px-4 py-2 text-sm rounded-lg border border-[#2a2a38] bg-[#1b1b28] text-gray-200 placeholder-gray-500 [color-scheme:dark] focus:outline-none focus:border-blue-500">Cancel</button>
+                    <button type="submit" class="px-4 py-2 text-sm rounded-lg bg-blue-700 text-white">Save Note</button>
                 </div>
             </form>
         </div>

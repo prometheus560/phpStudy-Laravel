@@ -27,10 +27,10 @@
 
             <input type="text" name="subject_name" value="{{ old('subject_name') }}"
                    placeholder="Enter subject name" maxlength="100" required
-                   class="flex-1 min-w-[220px] border border-[#2a2a38] rounded-lg px-3.5 py-3 text-sm bg-[#1b1b28] text-gray-200 placeholder-gray-500 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                   class="flex-1 min-w-[220px] border border-[#2a2a38] bg-[#1b1b28] text-gray-200 placeholder-gray-500 [color-scheme:dark] focus:outline-none focus:border-blue-500 rounded-lg px-3.5 py-3 text-sm">
 
             <button type="submit"
-                    class="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg px-5 py-3 text-sm font-medium hover:from-blue-500 hover:to-blue-600 shadow-lg shadow-blue-900/30">
+                    class="bg-blue-700 text-white rounded-lg px-5 py-3 text-sm font-medium hover:bg-blue-800">
                 Add Subject
             </button>
         </form>
