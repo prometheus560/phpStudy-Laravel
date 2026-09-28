@@ -505,7 +505,7 @@
                         onclick="togglePassword('password', 'passwordToggle')"
                         id="passwordToggle"
                     >
-                        👁
+                     Show
                     </button>
 
                 </div>
@@ -553,7 +553,7 @@
                         onclick="togglePassword('password_confirmation', 'confirmToggle')"
                         id="confirmToggle"
                     >
-                        👁
+                        Show
                     </button>
 
                 </div>
@@ -606,12 +606,12 @@ function togglePassword(inputId, buttonId) {
     if (password.type === "password") {
 
         password.type = "text";
-        button.textContent = "🙈";
+        button.textContent = "Hide";
 
     } else {
 
         password.type = "password";
-        button.textContent = "👁";
+        button.textContent = "Show";
 
     }
 
