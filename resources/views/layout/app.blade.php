@@ -20,7 +20,6 @@
 
             <div class="flex items-center gap-8">
                 <a href="{{ route('home') }}" class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-white rounded-md flex items-center justify-center text-black font-bold text-sm shrink-0">S</div>
                     <span class="text-white font-semibold text-base sm:text-lg">Student Study Planner</span>
                 </a>
 
