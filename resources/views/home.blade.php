@@ -168,11 +168,6 @@
         border-bottom: none;
     }
 
-
-    /* =========================
-       EMPTY SUBJECT MESSAGE
-    ========================= */
-
     .empty-message {
         color: #8b8fa3;
         text-align: center;
@@ -184,11 +179,6 @@
     .empty-message strong {
         color: #e5e7eb;
     }
-
-
-    /* =========================
-       RESPONSIVE
-    ========================= */
 
     @media (max-width: 1000px) {
 
@@ -249,7 +239,7 @@
     <div class="dashboard-container">
 
         <h1 class="dashboard-title">
-            Welcome back, {{ $user->name }}
+            Welcome {{ $user->name }}
         </h1>
 
         <p class="dashboard-subtitle">
