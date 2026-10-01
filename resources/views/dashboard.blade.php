@@ -15,6 +15,14 @@
         'Medium' => 'bg-yellow-500',
         'Low'    => 'bg-green-500',
     ];
+
+    // NEW: countdown text for a deadline (e.g. "Overdue by 2d", "Due today", "5 days left")
+    $dueLabel = function ($deadline) {
+        $days = (int) today()->diffInDays($deadline->copy()->startOfDay(), false);
+        if ($days < 0)   return 'Overdue by ' . abs($days) . 'd';
+        if ($days === 0) return 'Due today';
+        return $days . ' day' . ($days > 1 ? 's' : '') . ' left';
+    };
 @endphp
 
 <div class="max-w-6xl mx-auto px-6 py-8">
@@ -24,6 +32,13 @@
         <h2 class="text-3xl font-bold text-white">{{ $greeting }}, {{ $user->name }}</h2>
         <p class="text-gray-400 text-sm mt-1">Here's what's happening in your study planner today.</p>
     </div>
+
+    {{-- NEW: success message after clicking Done --}}
+    @if (session('success'))
+        <div class="bg-green-500/10 border border-green-500/25 text-green-300 text-sm rounded-xl px-4 py-3 mb-6">
+            {{ session('success') }}
+        </div>
+    @endif
 
     {{-- Alert banner --}}
     @if ($dueSoon > 0)
@@ -112,7 +127,19 @@
                         </div>
                         <div class="flex items-center gap-3 shrink-0">
                             <span class="text-xs font-semibold rounded-md px-2 py-1 {{ $priorityBadge[$task->priority] ?? 'bg-white/5 text-gray-400' }}">{{ $task->priority }}</span>
-                            <span class="text-xs font-mono {{ $overdue ? 'text-rose-400' : 'text-gray-400' }}">{{ $task->deadline->format('M d') }}</span>
+                            {{-- CHANGED: date now also shows the countdown --}}
+                            <span class="text-xs font-mono {{ $overdue ? 'text-rose-400' : 'text-gray-400' }}">
+                                {{ $task->deadline->format('M d') }} &middot; {{ $dueLabel($task->deadline) }}
+                            </span>
+                            {{-- NEW: Done button --}}
+                            <form method="POST" action="{{ route('tasks.complete', $task) }}">
+                                @csrf
+                                @method('PATCH')
+                                <button type="submit" title="Mark as done"
+                                        class="text-xs font-semibold text-green-400 border border-green-500/40 hover:bg-green-500/15 rounded-md px-2 py-1">
+                                    &#10003; Done
+                                </button>
+                            </form>
                         </div>
                     </div>
                 @empty
@@ -160,7 +187,8 @@
                         <span class="w-1 rounded-full {{ $priorityBar[$task->priority] ?? 'bg-gray-500' }}"></span>
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-medium text-white truncate">{{ $task->task_name }}</p>
-                            <p class="text-xs text-gray-500 font-mono">{{ $task->deadline->format('D, M d') }}</p>
+                            {{-- CHANGED: shows countdown next to the date --}}
+                            <p class="text-xs text-gray-500 font-mono">{{ $task->deadline->format('D, M d') }} &middot; {{ $dueLabel($task->deadline) }}</p>
                         </div>
                         @if ($task->deadline->isToday())
                             <span class="self-start text-[10px] font-semibold bg-blue-500/15 text-blue-300 rounded-md px-2 py-0.5">Today</span>
@@ -186,7 +214,8 @@
                     <div class="mb-4 last:mb-0">
                         <div class="flex items-center justify-between text-sm mb-1.5">
                             <span class="text-gray-200 truncate">{{ $subject->subject_name }}</span>
-                            <span class="text-xs text-gray-500">{{ $subject->pending_tasks_count }} pending &middot; {{ $done }} done</span>
+                            {{-- CHANGED: added the percentage --}}
+                            <span class="text-xs text-gray-500">{{ $subject->pending_tasks_count }} pending &middot; {{ $done }} done &middot; {{ $pct }}%</span>
                         </div>
                         <div class="h-1.5 rounded-full bg-white/5 overflow-hidden">
                             <div class="h-full bg-blue-500 rounded-full" style="width: {{ $pct }}%"></div>

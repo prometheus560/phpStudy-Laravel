@@ -77,4 +77,10 @@ class TaskController extends Controller
 
         return redirect()->route('tasks.index');
     }
+    public function complete(\App\Models\Task $task)
+{
+    abort_if($task->user_id !== auth()->id(), 403);
+    $task->update(['status' => 'Completed']);
+    return back()->with('success', 'Task marked as completed.');
+}
 }

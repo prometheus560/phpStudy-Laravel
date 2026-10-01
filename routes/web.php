@@ -95,6 +95,8 @@ Route::middleware('auth')->group(function () {
 
     Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])
         ->name('tasks.destroy');
+    Route::patch('/tasks/{task}/complete', [TaskController::class, 'complete'])
+         ->name('tasks.complete');
 
 
     // Completed Tasks
