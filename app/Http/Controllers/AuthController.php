@@ -40,10 +40,7 @@ class AuthController extends Controller
                 ->onlyInput('email');
         }
 
-        /*
-         * The second argument is true, so the user is always
-         * remembered, even without ticking "Remember me".
-         */
+    
         if (Auth::attempt(
             [
                 'email' => $email,
@@ -112,10 +109,6 @@ class AuthController extends Controller
             ),
         ]);
 
-
-        /*
-         * Remember new users too, so they stay logged in.
-         */
         Auth::login($user, true);
 
         $request->session()->regenerate();
@@ -129,16 +122,8 @@ class AuthController extends Controller
     {
         Auth::logout();
 
-
-        /*
-         * Destroy the current session.
-         */
         $request->session()->invalidate();
 
-
-        /*
-         * Generate a new CSRF token.
-         */
         $request->session()->regenerateToken();
 
 
