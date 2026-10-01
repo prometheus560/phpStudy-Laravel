@@ -89,15 +89,11 @@
             </span>
         </a>
 
-        {{-- New Task + search --}}
-        <div class="px-4 pt-4 flex gap-2">
+        {{-- New Task --}}
+        <div class="px-4 pt-4">
             <a href="{{ route('tasks.index') }}"
-               class="flex-1 text-center bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg px-3 py-2 text-sm font-medium hover:from-blue-500 hover:to-blue-600 shadow-lg shadow-blue-900/30">
+               class="block text-center bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg px-3 py-2 text-sm font-medium hover:from-blue-500 hover:to-blue-600 shadow-lg shadow-blue-900/30">
                 + New Task
-            </a>
-            <a href="{{ route('binary_search.index') }}" title="Search"
-               class="w-10 flex items-center justify-center border border-[#2a2a38] bg-[#14141f] rounded-lg text-gray-400 hover:text-white hover:bg-white/5">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">{!! $icons['search'] !!}</svg>
             </a>
         </div>
 
