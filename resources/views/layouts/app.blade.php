@@ -38,7 +38,7 @@
 
     // [label, route name, active pattern, icon]
     $nav = [
-        'Overview' => [
+        'home' => [
             ['Dashboard', 'dashboard', 'dashboard', 'chart'],
         ],
         'Work' => [
@@ -81,6 +81,7 @@
 
         {{-- Brand --}}
         <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-5 py-5 border-b border-[#23232f]">
+         
             <span>
                 <span class="block text-white font-semibold text-sm leading-tight">Student Study Planner</span>
                 <span class="block text-gray-500 text-xs">Study Dashboard</span>
