@@ -89,22 +89,50 @@ class StudyFileController extends Controller
             ->with('success', 'File uploaded successfully.');
     }
 
+    /**
+     * Open a file inside the study planner (preview page).
+     */
+    public function show(StudyFile $studyFile)
+    {
+        $this->authorizeFile($studyFile);
+
+        $kind = $this->previewKind($studyFile);
+
+        return view('study_files.show', compact('studyFile', 'kind'));
+    }
+
+    /**
+     * Stream the file inline (no download) so it can be shown in the preview page.
+     */
+    public function preview(StudyFile $studyFile)
+    {
+        $this->authorizeFile($studyFile);
+
+        $kind = $this->previewKind($studyFile);
+
+        // Only safe types are shown in the browser; everything else is download-only
+        if ($kind === 'none') {
+            abort(415, 'This file type cannot be previewed.');
+        }
+
+        $disk = Storage::disk('public');
+        $mime = $disk->mimeType($studyFile->file_path);
+
+        // Text files are always served as plain text
+        if ($kind === 'text') {
+            $mime = 'text/plain; charset=UTF-8';
+        }
+
+        return response()->file($disk->path($studyFile->file_path), [
+            'Content-Type' => $mime,
+            'Content-Disposition' => 'inline; filename="' . addslashes($studyFile->file_name) . '"',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
+    }
+
     public function download(StudyFile $studyFile)
     {
-        /** @var User $user */
-        $user = Auth::user();
-
-        if (!$user) {
-            abort(403);
-        }
-
-        if ($studyFile->user_id !== $user->id) {
-            abort(403);
-        }
-
-        if (!Storage::disk('public')->exists($studyFile->file_path)) {
-            abort(404);
-        }
+        $this->authorizeFile($studyFile);
 
         return Storage::disk('public')->download(
             $studyFile->file_path,
@@ -134,5 +162,49 @@ class StudyFileController extends Controller
         return redirect()
             ->route('study_files.index')
             ->with('success', 'File deleted successfully.');
+    }
+
+    /**
+     * Make sure the file belongs to the logged-in user and still exists.
+     */
+    private function authorizeFile(StudyFile $studyFile): void
+    {
+        /** @var User $user */
+        $user = Auth::user();
+
+        if (!$user) {
+            abort(403);
+        }
+
+        if ($studyFile->user_id !== $user->id) {
+            abort(403);
+        }
+
+        if (!Storage::disk('public')->exists($studyFile->file_path)) {
+            abort(404);
+        }
+    }
+
+    /**
+     * Decide how a file can be shown: pdf, image, text, or none (download only).
+     * Uses the real file content type, not the one the browser reported at upload.
+     */
+    private function previewKind(StudyFile $studyFile): string
+    {
+        $mime = Storage::disk('public')->mimeType($studyFile->file_path);
+
+        if ($mime === 'application/pdf') {
+            return 'pdf';
+        }
+
+        if (in_array($mime, ['image/png', 'image/jpeg', 'image/gif', 'image/webp'], true)) {
+            return 'image';
+        }
+
+        if (is_string($mime) && str_starts_with($mime, 'text/') && $mime !== 'text/html') {
+            return 'text';
+        }
+
+        return 'none';
     }
 }

@@ -139,6 +139,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/study-files', [StudyFileController::class, 'store'])
         ->name('study_files.store');
 
+    Route::get('/study-files/{studyFile}', [StudyFileController::class, 'show'])
+        ->name('study_files.show');
+
+    Route::get('/study-files/{studyFile}/preview', [StudyFileController::class, 'preview'])
+        ->name('study_files.preview');
+
     Route::get('/study-files/{studyFile}/download', [StudyFileController::class, 'download'])
         ->name('study_files.download');
 

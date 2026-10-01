@@ -107,7 +107,9 @@
                     <div class="flex items-start gap-3">
                         <div class="text-3xl leading-none">📄</div>
                         <div class="flex-1 min-w-0">
-                            <h4 class="font-semibold text-white truncate">{{ $file->file_name }}</h4>
+                            <a href="{{ route('study_files.show', $file) }}" class="block">
+                                <h4 class="font-semibold text-white truncate hover:text-blue-300">{{ $file->file_name }}</h4>
+                            </a>
                             @if ($file->subject)
                                 <span class="inline-block mt-1 bg-blue-500/15 text-blue-300 text-xs rounded-full px-2 py-0.5">
                                     {{ $file->subject->subject_name }}
@@ -134,7 +136,11 @@
                     </div>
                 </div>
 
-                <div class="border-t border-[#23232f] px-5 py-3 flex gap-2">
+                <div class="border-t border-[#23232f] px-5 py-3 flex flex-wrap gap-2">
+                    <a href="{{ route('study_files.show', $file) }}"
+                       class="bg-green-600 text-white rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-green-700">
+                        View
+                    </a>
                     <a href="{{ route('study_files.download', $file) }}"
                        class="bg-blue-700 text-white rounded-lg px-3 py-1.5 text-xs font-medium hover:bg-blue-800">
                         Download
