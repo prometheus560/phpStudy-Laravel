@@ -38,7 +38,7 @@
 
     // [label, route name, active pattern, icon]
     $nav = [
-        'Overview' => [
+        'home' => [
             ['Dashboard', 'dashboard', 'dashboard', 'chart'],
         ],
         'Work' => [
