@@ -35,9 +35,10 @@
         'logout'   => '<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>',
         'menu'     => '<line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>',
     ];
+
+    // [label, route name, active pattern, icon]
     $nav = [
         'Overview' => [
-            ['Home', 'home', 'home', 'home'],
             ['Dashboard', 'dashboard', 'dashboard', 'chart'],
         ],
         'Work' => [
@@ -80,7 +81,7 @@
            class="fixed inset-y-0 left-0 z-40 w-64 bg-[#0f0f1a] border-r border-[#23232f] flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-200">
 
         {{-- Brand --}}
-        <a href="{{ route('home') }}" class="flex items-center gap-3 px-5 py-5 border-b border-[#23232f]">
+        <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-5 py-5 border-b border-[#23232f]">
             <span class="w-9 h-9 rounded-lg bg-blue-600/20 border border-blue-500/30 text-blue-300 flex items-center justify-center font-bold">S</span>
             <span>
                 <span class="block text-white font-semibold text-sm leading-tight">Student Study Planner</span>

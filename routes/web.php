@@ -54,22 +54,9 @@ Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']
 
 Route::middleware('auth')->group(function () {
 
-    // Home
-    Route::get('/home', function () {
-
-        $user = Auth::user();
-
-        if (!$user) {
-            abort(403);
-        }
-
-        $subjects = $user->subjects()
-            ->withCount('tasks')
-            ->get();
-
-        return view('home', compact('user', 'subjects'));
-
-    })->name('home');
+    // Home (now redirects to the dashboard)
+    Route::get('/home', fn () => redirect()->route('dashboard'))
+        ->name('home');
 
 
     // Dashboard (sidebar-style overview)
