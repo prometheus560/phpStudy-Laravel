@@ -4,6 +4,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BinarySearchController;
 use App\Http\Controllers\CompletedTaskController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\NoteController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\PriorityTaskController;
@@ -71,8 +72,8 @@ Route::middleware('auth')->group(function () {
     })->name('home');
 
 
-    // Dashboard (Pulse-style overview)
-    Route::get('/dashboard', fn () => view('dashboard'))
+    // Dashboard (sidebar-style overview)
+    Route::get('/dashboard', [DashboardController::class, 'index'])
         ->name('dashboard');
 
 
