@@ -2,131 +2,55 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\RateLimiter;
-use Illuminate\Support\Str;
 
-class AuthController extends Controller
+class BinarySearchController extends Controller
 {
-    public function showLogin()
+    public function index(Request $request)
     {
-        return view('auth.login');
-    }
+        $search = trim($request->query('search', ''));
 
+        // Binary search needs the list sorted by name (A-Z)
+        $subjects = Auth::user()
+            ->subjects()
+            ->get()
+            ->sortBy(fn ($subject) => mb_strtolower($subject->subject_name))
+            ->values();
 
-    public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
+        $message = '';
 
+        if ($search !== '') {
+            $target = mb_strtolower($search);
 
-        $email = Str::lower(trim($credentials['email']));
+            $low = 0;
+            $high = $subjects->count() - 1;
+            $foundIndex = null;
 
-        $rateLimitKey = 'login:' . $email . '|' . $request->ip();
+            while ($low <= $high) {
+                $mid = intdiv($low + $high, 2);
+                $midName = mb_strtolower($subjects[$mid]->subject_name);
 
-        if (RateLimiter::tooManyAttempts($rateLimitKey, 5)) {
+                if ($midName === $target) {
+                    $foundIndex = $mid;
+                    break;
+                }
 
-            $seconds = RateLimiter::availableIn($rateLimitKey);
+                if ($midName < $target) {
+                    $low = $mid + 1;
+                } else {
+                    $high = $mid - 1;
+                }
+            }
 
-            return back()
-                ->withErrors([
-                    'email' => "Too many login attempts. Please try again in {$seconds} seconds.",
-                ])
-                ->onlyInput('email');
+            if ($foundIndex !== null) {
+                $message = 'Subject found: ' . $subjects[$foundIndex]->subject_name
+                    . ' (position ' . ($foundIndex + 1) . ' in the sorted list).';
+            } else {
+                $message = 'Subject not found.';
+            }
         }
 
- 
-        if (Auth::attempt(
-            [
-                'email' => $email,
-                'password' => $credentials['password'],
-            ],
-            true
-        )) {
-
-            RateLimiter::clear($rateLimitKey);
-
-            $request->session()->regenerate();
-
-
-            return redirect()->intended(
-                route('home')
-            );
-        }
-
-        RateLimiter::hit($rateLimitKey, 60);
-
-
-        return back()
-            ->withErrors([
-                'email' => 'The email or password is incorrect.',
-            ])
-            ->onlyInput('email');
-    }
-
-
-    public function showRegister()
-    {
-        return view('auth.register');
-    }
-
-
-    public function register(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:100'],
-
-            'email' => [
-                'required',
-                'email',
-                'max:100',
-                'unique:users,email',
-            ],
-
-            'password' => [
-                'required',
-                'string',
-                'min:8',
-                'confirmed',
-            ],
-        ]);
-
-
-        $user = User::create([
-            'name' => $validated['name'],
-
-            'email' => Str::lower(
-                trim($validated['email'])
-            ),
-
-            'password' => Hash::make(
-                $validated['password']
-            ),
-        ]);
-
-        Auth::login($user, true);
-
-        $request->session()->regenerate();
-
-
-        return redirect()->route('home');
-    }
-
-
-    public function logout(Request $request)
-    {
-        Auth::logout();
-
-        $request->session()->invalidate();
-
-        $request->session()->regenerateToken();
-
-
-        return redirect()->route('login');
+        return view('binary_search.index', compact('search', 'message', 'subjects'));
     }
 }
