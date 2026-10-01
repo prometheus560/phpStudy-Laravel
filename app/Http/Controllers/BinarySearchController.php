@@ -2,69 +2,131 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Subject;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 
-class BinarySearchController extends Controller
+class AuthController extends Controller
 {
-    public function index(Request $request)
+    public function showLogin()
     {
-        $userId = Auth::id();
+        return view('auth.login');
+    }
 
-        // Get the user's subjects in alphabetical order
-        $subjects = Subject::where('user_id', $userId)
-            ->orderBy('subject_name', 'asc')
-            ->get();
 
-        $search = '';
-        $message = '';
+    public function login(Request $request)
+    {
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ]);
 
-        // Binary Search
-        if ($request->has('search')) {
 
-            $search = trim($request->input('search'));
+        $email = Str::lower(trim($credentials['email']));
 
-            $left = 0;
-            $right = $subjects->count() - 1;
+        $rateLimitKey = 'login:' . $email . '|' . $request->ip();
 
-            $found = false;
+        if (RateLimiter::tooManyAttempts($rateLimitKey, 5)) {
 
-            while ($left <= $right) {
+            $seconds = RateLimiter::availableIn($rateLimitKey);
 
-                $middle = (int) (($left + $right) / 2);
-
-                $name = $subjects[$middle]->subject_name;
-
-                $compare = strcasecmp($name, $search);
-
-                if ($compare === 0) {
-
-                    $message = 'Subject found: ' . $name;
-
-                    $found = true;
-
-                    break;
-
-                } elseif ($compare < 0) {
-
-                    $left = $middle + 1;
-
-                } else {
-
-                    $right = $middle - 1;
-                }
-            }
-
-            if (!$found) {
-                $message = 'Subject not found.';
-            }
+            return back()
+                ->withErrors([
+                    'email' => "Too many login attempts. Please try again in {$seconds} seconds.",
+                ])
+                ->onlyInput('email');
         }
 
-        return view('binary_search.index', compact(
-            'subjects',
-            'search',
-            'message'
-        ));
+ 
+        if (Auth::attempt(
+            [
+                'email' => $email,
+                'password' => $credentials['password'],
+            ],
+            true
+        )) {
+
+            RateLimiter::clear($rateLimitKey);
+
+            $request->session()->regenerate();
+
+
+            return redirect()->intended(
+                route('home')
+            );
+        }
+
+        RateLimiter::hit($rateLimitKey, 60);
+
+
+        return back()
+            ->withErrors([
+                'email' => 'The email or password is incorrect.',
+            ])
+            ->onlyInput('email');
+    }
+
+
+    public function showRegister()
+    {
+        return view('auth.register');
+    }
+
+
+    public function register(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:100'],
+
+            'email' => [
+                'required',
+                'email',
+                'max:100',
+                'unique:users,email',
+            ],
+
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'confirmed',
+            ],
+        ]);
+
+
+        $user = User::create([
+            'name' => $validated['name'],
+
+            'email' => Str::lower(
+                trim($validated['email'])
+            ),
+
+            'password' => Hash::make(
+                $validated['password']
+            ),
+        ]);
+
+        Auth::login($user, true);
+
+        $request->session()->regenerate();
+
+
+        return redirect()->route('home');
+    }
+
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+
+        return redirect()->route('login');
     }
 }

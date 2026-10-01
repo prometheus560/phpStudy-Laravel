@@ -39,14 +39,15 @@ class AuthController extends Controller
                 ])
                 ->onlyInput('email');
         }
+
         if (Auth::attempt(
             [
                 'email' => $email,
                 'password' => $credentials['password'],
             ],
-            $request->boolean('remember')
+            true
         )) {
-                 
+
             RateLimiter::clear($rateLimitKey);
 
             $request->session()->regenerate();
@@ -107,8 +108,7 @@ class AuthController extends Controller
             ),
         ]);
 
-
-        Auth::login($user);
+        Auth::login($user, true);
 
         $request->session()->regenerate();
 
@@ -121,16 +121,9 @@ class AuthController extends Controller
     {
         Auth::logout();
 
-
-        /*
-         * Destroy the current session.
-         */
         $request->session()->invalidate();
 
 
-        /*
-         * Generate a new CSRF token.
-         */
         $request->session()->regenerateToken();
 
 
