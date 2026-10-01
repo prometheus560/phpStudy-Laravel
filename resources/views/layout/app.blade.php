@@ -81,7 +81,7 @@
 
         {{-- Brand --}}
         <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-5 py-5 border-b border-[#23232f]">
-            <span class="w-9 h-9 rounded-lg bg-blue-600/20 border border-blue-500/30 text-blue-300 flex items-center justify-center font-bold">S</span>
+         
             <span>
                 <span class="block text-white font-semibold text-sm leading-tight">Student Study Planner</span>
                 <span class="block text-gray-500 text-xs">Study Dashboard</span>
