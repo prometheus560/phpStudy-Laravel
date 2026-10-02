@@ -15,7 +15,11 @@ class TaskController extends Controller
             ->orderBy('deadline')
             ->get();
 
-        return view('tasks.index', compact('tasks'));
+        $subjects = Subject::where('user_id', auth()->id())
+            ->orderBy('subject_name')
+            ->get();
+
+        return view('tasks.index', compact('tasks', 'subjects'));
     }
 
     public function create()
