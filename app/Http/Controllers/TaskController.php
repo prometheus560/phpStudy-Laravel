@@ -1,52 +1,92 @@
 <?php
 
-namespace App\Models;
+namespace App\Http\Controllers;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Task;
+use App\Models\Subject;
+use Illuminate\Http\Request;
 
-class Task extends Model
+class TaskController extends Controller
 {
-    protected $fillable = [
-        'user_id',
-        'subject_id',
-        'title',
-        'deadline',
-        'priority',
-        'status'
-    ];
-
-    protected $casts = [
-        'deadline' => 'date'
-    ];
-
-    public function subject()
+    public function index()
     {
-        return $this->belongsTo(Subject::class);
+        $tasks = Task::with('subject')
+            ->where('user_id', auth()->id())
+            ->orderBy('deadline')
+            ->get();
+
+        return view('tasks.index', compact('tasks'));
     }
 
-    public function getIsOverdueAttribute(): bool
+    public function create()
     {
-        return $this->status !== 'Completed'
-            && $this->deadline->startOfDay()->lt(now()->startOfDay());
+        $subjects = Subject::where('user_id', auth()->id())
+            ->orderBy('subject_name')
+            ->get();
+
+        return view('tasks.create', compact('subjects'));
     }
 
-    public function getDueLabelAttribute(): string
+    public function store(Request $request)
     {
-        if ($this->status === 'Completed') {
-            return 'Done';
+        $request->validate([
+            'subject_id' => 'required|exists:subjects,id',
+            'task_name' => 'required|string|max:255',
+            'deadline' => 'required|date',
+            'priority' => 'required|string',
+        ]);
+
+        Task::create([
+            'user_id' => auth()->id(),
+            'subject_id' => $request->subject_id,
+            'task_name' => $request->task_name,
+            'deadline' => $request->deadline,
+            'priority' => $request->priority,
+            'status' => 'Pending',
+        ]);
+
+        return redirect()
+            ->route('tasks.index')
+            ->with('success', 'Task added successfully.');
+    }
+
+    public function update(Request $request, Task $task)
+    {
+        if ($task->user_id !== auth()->id()) {
+            abort(403);
         }
 
-        $days = (int) now()->startOfDay()
-            ->diffInDays($this->deadline->copy()->startOfDay(), false);
+        $request->validate([
+            'subject_id' => 'required|exists:subjects,id',
+            'task_name' => 'required|string|max:255',
+            'deadline' => 'required|date',
+            'priority' => 'required|string',
+            'status' => 'required|string',
+        ]);
 
-        if ($days < 0) {
-            return 'Overdue by ' . abs($days) . 'd';
+        $task->update([
+            'subject_id' => $request->subject_id,
+            'task_name' => $request->task_name,
+            'deadline' => $request->deadline,
+            'priority' => $request->priority,
+            'status' => $request->status,
+        ]);
+
+        return redirect()
+            ->route('tasks.index')
+            ->with('success', 'Task updated successfully.');
+    }
+
+    public function destroy(Task $task)
+    {
+        if ($task->user_id !== auth()->id()) {
+            abort(403);
         }
 
-        if ($days === 0) {
-            return 'Due today';
-        }
+        $task->delete();
 
-        return $days . ' day' . ($days > 1 ? 's' : '') . ' left';
+        return redirect()
+            ->route('tasks.index')
+            ->with('success', 'Task deleted successfully.');
     }
 }
