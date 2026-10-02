@@ -11,15 +11,15 @@ class TaskController extends Controller
     public function index()
     {
         $tasks = Task::with('subject')
-            ->where('user_id', auth()->id())
-            ->orderBy('deadline')
-            ->get();
+        ->where('user_id', auth()->id())
+        ->orderBy('deadline')
+        ->get();
 
-        $subjects = Subject::where('user_id', auth()->id())
-            ->orderBy('subject_name')
-            ->get();
+    $subjects = Subject::where('user_id', auth()->id())
+        ->orderBy('subject_name')
+        ->get();
 
-        return view('tasks.index', compact('tasks', 'subjects'));
+    return view('tasks.index', compact('tasks', 'subjects'));
     }
 
     public function create()
