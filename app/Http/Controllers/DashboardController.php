@@ -4,102 +4,68 @@ namespace App\Http\Controllers;
 
 use App\Models\Subject;
 use App\Models\Task;
-use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
-    private const PENDING = 'Pending';
-    private const DONE = 'Completed';
+    // Any status in this list counts as "completed". Everything else counts as pending.
+    private const DONE = ['Completed', 'completed', 'Done', 'done'];
 
-    public function index(Request $request)
+    public function index()
     {
-        $user = $request->user();
-        $uid = $user->id;
+        $user = auth()->user();
+        $uid  = $user->id;
 
-        // Greeting
-        $hour = now()->hour;
+        $hour     = now()->hour;
+        $greeting = $hour < 12 ? 'Good morning' : ($hour < 18 ? 'Good afternoon' : 'Good evening');
 
-        $greeting = match (true) {
-            $hour < 12 => 'Good morning',
-            $hour < 18 => 'Good afternoon',
-            default => 'Good evening',
-        };
-
-        // Subjects
-        $subjects = Subject::where('user_id', $uid)
-            ->withCount([
-                'tasks as tasks_count',
-                'tasks as pending_tasks_count' => fn ($query) =>
-                    $query->where('status', self::PENDING),
-            ])
-            ->get();
-
-        // Pending tasks
+        // All pending tasks, earliest deadline first
         $pendingTasks = Task::with('subject')
             ->where('user_id', $uid)
-            ->where('status', self::PENDING)
+            ->whereNotIn('status', self::DONE)
             ->orderBy('deadline')
             ->get();
 
-        // Recently completed tasks
+        $workbench = $pendingTasks->take(4);
+
+        // Upcoming: pending tasks due from today up to 7 days ahead
+        $upcoming = Task::with('subject')
+            ->where('user_id', $uid)
+            ->whereNotIn('status', self::DONE)
+            ->whereDate('deadline', '>=', today())
+            ->whereDate('deadline', '<=', today()->addDays(7))
+            ->orderBy('deadline')
+            ->take(5)
+            ->get();
+
         $recentCompleted = Task::with('subject')
             ->where('user_id', $uid)
-            ->where('status', self::DONE)
+            ->whereIn('status', self::DONE)
             ->orderByDesc('updated_at')
             ->take(4)
             ->get();
 
-        // Upcoming tasks
-        $upcoming = Task::with('subject')
-            ->where('user_id', $uid)
-            ->where('status', self::PENDING)
-            ->whereBetween('deadline', [
-                today(),
-                today()->copy()->addDays(7),
+        $subjects = Subject::where('user_id', $uid)
+            ->withCount([
+                'tasks',
+                'tasks as pending_tasks_count' => fn ($q) => $q->whereNotIn('status', self::DONE),
             ])
-            ->orderBy('deadline')
             ->get();
 
-        // Tasks due within 3 days
-        $dueSoon = Task::where('user_id', $uid)
-            ->where('status', self::PENDING)
-            ->whereBetween('deadline', [
-                today(),
-                today()->copy()->addDays(3),
-            ])
-            ->count();
-
-        // Workbench
-        $workbench = $pendingTasks->take(4);
-
-        // Dashboard statistics
         $stats = [
-            'subjects' => $subjects->count(),
-
-            'pending' => $pendingTasks->count(),
-
-            'completed' => Task::where('user_id', $uid)
-                ->where('status', self::DONE)
-                ->count(),
-
-            'high' => $pendingTasks
-                ->where('priority', 'High')
-                ->count(),
-
-            'overdue' => $pendingTasks
-                ->filter(fn ($task) => $task->deadline->lt(today()))
-                ->count(),
+            'subjects'  => $subjects->count(),
+            'pending'   => $pendingTasks->count(),
+            'completed' => Task::where('user_id', $uid)->whereIn('status', self::DONE)->count(),
+            'high'      => $pendingTasks->where('priority', 'High')->count(),
+            'overdue'   => $pendingTasks->filter(fn ($t) => $t->deadline->lt(today()))->count(),
         ];
 
-        return view('dashboard', [
-            'user' => $user,
-            'greeting' => $greeting,
-            'stats' => $stats,
-            'workbench' => $workbench,
-            'recentCompleted' => $recentCompleted,
-            'upcoming' => $upcoming,
-            'subjects' => $subjects,
-            'dueSoon' => $dueSoon,
-        ]);
+        $dueSoon = $pendingTasks->filter(
+            fn ($t) => $t->deadline->gte(today()) && $t->deadline->lte(today()->addDays(3))
+        )->count();
+
+        return view('dashboard', compact(
+            'greeting', 'user', 'dueSoon', 'stats',
+            'workbench', 'upcoming', 'recentCompleted', 'subjects'
+        ));
     }
 }
