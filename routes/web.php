@@ -18,8 +18,9 @@ use App\Http\Controllers\UpcomingTaskController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
+// Logged-in users go to the dashboard; guests are sent to login automatically
 Route::get('/', function () {
-    return redirect()->route('login');
+    return redirect()->route('dashboard');
 });
 
 

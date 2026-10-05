@@ -13,6 +13,11 @@ class AuthController extends Controller
 {
     public function showLogin()
     {
+        // NEW: already logged in? Skip the login page.
+        if (Auth::check()) {
+            return redirect()->route('dashboard');
+        }
+
         return view('auth.login');
     }
 
@@ -40,7 +45,8 @@ class AuthController extends Controller
                 ->onlyInput('email');
         }
 
-    
+
+        // The "true" keeps the user logged in even after the browser is closed.
         if (Auth::attempt(
             [
                 'email' => $email,
@@ -72,6 +78,11 @@ class AuthController extends Controller
 
     public function showRegister()
     {
+        // NEW: already logged in? Skip the register page.
+        if (Auth::check()) {
+            return redirect()->route('dashboard');
+        }
+
         return view('auth.register');
     }
 
