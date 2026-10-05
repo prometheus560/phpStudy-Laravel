@@ -167,8 +167,8 @@
             </a>
         </div>
 
-        {{-- Navigation --}}
-        <nav class="sidebar-scroll flex-1 overflow-y-auto px-3 py-4">
+        {{-- Navigation (id added so the scroll position can be remembered) --}}
+        <nav id="sidebarNav" class="sidebar-scroll flex-1 overflow-y-auto px-3 py-4">
 
             @foreach ($nav as $section => $links)
 
@@ -180,6 +180,7 @@
 
                     <a
                         href="{{ route($routeName) }}"
+                        {{ request()->routeIs($pattern) ? 'data-active=1' : '' }}
                         class="flex items-center gap-3 px-3 py-2 mb-0.5 rounded-lg text-sm {{ request()->routeIs($pattern) ? 'bg-blue-600/15 text-blue-300 font-medium' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">
 
                         <svg
@@ -215,6 +216,32 @@
             @endforeach
 
         </nav>
+
+        {{-- NEW: keeps the sidebar scroll position between pages.
+             Runs right after the menu is drawn, so there is no jump. --}}
+        <script>
+            (function () {
+                var nav = document.getElementById('sidebarNav');
+                if (!nav) return;
+
+                var KEY = 'sidebarScrollTop';
+                var saved = null;
+
+                try { saved = sessionStorage.getItem(KEY); } catch (e) {}
+
+                if (saved !== null) {
+                    nav.scrollTop = parseInt(saved, 10) || 0;
+                } else {
+                    // First visit: make sure the current page's menu item is visible
+                    var active = nav.querySelector('a[data-active]');
+                    if (active) active.scrollIntoView({ block: 'nearest' });
+                }
+
+                nav.addEventListener('scroll', function () {
+                    try { sessionStorage.setItem(KEY, nav.scrollTop); } catch (e) {}
+                }, { passive: true });
+            })();
+        </script>
 
         {{-- User card --}}
         <div class="border-t border-[#23232f] p-3">
