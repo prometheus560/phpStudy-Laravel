@@ -27,7 +27,7 @@ class Task extends Model
     public function getIsOverdueAttribute(): bool
     {
         return $this->status !== 'Completed'
-            && $this->deadline->startOfDay()->lt(now()->startOfDay());
+            && $this->deadline->copy()->startOfDay()->lt(now()->startOfDay());
     }
 
     public function getDueLabelAttribute(): string
@@ -38,10 +38,7 @@ class Task extends Model
 
         $days = (int) now()
             ->startOfDay()
-            ->diffInDays(
-                $this->deadline->copy()->startOfDay(),
-                false
-            );
+            ->diffInDays($this->deadline->copy()->startOfDay(), false);
 
         if ($days < 0) {
             return 'Overdue by ' . abs($days) . 'd';

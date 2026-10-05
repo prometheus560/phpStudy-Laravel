@@ -93,10 +93,12 @@ Route::middleware('auth')->group(function () {
     Route::patch('/tasks/{task}', [TaskController::class, 'update'])
         ->name('tasks.update');
 
+    // NEW: Done button
+    Route::patch('/tasks/{task}/complete', [TaskController::class, 'complete'])
+        ->name('tasks.complete');
+
     Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])
         ->name('tasks.destroy');
-    Route::patch('/tasks/{task}/complete', [TaskController::class, 'complete'])
-         ->name('tasks.complete');
 
 
     // Completed Tasks

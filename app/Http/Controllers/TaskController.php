@@ -8,18 +8,33 @@ use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
+    // Only tasks that belong to the logged-in user's subjects
+    private function ownedByMe($query)
+    {
+        return $query->whereHas('subject', fn ($q) => $q->where('user_id', auth()->id()));
+    }
+
+    // Stops a user from loading or changing another user's task
+    private function authorizeTask(Task $task): void
+    {
+        $task->loadMissing('subject');
+
+        if (!$task->subject || $task->subject->user_id !== auth()->id()) {
+            abort(403);
+        }
+    }
+
     public function index()
     {
-        $tasks = Task::with('subject')
-        ->where('user_id', auth()->id())
-        ->orderBy('deadline')
-        ->get();
+        $tasks = $this->ownedByMe(Task::with('subject'))
+            ->orderBy('deadline')
+            ->get();
 
-    $subjects = Subject::where('user_id', auth()->id())
-        ->orderBy('subject_name')
-        ->get();
+        $subjects = Subject::where('user_id', auth()->id())
+            ->orderBy('subject_name')
+            ->get();
 
-    return view('tasks.index', compact('tasks', 'subjects'));
+        return view('tasks.index', compact('tasks', 'subjects'));
     }
 
     public function create()
@@ -35,18 +50,23 @@ class TaskController extends Controller
     {
         $request->validate([
             'subject_id' => 'required|exists:subjects,id',
-            'task_name' => 'required|string|max:255',
-            'deadline' => 'required|date',
-            'priority' => 'required|string',
+            'task_name'  => 'required|string|max:255',
+            'deadline'   => 'required|date',
+            'priority'   => 'required|string',
         ]);
 
+        // The chosen subject must belong to this user
+        Subject::where('id', $request->subject_id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
         Task::create([
-            'user_id' => auth()->id(),
+            'user_id'    => auth()->id(),
             'subject_id' => $request->subject_id,
-            'task_name' => $request->task_name,
-            'deadline' => $request->deadline,
-            'priority' => $request->priority,
-            'status' => 'Pending',
+            'task_name'  => $request->task_name,
+            'deadline'   => $request->deadline,
+            'priority'   => $request->priority,
+            'status'     => 'Pending',
         ]);
 
         return redirect()
@@ -56,24 +76,26 @@ class TaskController extends Controller
 
     public function update(Request $request, Task $task)
     {
-        if ($task->user_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorizeTask($task);
 
         $request->validate([
             'subject_id' => 'required|exists:subjects,id',
-            'task_name' => 'required|string|max:255',
-            'deadline' => 'required|date',
-            'priority' => 'required|string',
-            'status' => 'required|string',
+            'task_name'  => 'required|string|max:255',
+            'deadline'   => 'required|date',
+            'priority'   => 'required|string',
+            'status'     => 'required|string',
         ]);
+
+        Subject::where('id', $request->subject_id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
 
         $task->update([
             'subject_id' => $request->subject_id,
-            'task_name' => $request->task_name,
-            'deadline' => $request->deadline,
-            'priority' => $request->priority,
-            'status' => $request->status,
+            'task_name'  => $request->task_name,
+            'deadline'   => $request->deadline,
+            'priority'   => $request->priority,
+            'status'     => $request->status,
         ]);
 
         return redirect()
@@ -81,11 +103,19 @@ class TaskController extends Controller
             ->with('success', 'Task updated successfully.');
     }
 
+    // NEW: used by the Done button on the dashboard
+    public function complete(Task $task)
+    {
+        $this->authorizeTask($task);
+
+        $task->update(['status' => 'Completed']);
+
+        return back()->with('success', 'Task marked as completed.');
+    }
+
     public function destroy(Task $task)
     {
-        if ($task->user_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorizeTask($task);
 
         $task->delete();
 
