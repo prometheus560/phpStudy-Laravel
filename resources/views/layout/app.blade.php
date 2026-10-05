@@ -91,13 +91,6 @@
         ],
     ];
 
-    /*
-     * Pending task count for the currently logged-in user.
-     *
-     * IMPORTANT:
-     * We use tasks.user_id directly so the badge matches
-     * the same user ownership used by TaskController.
-     */
     $pendingCount = 0;
 
     if (auth()->check()) {
