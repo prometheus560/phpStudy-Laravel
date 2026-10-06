@@ -31,7 +31,7 @@
     {{-- Greeting --}}
     <div class="mb-6">
         <h2 class="text-3xl font-bold text-white">{{ $greeting }}, {{ $user->name }}</h2>
-        <p class="text-gray-400 text-sm mt-1">Your Study Progress.</p>
+        <p class="text-gray-400 text-sm mt-1">Overview of Today's Study.</p>
     </div>
 
     {{-- NEW: success message after clicking Done --}}
