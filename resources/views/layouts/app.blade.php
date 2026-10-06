@@ -123,10 +123,6 @@
                 <span class="block text-white font-semibold text-sm leading-tight">
                     Student Study Planner
                 </span>
-
-                <span class="block text-gray-500 text-xs">
-                     Dashboard
-                </span>
             </span>
         </a>
 
