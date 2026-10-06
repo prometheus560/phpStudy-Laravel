@@ -21,7 +21,8 @@
         $days = (int) today()->diffInDays($deadline->copy()->startOfDay(), false);
         if ($days < 0)   return 'Overdue by ' . abs($days) . 'd';
         if ($days === 0) return 'Due today';
-        return $days . ' day' . ($days > 1 ? 's' : '') . ' left';
+        if ($days === 1) return 'Due tomorrow';
+        return $days . ' days left';
     };
 @endphp
 
@@ -46,7 +47,16 @@
            class="flex items-center justify-between bg-yellow-500/10 border border-yellow-500/25 text-yellow-300 text-sm rounded-xl px-4 py-3 mb-6 hover:bg-yellow-500/15">
             <span class="flex items-center gap-3">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                {{ $dueSoon }} {{ $dueSoon == 1 ? 'task is' : 'tasks are' }} due within the next 3 days
+                <span>
+                    {{ $dueSoon }} {{ $dueSoon == 1 ? 'task is' : 'tasks are' }} due soon:
+                    {{-- NEW: names the tasks --}}
+                    <strong class="font-semibold">
+                        @foreach ($dueSoonTasks->take(2) as $t)
+                            {{ \Illuminate\Support\Str::limit($t->task_name, 40) }} ({{ strtolower($dueLabel($t->deadline)) }}){{ !$loop->last ? ',' : '' }}
+                        @endforeach
+                        @if ($dueSoon > 2) and {{ $dueSoon - 2 }} more @endif
+                    </strong>
+                </span>
             </span>
             <span>&rsaquo;</span>
         </a>
@@ -195,7 +205,7 @@
                         @endif
                     </div>
                 @empty
-                    <p class="text-center text-gray-500 text-sm py-6">Nothing due in the next 7 days.</p>
+                    <p class="text-center text-gray-500 text-sm py-6">No upcoming tasks.</p>
                 @endforelse
             </div>
 
@@ -231,5 +241,32 @@
     </div>
 
 </div>
+
+@push('scripts')
+{{-- NEW: refreshes the dashboard by itself when the date changes (midnight),
+     so "Due tomorrow" becomes "Due today", "Overdue", etc. without pressing refresh. --}}
+<script>
+    (function () {
+        function today() {
+            var d = new Date();
+            return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+        }
+
+        var loadedOn = today();
+
+        function check() {
+            if (today() !== loadedOn) {
+                window.location.reload();
+            }
+        }
+
+        setInterval(check, 30000);                       // every 30 seconds
+        window.addEventListener('focus', check);         // when you come back to the window
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden) check();               // when you switch back to the tab
+        });
+    })();
+</script>
+@endpush
 
 @endsection
