@@ -51,7 +51,7 @@
                     {{ $dueSoon }} {{ $dueSoon == 1 ? 'task is' : 'tasks are' }} due soon:
                     {{-- NEW: names the tasks --}}
                     <strong class="font-semibold">
-                        @foreach ($dueSoonTasks->take(2) as $t)
+                        @foreach (collect($dueSoonTasks ?? [])->take(2) as $t)
                             {{ \Illuminate\Support\Str::limit($t->task_name, 40) }} ({{ strtolower($dueLabel($t->deadline)) }}){{ !$loop->last ? ',' : '' }}
                         @endforeach
                         @if ($dueSoon > 2) and {{ $dueSoon - 2 }} more @endif

@@ -32,13 +32,8 @@ class DashboardController extends Controller
 
         $workbench = $pendingTasks->take(4);
 
-        $upcoming = $this->myTasks($uid)
-            ->whereNotIn('status', self::DONE)
-            ->whereDate('deadline', '>=', today())
-            ->whereDate('deadline', '<=', today()->addDays(7))
-            ->orderBy('deadline')
-            ->take(5)
-            ->get();
+        // Upcoming: same list as the Upcoming Tasks page (pending, nearest deadline first)
+        $upcoming = $pendingTasks->take(5);
 
         $recentCompleted = $this->myTasks($uid)
             ->whereIn('status', self::DONE)
@@ -61,12 +56,15 @@ class DashboardController extends Controller
             'overdue'   => $pendingTasks->filter(fn ($t) => $t->deadline->lt(today()))->count(),
         ];
 
-        $dueSoon = $pendingTasks->filter(
+        // Tasks due within the next 3 days (shown in the yellow banner)
+        $dueSoonTasks = $pendingTasks->filter(
             fn ($t) => $t->deadline->gte(today()) && $t->deadline->lte(today()->addDays(3))
-        )->count();
+        )->values();
+
+        $dueSoon = $dueSoonTasks->count();
 
         return view('dashboard', compact(
-            'greeting', 'user', 'dueSoon', 'stats',
+            'greeting', 'user', 'dueSoon', 'dueSoonTasks', 'stats',
             'workbench', 'upcoming', 'recentCompleted', 'subjects'
         ));
     }
