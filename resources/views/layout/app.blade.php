@@ -29,7 +29,7 @@
 <body class="bg-[#0a0a12] text-gray-200 min-h-screen">
 
 @php
-    // Simple line icons (24x24)
+    // Simple line icons
     $icons = [
         'home' => '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
 
@@ -125,7 +125,7 @@
                 </span>
 
                 <span class="block text-gray-500 text-xs">
-                    Study Dashboard
+                    Dashboard
                 </span>
             </span>
         </a>
