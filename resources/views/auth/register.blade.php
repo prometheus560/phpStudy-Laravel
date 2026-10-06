@@ -80,7 +80,7 @@ background:radial-gradient(60rem 40rem at 8% -10%,rgba(59,130,246,.20),transpare
 <main class="shell">
 
     <section class="brand">
-        <div class="logo"><img src="{{ asset('logo.png') }}" alt="Study Planner logo"></div>
+        <div class="logo"><img src="{{ asset('logo.jpg') }}" alt="Study Planner logo"></div>
         <h1>Start your<br><span>study journey.</span></h1>
         <p class="lead">Create your free account and start organizing your subjects, tasks and study schedule in minutes.</p>
         <ul class="feats"><li><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></i>Organize all your subjects in one place</li><li><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></i>Never miss a deadline with live countdowns</li><li><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></i>Focus on what matters with priorities</li></ul><div class="preview" aria-hidden="true"><small>Sample preview</small><div class="prow"><span>Research paper</span><span class="chip hot">Due tomorrow</span></div><div class="prow"><span>Design project</span><span class="chip cool">12 days left</span></div></div>
