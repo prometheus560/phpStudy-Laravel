@@ -18,7 +18,6 @@
         rule="FIFO"
         desc="Pending tasks are arranged in queue order, with the task having the nearest deadline processed first."
         complexity="enqueue O(1) · dequeue O(n) (PHP array_shift re-indexes the array)"
-        :trace="$trace"
     >
 
         @if (count($waiting) > 0)
