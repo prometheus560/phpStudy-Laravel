@@ -9,7 +9,7 @@
     <div class="mb-6">
         <h2 class="text-2xl font-bold text-white">Sorted Tasks</h2>
         <p class="text-gray-400 text-sm mt-1">
-            Your tasks sorted by deadline, earliest first, using Bubble Sort.
+            Your tasks sorted by deadline, earliest first.
         </p>
     </div>
 
