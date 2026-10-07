@@ -7,15 +7,14 @@
 <div class="max-w-3xl mx-auto px-6 py-8">
 
     <div class="mb-6">
-        <h2 class="text-2xl font-bold text-white">Sort Subjects</h2>
-        <p class="text-gray-400 text-sm mt-1">Your subjects sorted alphabetically using Selection Sort.</p>
+        <h2 class="text-2xl font-bold text-white">Subjects</h2>
+
     </div>
 
     <div class="bg-[#14141f] border border-[#23232f] rounded-xl shadow-sm p-5">
 
-        <h3 class="text-lg font-bold text-white mb-1">Alphabetical Subject Order</h3>
-        <p class="text-gray-400 text-sm mb-6">This page uses Selection Sort to arrange your subjects alphabetically.</p>
-
+        <h3 class="text-lg font-bold text-white mb-1">Your Subjects</h3>
+       
         @if (count($subjects) > 0)
 
             @php $number = 1; @endphp
