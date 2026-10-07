@@ -15,6 +15,9 @@ class SelectionSortController extends Controller
             ->get()
             ->all();
 
+        $original = array_map(fn ($s) => $s->subject_name, $subjects);
+        $steps = [];
+
         // Selection Sort
         $n = count($subjects);
 
@@ -34,6 +37,8 @@ class SelectionSortController extends Controller
                 }
             }
 
+            $swapped = false;
+
             if ($smallest != $i) {
 
                 $temp = $subjects[$i];
@@ -41,9 +46,19 @@ class SelectionSortController extends Controller
                 $subjects[$i] = $subjects[$smallest];
 
                 $subjects[$smallest] = $temp;
+
+                $swapped = true;
             }
+
+            // Remember what happened in this pass
+            $steps[] = [
+                'number'  => $i + 1,
+                'picked'  => $subjects[$i]->subject_name,
+                'swapped' => $swapped,
+                'order'   => array_map(fn ($s) => $s->subject_name, $subjects),
+            ];
         }
 
-        return view('selection_sort.index', compact('subjects'));
+        return view('selection_sort.index', compact('subjects', 'original', 'steps'));
     }
 }

@@ -60,6 +60,47 @@
 
     </div>
 
+    {{-- How the sort worked --}}
+    @if (count($steps) > 0)
+        <details class="mt-6 bg-[#14141f] border border-[#23232f] rounded-xl p-5">
+            <summary class="cursor-pointer text-sm font-semibold text-blue-400">
+                See how Selection Sort did it
+            </summary>
+
+            <p class="text-gray-400 text-sm mt-3">
+                Each pass looks through the part of the list that isn't sorted yet, finds the
+                alphabetically first subject, and moves it to the front of that part.
+            </p>
+
+            <div class="mt-4">
+                <p class="text-sm font-semibold text-gray-200">Start</p>
+                <ol class="mt-1.5 text-sm text-gray-400 list-decimal list-inside">
+                    @foreach ($original as $name)
+                        <li class="truncate">{{ $name }}</li>
+                    @endforeach
+                </ol>
+            </div>
+
+            <div class="mt-4 flex flex-col gap-4">
+                @foreach ($steps as $step)
+                    <div>
+                        <p class="text-sm font-semibold text-gray-200">
+                            Pass {{ $step['number'] }}
+                            <span class="font-normal text-gray-400">
+                                &middot; picked {{ $step['picked'] }}{{ $step['swapped'] ? '' : ' (already in place)' }}
+                            </span>
+                        </p>
+                        <ol class="mt-1.5 text-sm text-gray-400 list-decimal list-inside">
+                            @foreach ($step['order'] as $name)
+                                <li class="truncate {{ $loop->iteration <= $step['number'] ? 'text-gray-200' : '' }}">{{ $name }}</li>
+                            @endforeach
+                        </ol>
+                    </div>
+                @endforeach
+            </div>
+        </details>
+    @endif
+
 </div>
 
 @endsection

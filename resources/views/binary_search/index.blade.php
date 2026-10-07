@@ -38,6 +38,43 @@
                 {{ $message }}
             </div>
         @endif
+
+        {{-- Steps the search took --}}
+        @if (count($steps) > 0)
+            <details class="mt-4" open>
+                <summary class="cursor-pointer text-sm font-semibold text-blue-400">
+                    See the steps ({{ count($steps) }} {{ count($steps) == 1 ? 'check' : 'checks' }} instead of looking at all {{ $subjects->count() }})
+                </summary>
+
+                <p class="text-gray-400 text-sm mt-3">
+                    Binary Search looks at the middle of the sorted list and throws away the half that
+                    can't contain your subject. It repeats until it finds it or runs out of list.
+                </p>
+
+                <div class="mt-3 overflow-x-auto">
+                    <table class="w-full text-sm text-left">
+                        <thead>
+                            <tr class="text-gray-400 border-b border-[#23232f]">
+                                <th class="py-2 pr-3 font-semibold">Step</th>
+                                <th class="py-2 pr-3 font-semibold">Searching</th>
+                                <th class="py-2 pr-3 font-semibold">Middle</th>
+                                <th class="py-2 font-semibold">What happened</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-300">
+                            @foreach ($steps as $i => $step)
+                                <tr class="border-b border-[#23232f] last:border-0">
+                                    <td class="py-2 pr-3">{{ $i + 1 }}</td>
+                                    <td class="py-2 pr-3 whitespace-nowrap">{{ $step['low'] }} to {{ $step['high'] }}</td>
+                                    <td class="py-2 pr-3">#{{ $step['mid'] }} {{ $step['name'] }}</td>
+                                    <td class="py-2">{{ $step['result'] }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </details>
+        @endif
     </div>
 
     {{-- Subject list --}}
