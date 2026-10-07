@@ -30,7 +30,7 @@
         <div class="flex items-center justify-between mb-5">
 
             <h3 class="text-lg font-bold text-white">
-                Dequeue order
+                Task in order
             </h3>
 
             <span class="text-xs font-semibold text-gray-400">
