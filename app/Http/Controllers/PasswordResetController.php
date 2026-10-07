@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Password;
 
 class PasswordResetController extends Controller
 {
@@ -117,9 +118,13 @@ class PasswordResetController extends Controller
             'password' => [
                 'required',
                 'string',
-                'min:8',
                 'confirmed',
+                // Same rule as the Create Account page
+                Password::min(8)->letters()->numbers(),
             ],
+        ], [
+            'password.confirmed' => 'The two passwords do not match.',
+            'password.min'       => 'Your password must be at least 8 characters.',
         ]);
 
         $email = strtolower(trim($validated['email']));
@@ -151,11 +156,11 @@ class PasswordResetController extends Controller
             ]);
         }
 
-        $user->update([
-            'password' => Hash::make(
-                $validated['password']
-            ),
-        ]);
+        // Also replaces the "remember me" token, so other devices must log in again
+        $user->forceFill([
+            'password' => Hash::make($validated['password']),
+            'remember_token' => Str::random(60),
+        ])->save();
 
         Cache::forget(
             'password-reset:' . hash(

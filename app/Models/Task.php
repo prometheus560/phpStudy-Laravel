@@ -48,6 +48,10 @@ class Task extends Model
             return 'Due today';
         }
 
-        return $days . ' day' . ($days > 1 ? 's' : '') . ' left';
+        if ($days === 1) {
+            return 'Due tomorrow';
+        }
+
+        return $days . ' days left';
     }
 }

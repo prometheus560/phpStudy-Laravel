@@ -1,291 +1,186 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reset Password - Study Planner</title>
-
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+:root{--bg:#07070d;--card:rgba(20,20,31,.78);--line:rgba(255,255,255,.08);--field:#12121c;--field-line:#262636;--text:#e7e9f0;--muted:#8b90a5;--blue:#3b82f6;--indigo:#6366f1;--red:#f87171;--green:#4ade80;--amber:#fbbf24}
+*{box-sizing:border-box;margin:0;padding:0}
+html{color-scheme:dark}
+body{font-family:'Inter',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px;
+background:radial-gradient(60rem 40rem at 8% -10%,rgba(59,130,246,.20),transparent 60%),radial-gradient(50rem 40rem at 110% 110%,rgba(99,102,241,.16),transparent 60%),var(--bg);-webkit-font-smoothing:antialiased}
+.shell{width:100%;max-width:1080px;display:grid;grid-template-columns:1.05fr 1fr;gap:72px;align-items:center}
+.logo{width:64px;height:64px;background:#fff;border-radius:16px;display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 10px 30px rgba(59,130,246,.25),0 0 0 1px rgba(255,255,255,.1);margin-bottom:28px}
+.logo img{width:100%;height:100%;object-fit:contain}
+.brand h1{font-size:clamp(34px,4.4vw,52px);line-height:1.08;font-weight:700;letter-spacing:-.03em;color:#fff;margin-bottom:16px}
+.brand h1 span{background:linear-gradient(90deg,#60a5fa,#818cf8);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{color:var(--muted);font-size:18px;line-height:1.6;max-width:480px}
+.feats{list-style:none;margin-top:32px;display:grid;gap:14px}
+.feats li{display:flex;align-items:center;gap:14px;color:#c9ccda;font-size:15px}
+.feats i{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.28);color:#7db4ff;flex:none}
+.feats svg{width:19px;height:19px}
+.preview{margin-top:34px;max-width:400px;padding:16px 18px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+.preview small{display:block;color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px}
+.prow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 0;font-size:14px;border-top:1px solid var(--line)}
+.prow:first-of-type{border-top:0}
+.chip{font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px;white-space:nowrap}
+.chip.hot{background:rgba(251,191,36,.12);color:var(--amber)}.chip.cool{background:rgba(74,222,128,.12);color:var(--green)}
+.card{background:var(--card);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--line);border-radius:22px;padding:40px;box-shadow:0 30px 80px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.05)}
+.card h2{font-size:26px;font-weight:700;letter-spacing:-.02em;color:#fff;margin-bottom:6px}
+.sub{color:var(--muted);font-size:14px;margin-bottom:26px}
+.alert{padding:12px 14px;border-radius:12px;margin-bottom:20px;font-size:13px;line-height:1.5}
+.alert.err{background:rgba(248,113,113,.1);color:#fca5a5;border:1px solid rgba(248,113,113,.25)}
+.alert.ok{background:rgba(74,222,128,.1);color:#86efac;border:1px solid rgba(74,222,128,.25)}
+.alert ul{padding-left:18px}
+.field{margin-bottom:18px}
+.field>label{display:block;font-size:13px;font-weight:600;color:#cfd2e0;margin-bottom:8px}
+.control{position:relative}
+.control .ic{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:#6d7288;pointer-events:none;transition:color .2s}
+.control input{width:100%;height:48px;padding:0 46px 0 44px;background:var(--field);border:1px solid var(--field-line);border-radius:12px;color:#f4f5fa;font:inherit;font-size:15px;transition:border-color .2s,box-shadow .2s,background .2s}
+.control input::placeholder{color:#5f6479}
+.control input:hover{border-color:#34364a}
+.control input:focus{outline:0;border-color:var(--blue);background:#14141f;box-shadow:0 0 0 4px rgba(59,130,246,.16)}
+.control:focus-within .ic{color:#7db4ff}
+.control input.bad{border-color:var(--red)}
+.eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:36px;height:36px;border:0;background:transparent;color:#7a7f95;border-radius:9px;cursor:pointer;display:grid;place-items:center}
+.eye:hover{color:#fff;background:rgba(255,255,255,.06)}.eye svg{width:18px;height:18px}.eye .off{display:none}.eye.on .off{display:block}.eye.on .open{display:none}
+.hint{font-size:12px;margin-top:7px;min-height:16px;color:var(--muted)}.hint.warn{color:var(--amber)}.hint.ok{color:var(--green)}.hint.bad{color:var(--red)}
+.meter{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.meter span{height:4px;border-radius:99px;background:#232334;transition:background .25s}
+.meter[data-s="1"] span:nth-child(-n+1){background:var(--red)}.meter[data-s="2"] span:nth-child(-n+2){background:#fb923c}
+.meter[data-s="3"] span:nth-child(-n+3){background:var(--amber)}.meter[data-s="4"] span{background:var(--green)}
+.rules{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.rules span{font-size:12px;padding:4px 10px;border-radius:99px;border:1px solid var(--field-line);color:var(--muted);transition:.2s}
+.rules span.ok{color:var(--green);border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.08)}
+.row{display:flex;justify-content:space-between;align-items:center;margin:2px 0 22px;font-size:13px}
+.check{display:flex;align-items:center;gap:8px;color:var(--muted);cursor:pointer}.check input{width:16px;height:16px;accent-color:var(--blue)}
+.link{color:#7db4ff;text-decoration:none;font-weight:600}.link:hover{color:#a9cdff;text-decoration:underline}
+.btn{width:100%;height:50px;border:0;border-radius:12px;font:inherit;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;text-decoration:none;transition:transform .15s,box-shadow .2s,background .2s}
+.btn.primary{color:#fff;background:linear-gradient(135deg,#3b82f6,#4f46e5);box-shadow:0 10px 28px rgba(59,130,246,.35)}
+.btn.primary:hover{transform:translateY(-1px);box-shadow:0 14px 34px rgba(59,130,246,.45)}
+.btn.primary:active{transform:translateY(0)}.btn:disabled{opacity:.75;cursor:wait;transform:none}
+.btn.ghost{height:46px;background:rgba(255,255,255,.03);border:1px solid var(--field-line);color:#cfd2e0;font-weight:600;font-size:14px}
+.btn.ghost:hover{border-color:var(--blue);color:#a9cdff;background:rgba(59,130,246,.08)}
+.spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:r .7s linear infinite;display:none}
+.btn.loading .spin{display:block}@keyframes r{to{transform:rotate(360deg)}}
+.or{display:flex;align-items:center;gap:14px;margin:22px 0;color:#5f6479;font-size:12px;letter-spacing:.08em}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+.foot{text-align:center;margin-top:22px;font-size:12px;color:#5f6479}
+:focus-visible{outline:2px solid #7db4ff;outline-offset:2px}
+@media(max-width:900px){body{padding:20px;align-items:flex-start}.shell{grid-template-columns:1fr;gap:28px;max-width:480px;margin:auto}
+.brand{text-align:center}.logo{margin:0 auto 18px;width:56px;height:56px}.lead{margin:auto;font-size:16px}.feats,.preview{display:none}.brand h1{font-size:34px}}
+@media(max-width:450px){.card{padding:28px 20px;border-radius:18px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
-        body {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #0a0a12;
-            background-image:
-                radial-gradient(circle at 20% 20%, rgba(255,255,255,0.04) 1px, transparent 1px),
-                radial-gradient(circle at 70% 60%, rgba(255,255,255,0.03) 1px, transparent 1px),
-                radial-gradient(circle at 40% 80%, rgba(255,255,255,0.03) 1px, transparent 1px);
-            background-size: 140px 140px, 180px 180px, 160px 160px;
-            font-family: Arial, sans-serif;
-            color: #e5e7eb;
-            padding: 20px;
-        }
-
-        .card {
-            width: 100%;
-            max-width: 420px;
-            background: #14141f;
-            border: 1px solid #23232f;
-            padding: 40px 36px;
-            border-radius: 16px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        }
-
-        .logo {
-            width: 56px;
-            height: 56px;
-            margin: 0 auto 20px;
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            color: white;
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 20px;
-            box-shadow: 0 8px 20px rgba(37,99,235,0.35);
-        }
-
-        h1 {
-            text-align: center;
-            margin-bottom: 10px;
-            color: #f9fafb;
-            font-size: 24px;
-        }
-
-        .description {
-            text-align: center;
-            color: #8b8fa3;
-            font-size: 13px;
-            margin-bottom: 28px;
-        }
-
-        .errors {
-            padding: 12px 15px;
-            background: rgba(239,68,68,0.12);
-            color: #f87171;
-            border: 1px solid rgba(244, 66, 66, 0.25);
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 13px;
-        }
-
-        .errors ul {
-            padding-left: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 7px;
-            font-weight: bold;
-            font-size: 13px;
-            color: #c7c9d9;
-        }
-
-        .field {
-            position: relative;
-            margin-bottom: 18px;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px 13px;
-            border: 1px solid #2a2a38;
-            border-radius: 8px;
-            font-size: 14px;
-            font-family: Arial, sans-serif;
-            background: #1b1b28;
-            color: #f3f4f6;
-        }
-
-        input::placeholder {
-            color: #6b7080;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59,130,246,0.18);
-        }
-
-        .password {
-            padding-right: 65px;
-        }
-
-        .show {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            border: none;
-            background: transparent;
-            color: #60a5fa;
-            font-weight: bold;
-            font-size: 13px;
-            cursor: pointer;
-        }
-
-        .show:hover {
-            color: #93c5fd;
-        }
-
-        .submit {
-            width: 100%;
-            padding: 13px;
-            border: none;
-            border-radius: 8px;
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            color: white;
-            font-weight: bold;
-            font-size: 15px;
-            cursor: pointer;
-            box-shadow: 0 6px 16px rgba(37,99,235,0.35);
-        }
-
-        .submit:hover {
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
-        }
-
-        .back {
-            display: block;
-            text-align: center;
-            margin-top: 22px;
-            color: #60a5fa;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 14px;
-        }
-
-        .back:hover {
-            color: #93c5fd;
-            text-decoration: underline;
-        }
-    </style>
+.solo{width:100%;max-width:440px}.solo .logo{margin:0 auto 22px}.solo h2,.solo .sub{text-align:center}
+.note{display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--muted);background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:20px;line-height:1.5}
+.note svg{width:18px;height:18px;flex:none;margin-top:1px;color:#7db4ff}
+.back{display:block;text-align:center;margin-top:20px;font-size:14px}
+</style>
 </head>
-
 <body>
+<main class="solo">
+    <section class="card">
+        <div class="logo"><img src="{{ asset('logo.png') }}" alt="Study Planner logo"></div>
+        <h2>Set a new password</h2>
+        <p class="sub">Choose a strong password for<br><strong style="color:#cfd2e0">{{ $email }}</strong></p>
 
-<div class="card">
+        @if ($errors->any())
+            <div class="alert err" role="alert">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
-    <div class="logo">
-        SP
-    </div>
+        <form method="POST" action="{{ route('password.update') }}">
+            @csrf
 
-    <h1>Reset Password</h1>
+            <input type="hidden" name="token" value="{{ $token }}">
+            <input type="hidden" name="email" value="{{ $email }}">
 
-    <p class="description">
-        Create a new password for your Study Planner account.
-    </p>
+            <div class="field">
+                <label for="password">New password</label>
+                <div class="control">
+                    <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+                    <input type="password" id="password" name="password" placeholder="Enter new password" autocomplete="new-password" class="{{ $errors->has('password') ? 'bad' : '' }}" required autofocus>
+                    <button type="button" class="eye" data-eye="password" aria-label="Show password"><svg class="open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.9 10.9 0 0 1 12 19c-7 0-11-7-11-7a19 19 0 0 1 5.06-5.94M9.9 4.24A10.9 10.9 0 0 1 12 5c7 0 11 7 11 7a19 19 0 0 1-3.16 4.19M1 1l22 22"/></svg></button>
+                </div>
+                <div class="meter" id="meter" data-s="0" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+                <p class="hint" id="strength" aria-live="polite">Use at least 8 characters.</p>
+                <div class="rules">
+                    <span id="rLen">8+ characters</span>
+                    <span id="rLet">A letter</span>
+                    <span id="rNum">A number</span>
+                </div>
+            </div>
 
-    @if ($errors->any())
-        <div class="errors">
-            <ul>
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+            <div class="field">
+                <label for="password_confirmation">Confirm password</label>
+                <div class="control">
+                    <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+                    <input type="password" id="password_confirmation" name="password_confirmation" placeholder="Re-enter new password" autocomplete="new-password" required>
+                    <button type="button" class="eye" data-eye="password_confirmation" aria-label="Show password"><svg class="open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.9 10.9 0 0 1 12 19c-7 0-11-7-11-7a19 19 0 0 1 5.06-5.94M9.9 4.24A10.9 10.9 0 0 1 12 5c7 0 11 7 11 7a19 19 0 0 1-3.16 4.19M1 1l22 22"/></svg></button>
+                </div>
+                <p class="hint" id="match" aria-live="polite"></p>
+            </div>
 
-    <form method="POST" action="{{ route('password.update') }}">
-        @csrf
+            <button type="submit" class="btn primary"><span class="spin"></span><span class="label">Change password</span></button>
+        </form>
 
-        <input
-            type="hidden"
-            name="token"
-            value="{{ $token }}"
-        >
-
-        <input
-            type="hidden"
-            name="email"
-            value="{{ $email }}"
-        >
-
-        <label for="password">
-            New Password
-        </label>
-
-        <div class="field">
-
-            <input
-                type="password"
-                id="password"
-                name="password"
-                class="password"
-                placeholder="Enter new password"
-                required
-            >
-
-            <button
-                type="button"
-                class="show"
-                onclick="togglePassword('password', this)"
-            >
-                Show
-            </button>
-
-        </div>
-
-        <label for="password_confirmation">
-            Confirm Password
-        </label>
-
-        <div class="field">
-
-            <input
-                type="password"
-                id="password_confirmation"
-                name="password_confirmation"
-                class="password"
-                placeholder="Confirm new password"
-                required
-            >
-
-            <button
-                type="button"
-                class="show"
-                onclick="togglePassword('password_confirmation', this)"
-            >
-                Show
-            </button>
-
-        </div>
-
-        <button type="submit" class="submit">
-            Change Password
-        </button>
-
-    </form>
-
-    <a href="{{ route('login') }}" class="back">
-        Back to Login
-    </a>
-
-</div>
+        <a href="{{ route('login') }}" class="link back">&larr; Back to login</a>
+    </section>
+</main>
 
 <script>
-function togglePassword(id, button) {
-    const input = document.getElementById(id);
+(function () {
+    document.querySelectorAll('[data-eye]').forEach(function (b) {
+        b.addEventListener('click', function () {
+            var i = document.getElementById(b.dataset.eye), show = i.type === 'password';
+            i.type = show ? 'text' : 'password';
+            b.classList.toggle('on', show);
+            b.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+        });
+    });
+    var form = document.querySelector('form'), btn = form.querySelector('.btn.primary'), lbl = btn.querySelector('.label'), idle = lbl.textContent;
+    function busy(t) { btn.disabled = true; btn.classList.add('loading'); lbl.textContent = t; }
+    window.addEventListener('pageshow', function () { btn.disabled = false; btn.classList.remove('loading'); lbl.textContent = idle; });
 
-    if (input.type === 'password') {
-        input.type = 'text';
-        button.textContent = 'Hide';
-    } else {
-        input.type = 'password';
-        button.textContent = 'Show';
+    var pw = document.getElementById('password'), cf = document.getElementById('password_confirmation');
+    var meter = document.getElementById('meter'), st = document.getElementById('strength'), mt = document.getElementById('match');
+    var labels = ['Use at least 8 characters.', 'Weak password', 'Fair password', 'Good password', 'Strong password'];
+
+    function strength() {
+        var v = pw.value, len = v.length >= 8, let_ = /[A-Za-z]/.test(v), num = /[0-9]/.test(v);
+        document.getElementById('rLen').classList.toggle('ok', len);
+        document.getElementById('rLet').classList.toggle('ok', let_);
+        document.getElementById('rNum').classList.toggle('ok', num);
+        var s = 0;
+        if (v.length) s = 1;
+        if (len && let_ && num) s = 2;
+        if (s === 2 && /[a-z]/.test(v) && /[A-Z]/.test(v)) s = 3;
+        if (s === 3 && (/[^A-Za-z0-9]/.test(v) || v.length >= 12)) s = 4;
+        meter.dataset.s = s;
+        st.textContent = labels[s];
     }
-}
+    function match() {
+        if (!cf.value) { mt.textContent = ''; mt.className = 'hint'; return; }
+        var ok = cf.value === pw.value;
+        mt.textContent = ok ? 'Passwords match' : 'Passwords do not match';
+        mt.className = 'hint ' + (ok ? 'ok' : 'bad');
+    }
+    pw.addEventListener('input', function () { strength(); match(); });
+    cf.addEventListener('input', match);
+    form.addEventListener('submit', function (e) {
+        if (pw.value !== cf.value) { e.preventDefault(); match(); cf.focus(); return; }
+        busy('Saving...');
+    });
+})();
 </script>
-
 </body>
-
 </html>

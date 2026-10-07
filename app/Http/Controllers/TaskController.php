@@ -78,25 +78,23 @@ class TaskController extends Controller
     {
         $this->authorizeTask($task);
 
-        $request->validate([
-            'subject_id' => 'required|exists:subjects,id',
-            'task_name'  => 'required|string|max:255',
-            'deadline'   => 'required|date',
-            'priority'   => 'required|string',
-            'status'     => 'required|string',
+        // "sometimes" lets the Complete / Reopen buttons send only the status,
+        // while the Edit form can send every field.
+        $data = $request->validate([
+            'subject_id' => 'sometimes|required|exists:subjects,id',
+            'task_name'  => 'sometimes|required|string|max:255',
+            'deadline'   => 'sometimes|required|date',
+            'priority'   => 'sometimes|required|in:High,Medium,Low',
+            'status'     => 'sometimes|required|in:Pending,Completed',
         ]);
 
-        Subject::where('id', $request->subject_id)
-            ->where('user_id', auth()->id())
-            ->firstOrFail();
+        if (isset($data['subject_id'])) {
+            Subject::where('id', $data['subject_id'])
+                ->where('user_id', auth()->id())
+                ->firstOrFail();
+        }
 
-        $task->update([
-            'subject_id' => $request->subject_id,
-            'task_name'  => $request->task_name,
-            'deadline'   => $request->deadline,
-            'priority'   => $request->priority,
-            'status'     => $request->status,
-        ]);
+        $task->update($data);
 
         return redirect()
             ->route('tasks.index')
