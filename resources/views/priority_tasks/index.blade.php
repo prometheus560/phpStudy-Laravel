@@ -15,64 +15,79 @@
 <div class="max-w-5xl mx-auto px-6 py-8">
 
     <div class="mb-6">
-        <h2 class="text-3xl font-bold text-white tracking-tight">Priority Tasks</h2>
-        <p class="text-gray-400 text-sm mt-1">Your pending tasks, from highest to lowest priority.</p>
+        <h2 class="text-3xl font-bold text-white tracking-tight">
+            Priority Tasks
+        </h2>
+
+        <p class="text-gray-400 text-sm mt-1">
+            Your pending tasks, from highest to lowest priority.
+        </p>
     </div>
 
-    <x-ds-panel title="Priority Queue" rule="Highest priority leaves first"
-                desc="Each task joins the group for its priority. Tasks leave in the order High, then Medium, then Low. Within a group, the earliest deadline goes first."
-                complexity="enqueue O(1) · dequeue O(n) (array_shift inside the group)"
-                :trace="$trace">
-
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 min-w-[560px] sm:min-w-0">
-            @foreach ($groups as $level => $items)
-                <div class="rounded-xl border p-3 {{ $lane[$level][0] }}">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-[11px] font-bold uppercase tracking-wider {{ $lane[$level][1] }}">{{ $level }}</span>
-                        <span class="text-xs text-gray-500">{{ count($items) }}</span>
-                    </div>
-
-                    <div class="flex flex-col gap-1.5">
-                        @forelse (array_slice($items, 0, 4) as $t)
-                            <span class="rounded-md border px-2.5 py-1 text-xs font-medium {{ $lane[$level][2] }}">{{ \Illuminate\Support\Str::limit($t->task_name, 22) }}</span>
-                        @empty
-                            <span class="text-xs text-gray-600">Empty</span>
-                        @endforelse
-
-                        @if (count($items) > 4)
-                            <span class="text-xs text-gray-500">+{{ count($items) - 4 }} more</span>
-                        @endif
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    </x-ds-panel>
 
     <div class="bg-[#14141f] border border-[#23232f] rounded-2xl p-6">
 
         <div class="flex items-center justify-between mb-5">
-            <h3 class="text-lg font-bold text-white">Dequeue order</h3>
-            <span class="text-xs font-semibold text-gray-400">{{ count($tasks) }} {{ count($tasks) == 1 ? 'task' : 'tasks' }}</span>
+
+            <h3 class="text-lg font-bold text-white">
+                Dequeue order
+            </h3>
+
+            <span class="text-xs font-semibold text-gray-400">
+                {{ count($tasks) }}
+                {{ count($tasks) == 1 ? 'task' : 'tasks' }}
+            </span>
+
         </div>
 
+
         @if (count($tasks) > 0)
+
             <div class="flex flex-col gap-3">
+
                 @foreach ($tasks as $i => $task)
+
                     @include('partials.task-card', [
-                        'task' => $task, 'rank' => $i + 1, 'rankLabel' => 'Dequeued #',
-                        'badge' => $i === 0 ? 'Do this first' : $task->priority . ' priority',
-                        'badgeClass' => $i === 0 ? 'bg-blue-500/15 text-blue-300' : 'bg-white/5 text-gray-400',
+                        'task' => $task,
+                        'rank' => $i + 1,
+                        'rankLabel' => 'Dequeued #',
+                        'badge' => $i === 0
+                            ? 'Do this first'
+                            : $task->priority . ' priority',
+                        'badgeClass' => $i === 0
+                            ? 'bg-blue-500/15 text-blue-300'
+                            : 'bg-white/5 text-gray-400',
                     ])
+
                 @endforeach
+
             </div>
+
         @else
+
             <div class="text-center py-14">
-                <h4 class="font-semibold text-white text-lg">No pending tasks</h4>
-                <p class="text-gray-400 text-sm mt-1">You don't have any pending tasks.</p>
-                <a href="{{ route('tasks.index') }}" class="inline-block mt-4 bg-blue-600 text-white rounded-xl px-5 py-2 text-sm font-semibold hover:bg-blue-500">View Tasks</a>
+
+                <h4 class="font-semibold text-white text-lg">
+                    No pending tasks
+                </h4>
+
+                <p class="text-gray-400 text-sm mt-1">
+                    You don't have any pending tasks.
+                </p>
+
+                <a
+                    href="{{ route('tasks.index') }}"
+                    class="inline-block mt-4 bg-blue-600 text-white rounded-xl px-5 py-2 text-sm font-semibold hover:bg-blue-500"
+                >
+                    View Tasks
+                </a>
+
             </div>
+
         @endif
+
     </div>
+
 </div>
 
 @endsection
