@@ -7,66 +7,14 @@
 <div class="max-w-5xl mx-auto px-6 py-8">
 
     <div class="mb-6">
-        <h2 class="text-3xl font-bold text-white tracking-tight">Upcoming Tasks</h2>
+        <h2 class="text-3xl font-bold text-white tracking-tight">
+            Upcoming Tasks
+        </h2>
+
         <p class="text-gray-400 text-sm mt-1">
             Your pending tasks, handled from the nearest deadline to the latest.
         </p>
     </div>
-
-    <x-ds-panel
-        title="Upcoming Tasks Queue"
-        rule="FIFO"
-        desc="Pending tasks are arranged in queue order, with the task having the nearest deadline processed first."
-        complexity="enqueue O(1) · dequeue O(n) (PHP array_shift re-indexes the array)"
-    >
-
-        @if (count($waiting) > 0)
-
-            <div class="flex items-center gap-2 min-w-max">
-
-                <span class="text-[11px] font-bold uppercase tracking-wider text-green-400">
-                    Front
-                </span>
-
-                @foreach (array_slice($waiting, 0, 8) as $i => $t)
-
-                    <span class="shrink-0 rounded-lg border px-3 py-1.5 text-xs font-medium
-                        {{ $i === 0
-                            ? 'border-blue-500/50 bg-blue-500/15 text-blue-200'
-                            : 'border-[#2a2a38] bg-[#12121c] text-gray-300'
-                        }}">
-
-                        {{ \Illuminate\Support\Str::limit($t->task_name, 16) }}
-
-                    </span>
-
-                    @if (! $loop->last)
-                        <span class="text-gray-600">&rarr;</span>
-                    @endif
-
-                @endforeach
-
-                @if (count($waiting) > 8)
-                    <span class="text-xs text-gray-500">
-                        +{{ count($waiting) - 8 }} more
-                    </span>
-                @endif
-
-                <span class="text-[11px] font-bold uppercase tracking-wider text-amber-400">
-                    Rear
-                </span>
-
-            </div>
-
-        @else
-
-            <p class="text-sm text-gray-500">
-                The queue is empty.
-            </p>
-
-        @endif
-
-    </x-ds-panel>
 
 
     <div class="bg-[#14141f] border border-[#23232f] rounded-2xl p-6">
