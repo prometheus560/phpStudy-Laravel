@@ -20,7 +20,7 @@
         }
 
         .sidebar-scroll::-webkit-scrollbar-thumb {
-            background: #23232f;
+            background: darkslategray;
             border-radius: 3px;
         }
     </style>
