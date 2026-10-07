@@ -11,8 +11,8 @@
         <p class="text-gray-400 text-sm mt-1">Your pending tasks, handled from the nearest deadline to the latest.</p>
     </div>
 
-    <x-ds-panel title="Queue" rule="FIFO · First In, First Out"
-                desc="Pending tasks join the queue at the REAR in order of deadline. The task at the FRONT is handled first."
+    <x-ds-panel 
+                
                 complexity="enqueue O(1) · dequeue O(n) (PHP array_shift re-indexes the array)"
                 :trace="$trace">
 
