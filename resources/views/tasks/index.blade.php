@@ -48,7 +48,7 @@
     {{-- Add Task --}}
     <div class="bg-[#14141f] border border-[#23232f] rounded-2xl p-6 mb-6">
         <h3 class="text-lg font-bold text-white">Add New Task</h3>
-        <p class="text-gray-400 text-sm mt-1 mb-5">Organize it by subject, deadline, and priority.</p>
+       
 
         @if ($subjects->count() > 0)
 
@@ -58,7 +58,7 @@
                 <div class="sm:col-span-6">
                     <label for="task_name" class="block text-sm font-semibold text-gray-200 mb-1.5">Task name</label>
                     <input id="task_name" type="text" name="task_name" value="{{ old('task_name') }}"
-                           placeholder="e.g. Finish essay draft" maxlength="150" required class="{{ $field }}">
+                           placeholder="Subject name" maxlength="150" required class="{{ $field }}">
                 </div>
 
                 <div class="sm:col-span-2">
