@@ -31,7 +31,7 @@
             </div>
         @else
             <p class="text-sm text-gray-500">The stack is empty.</p>
-        @endif
+  
     </x-ds-panel>
 
     <div class="bg-[#14141f] border border-[#23232f] rounded-2xl p-6">
