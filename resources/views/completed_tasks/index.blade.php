@@ -11,11 +11,7 @@
         <p class="text-gray-400 text-sm mt-1">The tasks you have finished, most recent first.</p>
     </div>
 
-    <x-ds-panel title="Stack" rule="LIFO · Last In, First Out"
-                desc="Each completed task is pushed on top of the stack. The most recently completed task is on TOP, so it is popped first."
-                complexity="push O(1) · pop O(1)"
-                :trace="$trace">
-
+  
         @if (count($pushed) > 0)
             @php $top = array_slice(array_reverse($pushed), 0, 6); @endphp
             <div class="flex flex-col items-start gap-1.5">
