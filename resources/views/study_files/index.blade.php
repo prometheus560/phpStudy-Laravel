@@ -38,7 +38,7 @@
             <h2 class="text-3xl font-bold text-white tracking-tight">My Files</h2>
             <p class="text-gray-400 text-sm mt-1">Store and manage your study materials.</p>
         </div>
-        <span class="text-xs font-semibold bg-blue-500/10 text-blue-300 border border-blue-500/20 rounded-lg px-3 py-1.5">
+        <span id="live-count" data-unit="file" class="text-xs font-semibold bg-blue-500/10 text-blue-300 border border-blue-500/20 rounded-lg px-3 py-1.5">
             {{ $files->count() }} {{ $files->count() == 1 ? 'file' : 'files' }}
         </span>
     </div>
@@ -97,20 +97,16 @@
 
     {{-- Search and filter --}}
     <form method="GET" action="{{ route('study_files.index') }}" class="flex flex-wrap gap-3 mb-6">
-        <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by file name..." class="flex-1 min-w-[200px] {{ $field }}">
+        <input type="text" id="live-search" name="search" value="{{ request('search') }}" autocomplete="off" placeholder="Type a letter to find a file..." class="flex-1 min-w-[200px] {{ $field }}">
 
-        <select name="subject_id" class="sm:w-56 {{ $field }}">
+        <select name="subject_id" id="live-subject" class="sm:w-56 {{ $field }}">
             <option value="">All subjects</option>
             @foreach ($subjects as $subject)
                 <option value="{{ $subject->id }}" @selected(request('subject_id') == $subject->id)>{{ $subject->subject_name }}</option>
             @endforeach
         </select>
 
-        <button type="submit" class="rounded-xl px-5 py-2.5 text-sm font-medium border border-[#2a2a38] bg-[#14141f] text-gray-200 hover:bg-white/5">Search</button>
-
-        @if ($filtered)
-            <a href="{{ route('study_files.index') }}" class="text-sm text-blue-400 hover:text-blue-300 self-center">Clear</a>
-        @endif
+        <button type="button" id="live-clear" class="hidden rounded-xl px-5 py-2.5 text-sm font-medium border border-[#2a2a38] bg-[#14141f] text-gray-300 hover:bg-white/5">Clear</button>
     </form>
 
     {{-- File list --}}
@@ -122,7 +118,10 @@
                 $tone = $tones[$ext] ?? 'bg-white/5 text-gray-300 border-white/10';
             @endphp
 
-            <div class="flex flex-col justify-between bg-[#14141f] border border-[#23232f] rounded-2xl hover:border-blue-500/30 transition">
+            <div class="js-item flex flex-col justify-between bg-[#14141f] border border-[#23232f] rounded-2xl hover:border-blue-500/30 transition"
+                 data-name="{{ mb_strtolower($file->file_name) }}"
+                 data-subject="{{ mb_strtolower($file->subject->subject_name ?? '') }}"
+                 data-subject-id="{{ $file->subject_id }}">
                 <div class="p-5 flex items-start gap-4">
                     <div class="w-12 h-12 shrink-0 rounded-xl border grid place-items-center text-[11px] font-bold uppercase {{ $tone }}">{{ $ext ?: 'file' }}</div>
 
@@ -161,6 +160,11 @@
             </div>
         @endforelse
 
+        <div id="live-empty" class="hidden md:col-span-2 bg-[#14141f] border border-[#23232f] rounded-2xl text-center py-16">
+            <h4 class="font-semibold text-white">No file matches</h4>
+            <p class="text-gray-400 text-sm mt-1">Nothing starts with what you typed. Try another letter.</p>
+        </div>
+
     </div>
 </div>
 
@@ -195,6 +199,61 @@
         btn.textContent = 'Uploading...';
     });
     window.addEventListener('pageshow', () => { btn.disabled = false; btn.textContent = 'Upload'; });
+})();
+</script>
+
+<script>
+(() => {
+    const input  = document.getElementById('live-search');
+    const select = document.getElementById('live-subject');
+    const clear  = document.getElementById('live-clear');
+    const empty  = document.getElementById('live-empty');
+    const count  = document.getElementById('live-count');
+    const items  = [...document.querySelectorAll('.js-item')];
+
+    if (!input) return;
+
+    function apply() {
+        const q = input.value.trim().toLowerCase();
+        const subjectId = select ? select.value : '';
+        let shown = 0;
+
+        // Look at the items one by one (Linear Search)
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+
+            const textOk = q === ''
+                || item.dataset.name.startsWith(q)
+                || item.dataset.subject.startsWith(q);
+
+            const subjectOk = subjectId === '' || item.dataset.subjectId === subjectId;
+
+            const ok = textOk && subjectOk;
+            item.classList.toggle('hidden', !ok);
+            if (ok) shown++;
+        }
+
+        if (empty) empty.classList.toggle('hidden', shown > 0 || items.length === 0);
+        if (clear) clear.classList.toggle('hidden', q === '' && subjectId === '');
+        if (count && count.dataset.unit) {
+            count.textContent = shown + ' ' + count.dataset.unit + (shown === 1 ? '' : 's');
+        }
+    }
+
+    input.addEventListener('input', apply);
+    if (select) select.addEventListener('change', apply);
+    if (input.form) input.form.addEventListener('submit', e => e.preventDefault());
+
+    if (clear) {
+        clear.addEventListener('click', () => {
+            input.value = '';
+            if (select) select.value = '';
+            apply();
+            input.focus();
+        });
+    }
+
+    apply();
 })();
 </script>
 

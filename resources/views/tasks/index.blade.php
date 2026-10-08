@@ -48,7 +48,7 @@
     {{-- Add Task --}}
     <div class="bg-[#14141f] border border-[#23232f] rounded-2xl p-6 mb-6">
         <h3 class="text-lg font-bold text-white">Add New Task</h3>
-       
+        <p class="text-gray-400 text-sm mt-1 mb-5">Organize it by subject, deadline, and priority.</p>
 
         @if ($subjects->count() > 0)
 
@@ -58,7 +58,7 @@
                 <div class="sm:col-span-6">
                     <label for="task_name" class="block text-sm font-semibold text-gray-200 mb-1.5">Task name</label>
                     <input id="task_name" type="text" name="task_name" value="{{ old('task_name') }}"
-                           placeholder="Subject name" maxlength="150" required class="{{ $field }}">
+                           placeholder="e.g. Finish essay draft" maxlength="150" required class="{{ $field }}">
                 </div>
 
                 <div class="sm:col-span-2">
@@ -114,11 +114,9 @@
 
             @if ($tasks->count() > 0)
 
-                {{-- Instant Search (Binary Search) --}}
-                <div class="relative mt-4">
-                    <input id="task-search" type="text" autocomplete="off" placeholder="Search tasks..." class="{{ $field }}">
-                    <ul id="task-results"
-                        class="hidden absolute z-10 w-full mt-1 bg-[#1b1b28] border border-[#2a2a38] rounded-xl shadow-lg overflow-hidden"></ul>
+                                <div class="mt-4">
+                    <input id="task-search" type="text" autocomplete="off" placeholder="Type a letter to find a task..." class="{{ $field }}">
+                    <p id="search-info" class="text-xs text-gray-500 mt-2 min-h-[16px]"></p>
                 </div>
 
                 {{-- Filter tabs --}}
@@ -148,6 +146,8 @@
                     <div id="task-{{ $task->id }}"
                          data-status="{{ $isDone ? 'Completed' : 'Pending' }}"
                          data-overdue="{{ $overdue ? 1 : 0 }}"
+                         data-name="{{ mb_strtolower($task->task_name) }}"
+                         data-subject="{{ mb_strtolower($task->subject->subject_name) }}"
                          class="task-card flex overflow-hidden rounded-xl border border-[#23232f] bg-[#1b1b28] transition {{ $isDone ? 'opacity-70' : '' }}">
 
                         <span class="w-1 shrink-0 {{ $priorityBar[$task->priority] ?? 'bg-gray-500' }}"></span>
@@ -265,39 +265,56 @@
     </form>
 </dialog>
 
-{{-- Search data (sorted by name, needed for binary search) --}}
-@php
-    $searchData = $tasks
-        ->map(fn ($t) => ['id' => $t->id, 'name' => $t->task_name, 'subject' => $t->subject->subject_name])
-        ->sortBy(fn ($t) => mb_strtolower($t['name']))
-        ->values();
-@endphp
 
 <script>
 (() => {
-    // ---------- Filter tabs ----------
+    // ---------- Filter tabs + live search ----------
     const tabs  = document.querySelectorAll('.filter-tab');
-    const cards = document.querySelectorAll('.task-card');
+    const cards = [...document.querySelectorAll('.task-card')];
     const empty = document.getElementById('filter-empty');
+    const input = document.getElementById('task-search');
+    const info  = document.getElementById('search-info');
+    let tab = 'all';
 
-    function setFilter(key) {
+    function apply() {
+        const q = input ? input.value.trim().toLowerCase() : '';
         let shown = 0;
-        cards.forEach(c => {
-            const ok = key === 'all'
-                || (key === 'overdue' ? c.dataset.overdue === '1' : c.dataset.status === key);
+
+        // Linear Search: check the tasks one by one
+        for (let i = 0; i < cards.length; i++) {
+            const c = cards[i];
+
+            const tabOk = tab === 'all'
+                || (tab === 'overdue' ? c.dataset.overdue === '1' : c.dataset.status === tab);
+
+            const textOk = q === ''
+                || c.dataset.name.startsWith(q)
+                || c.dataset.subject.startsWith(q);
+
+            const ok = tabOk && textOk;
             c.classList.toggle('hidden', !ok);
             if (ok) shown++;
-        });
+        }
+
         tabs.forEach(t => {
-            const on = t.dataset.filter === key;
+            const on = t.dataset.filter === tab;
             t.classList.toggle('bg-blue-600/15', on);
             t.classList.toggle('text-blue-300', on);
             t.classList.toggle('border-blue-500/40', on);
         });
+
         if (empty) empty.classList.toggle('hidden', shown > 0);
+
+        if (info) {
+            info.textContent = q === ''
+                ? ''
+                : 'Linear Search checked ' + cards.length + ' ' + (cards.length === 1 ? 'task' : 'tasks') + ' and found ' + shown + '.';
+        }
     }
-    tabs.forEach(t => t.addEventListener('click', () => setFilter(t.dataset.filter)));
-    if (tabs.length) setFilter('all');
+
+    tabs.forEach(t => t.addEventListener('click', () => { tab = t.dataset.filter; apply(); }));
+    if (input) input.addEventListener('input', apply);
+    if (tabs.length) apply();
 
     // ---------- Edit dialog ----------
     const dlg  = document.getElementById('edit-dialog');
@@ -315,78 +332,6 @@
     }));
     document.getElementById('edit-cancel').addEventListener('click', () => dlg.close());
     dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
-
-    // ---------- Instant search (Binary Search) ----------
-    const input = document.getElementById('task-search');
-    const box = document.getElementById('task-results');
-    if (!input) return;
-
-    // Tasks sorted by name (required for binary search)
-    const sorted = @json($searchData).map(t => ({ ...t, key: t.name.toLowerCase() }));
-
-    // Binary search: find the first index whose key is >= the typed text
-    function lowerBound(prefix) {
-        let lo = 0, hi = sorted.length;
-        while (lo < hi) {
-            const mid = (lo + hi) >> 1;
-            if (sorted[mid].key < prefix) lo = mid + 1;
-            else hi = mid;
-        }
-        return lo;
-    }
-
-    // Collect every task that starts with the typed text (max 8)
-    function search(q) {
-        const out = [];
-        for (let i = lowerBound(q);
-             i < sorted.length && sorted[i].key.startsWith(q) && out.length < 8;
-             i++) {
-            out.push(sorted[i]);
-        }
-        return out;
-    }
-
-    // Scroll to the chosen task card and highlight it briefly
-    function goToTask(id) {
-        setFilter('all');
-        const card = document.getElementById('task-' + id);
-        if (!card) return;
-        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        card.classList.add('ring-2', 'ring-blue-500');
-        setTimeout(() => card.classList.remove('ring-2', 'ring-blue-500'), 1800);
-        box.classList.add('hidden');
-    }
-
-    input.addEventListener('input', () => {
-        const q = input.value.trim().toLowerCase();
-        box.innerHTML = '';
-
-        if (!q) { box.classList.add('hidden'); return; }
-
-        const results = search(q);
-
-        if (results.length === 0) {
-            const li = document.createElement('li');
-            li.className = 'px-4 py-2 text-sm text-gray-500';
-            li.textContent = 'No tasks found';
-            box.appendChild(li);
-        } else {
-            results.forEach(t => {
-                const li = document.createElement('li');
-                li.className = 'px-4 py-2 text-sm text-gray-200 hover:bg-[#23232f] cursor-pointer';
-                li.textContent = t.name + ' (' + t.subject + ')';
-                li.addEventListener('click', () => goToTask(t.id));
-                box.appendChild(li);
-            });
-        }
-
-        box.classList.remove('hidden');
-    });
-
-    // Close the dropdown when clicking outside
-    document.addEventListener('click', e => {
-        if (!input.contains(e.target) && !box.contains(e.target)) box.classList.add('hidden');
-    });
 })();
 </script>
 

@@ -90,6 +90,10 @@
 
         @if ($subjects->count() > 0)
 
+            <div class="mb-5">
+                <input id="live-search" type="text" autocomplete="off" placeholder="Type a letter to find a subject..." class="{{ $field }}">
+            </div>
+
             <div class="grid gap-4" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
 
                 @foreach ($subjects as $subject)
@@ -101,7 +105,8 @@
                         $cat   = $subject->getAttribute('category') ?: 'General';
                     @endphp
 
-                    <div class="flex flex-col border border-[#23232f] rounded-2xl p-5 bg-[#1b1b28] hover:border-blue-500/30 transition">
+                    <div class="js-item flex flex-col border border-[#23232f] rounded-2xl p-5 bg-[#1b1b28] hover:border-blue-500/30 transition"
+                         data-name="{{ mb_strtolower($subject->subject_name) }}" data-subject="" data-subject-id="">
 
                         <div class="flex items-start justify-between gap-3">
                             <h4 class="text-white font-semibold text-lg leading-snug break-words">{{ $subject->subject_name }}</h4>
@@ -148,6 +153,8 @@
                 @endforeach
 
             </div>
+
+            <p id="live-empty" class="hidden text-center text-gray-500 text-sm py-10">No subject starts with what you typed. Try another letter.</p>
 
         @else
 
@@ -209,6 +216,61 @@
 
     document.getElementById('edit-cancel').addEventListener('click', () => dlg.close());
     dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+})();
+</script>
+
+<script>
+(() => {
+    const input  = document.getElementById('live-search');
+    const select = document.getElementById('live-subject');
+    const clear  = document.getElementById('live-clear');
+    const empty  = document.getElementById('live-empty');
+    const count  = document.getElementById('live-count');
+    const items  = [...document.querySelectorAll('.js-item')];
+
+    if (!input) return;
+
+    function apply() {
+        const q = input.value.trim().toLowerCase();
+        const subjectId = select ? select.value : '';
+        let shown = 0;
+
+        // Look at the items one by one (Linear Search)
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+
+            const textOk = q === ''
+                || item.dataset.name.startsWith(q)
+                || item.dataset.subject.startsWith(q);
+
+            const subjectOk = subjectId === '' || item.dataset.subjectId === subjectId;
+
+            const ok = textOk && subjectOk;
+            item.classList.toggle('hidden', !ok);
+            if (ok) shown++;
+        }
+
+        if (empty) empty.classList.toggle('hidden', shown > 0 || items.length === 0);
+        if (clear) clear.classList.toggle('hidden', q === '' && subjectId === '');
+        if (count && count.dataset.unit) {
+            count.textContent = shown + ' ' + count.dataset.unit + (shown === 1 ? '' : 's');
+        }
+    }
+
+    input.addEventListener('input', apply);
+    if (select) select.addEventListener('change', apply);
+    if (input.form) input.form.addEventListener('submit', e => e.preventDefault());
+
+    if (clear) {
+        clear.addEventListener('click', () => {
+            input.value = '';
+            if (select) select.value = '';
+            apply();
+            input.focus();
+        });
+    }
+
+    apply();
 })();
 </script>
 
