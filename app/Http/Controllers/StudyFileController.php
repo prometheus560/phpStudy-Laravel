@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 
 class StudyFileController extends Controller
 {
@@ -73,7 +74,7 @@ class StudyFileController extends Controller
 
         $file = $request->file('file');
 
-        $path = $file->store('study-files', 'public');
+        $path = $file->store('study-files', 'local');
 
         StudyFile::create([
             'user_id' => $user->id,
@@ -98,7 +99,21 @@ class StudyFileController extends Controller
 
         $kind = $this->previewKind($studyFile);
 
-        return view('study_files.show', compact('studyFile', 'kind'));
+        // PowerPoint / Word / Excel: Office Online reads the file through a
+        // temporary signed link (valid for 15 minutes).
+        $officeUrl = null;
+
+        if ($kind === 'office') {
+            $signedUrl = URL::temporarySignedRoute(
+                'study_files.office',
+                now()->addMinutes(15),
+                ['studyFile' => $studyFile->id]
+            );
+
+            $officeUrl = 'https://view.officeapps.live.com/op/embed.aspx?src=' . urlencode($signedUrl);
+        }
+
+        return view('study_files.show', compact('studyFile', 'kind', 'officeUrl'));
     }
 
     /**
@@ -111,11 +126,11 @@ class StudyFileController extends Controller
         $kind = $this->previewKind($studyFile);
 
         // Only safe types are shown in the browser; everything else is download-only
-        if ($kind === 'none') {
+        if (!in_array($kind, ['pdf', 'image', 'text'], true)) {
             abort(415, 'This file type cannot be previewed.');
         }
 
-        $disk = Storage::disk('public');
+        $disk = Storage::disk('local');
         $mime = $disk->mimeType($studyFile->file_path);
 
         // Text files are always served as plain text
@@ -130,11 +145,32 @@ class StudyFileController extends Controller
         ]);
     }
 
+    /**
+     * Serves an Office file to Microsoft's online viewer.
+     * Public route, but protected by a temporary signed link (see routes).
+     */
+    public function office(StudyFile $studyFile)
+    {
+        if (!Storage::disk('local')->exists($studyFile->file_path)) {
+            abort(404);
+        }
+
+        if ($this->previewKind($studyFile) !== 'office') {
+            abort(404);
+        }
+
+        return response()->file(Storage::disk('local')->path($studyFile->file_path), [
+            'Content-Type' => $this->officeMime($studyFile),
+            'Content-Disposition' => 'attachment; filename="' . addslashes($studyFile->file_name) . '"',
+            'X-Content-Type-Options' => 'nosniff',
+        ]);
+    }
+
     public function download(StudyFile $studyFile)
     {
         $this->authorizeFile($studyFile);
 
-        return Storage::disk('public')->download(
+        return Storage::disk('local')->download(
             $studyFile->file_path,
             $studyFile->file_name
         );
@@ -153,8 +189,8 @@ class StudyFileController extends Controller
             abort(403);
         }
 
-        if (Storage::disk('public')->exists($studyFile->file_path)) {
-            Storage::disk('public')->delete($studyFile->file_path);
+        if (Storage::disk('local')->exists($studyFile->file_path)) {
+            Storage::disk('local')->delete($studyFile->file_path);
         }
 
         $studyFile->delete();
@@ -180,7 +216,7 @@ class StudyFileController extends Controller
             abort(403);
         }
 
-        if (!Storage::disk('public')->exists($studyFile->file_path)) {
+        if (!Storage::disk('local')->exists($studyFile->file_path)) {
             abort(404);
         }
     }
@@ -191,7 +227,12 @@ class StudyFileController extends Controller
      */
     private function previewKind(StudyFile $studyFile): string
     {
-        $mime = Storage::disk('public')->mimeType($studyFile->file_path);
+        // Office documents (PowerPoint, Word, Excel) are shown through Office Online
+        if ($this->officeMime($studyFile) !== null) {
+            return 'office';
+        }
+
+        $mime = Storage::disk('local')->mimeType($studyFile->file_path);
 
         if ($mime === 'application/pdf') {
             return 'pdf';
@@ -206,5 +247,23 @@ class StudyFileController extends Controller
         }
 
         return 'none';
+    }
+
+    /**
+     * Returns the MIME type if the file is a PowerPoint, Word or Excel file
+     * (decided by file extension), otherwise null.
+     */
+    private function officeMime(StudyFile $studyFile): ?string
+    {
+        $extension = strtolower(pathinfo($studyFile->file_name, PATHINFO_EXTENSION));
+
+        return [
+            'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+            'ppt'  => 'application/vnd.ms-powerpoint',
+            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'doc'  => 'application/msword',
+            'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'xls'  => 'application/vnd.ms-excel',
+        ][$extension] ?? null;
     }
 }
