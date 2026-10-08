@@ -32,7 +32,7 @@
             @csrf
 
             <input type="text" name="subject_name" value="{{ old('subject_name') }}"
-                   placeholder="e.g. Web Development" maxlength="100" required
+                   placeholder="Subject Name" maxlength="100" required
                    class="flex-1 min-w-[220px] {{ $field }}">
 
             <button type="submit"
