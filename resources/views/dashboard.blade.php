@@ -260,8 +260,8 @@
             }
         }
 
-        setInterval(check, 30000);                       // every 30 seconds
-        window.addEventListener('focus', check);         // when you come back to the window
+        setInterval(check, 30000);                      
+        window.addEventListener('focus', check);        
         document.addEventListener('visibilitychange', function () {
             if (!document.hidden) check();               // when you switch back to the tab
         });
