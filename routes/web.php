@@ -52,9 +52,6 @@ Route::get('/reset-password/{token}', [PasswordResetController::class, 'showRese
 Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])
     ->name('password.update');
 
-
-// Temporary signed link so Office Online can read a PowerPoint/Word/Excel file
-// for previewing. Outside the login group on purpose, protected by the signature.
 Route::get('/study-files/{studyFile}/office', [StudyFileController::class, 'office'])
     ->middleware('signed')
     ->name('study_files.office');
