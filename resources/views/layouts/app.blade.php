@@ -183,7 +183,7 @@
     <div
         id="sidebarOverlay"
         onclick="toggleSidebar()"
-        class="hidden fixed inset-0 bg-black/60 z-30 lg:hidden">
+        class="hidden fixed inset-0 bg-black/60 z-30">
     </div>
 
     {{-- Sidebar --}}
@@ -433,6 +433,40 @@
 @endauth
 
 @stack('scripts')
+
+{{-- Web Push Service Worker --}}
+<script>
+document.addEventListener('DOMContentLoaded', async function () {
+
+    if (!('serviceWorker' in navigator)) {
+        console.log('Service Worker is not supported.');
+        return;
+    }
+
+    if (!('PushManager' in window)) {
+        console.log('Push notifications are not supported.');
+        return;
+    }
+
+    try {
+        const registration = await navigator.serviceWorker.register('/sw.js');
+
+        console.log('Service Worker registered successfully:', registration);
+
+        const permission = await Notification.requestPermission();
+
+        if (permission === 'granted') {
+            console.log('Notification permission granted.');
+        } else {
+            console.log('Notification permission not granted.');
+        }
+
+    } catch (error) {
+        console.error('Push notification setup failed:', error);
+    }
+
+});
+</script>
 
 </body>
 </html>
