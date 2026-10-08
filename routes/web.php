@@ -53,6 +53,13 @@ Route::post('/reset-password', [PasswordResetController::class, 'resetPassword']
     ->name('password.update');
 
 
+// Temporary signed link so Office Online can read a PowerPoint/Word/Excel file
+// for previewing. Outside the login group on purpose, protected by the signature.
+Route::get('/study-files/{studyFile}/office', [StudyFileController::class, 'office'])
+    ->middleware('signed')
+    ->name('study_files.office');
+
+
 Route::middleware('auth')->group(function () {
 
     // Home (now redirects to the dashboard)
@@ -94,7 +101,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/tasks/{task}', [TaskController::class, 'update'])
         ->name('tasks.update');
 
-    // NEW: Done button
+    // Done button
     Route::patch('/tasks/{task}/complete', [TaskController::class, 'complete'])
         ->name('tasks.complete');
 
