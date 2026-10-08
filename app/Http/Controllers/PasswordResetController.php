@@ -71,9 +71,16 @@ class PasswordResetController extends Controller
             ]
         );
 
-        Mail::to($user->email)->send(
-            new PasswordResetMail($user, $resetUrl)
-        );
+        // If the email service fails (wrong key, unverified sender, outage), log it
+        // and show the same message as always. A crash here would also reveal
+        // which email addresses have an account.
+        try {
+            Mail::to($user->email)->send(
+                new PasswordResetMail($user, $resetUrl)
+            );
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         return back()->with(
             'status',
