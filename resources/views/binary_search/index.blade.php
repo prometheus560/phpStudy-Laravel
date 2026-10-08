@@ -77,20 +77,32 @@
         @endif
     </div>
 
-    {{-- Subject list --}}
+    {{-- Subject list, grouped by first letter --}}
+    @php
+        $letters = $subjects->groupBy(fn ($s) => mb_strtoupper(mb_substr($s->subject_name, 0, 1)));
+    @endphp
+
     <div class="bg-[#14141f] border border-[#23232f] rounded-xl shadow-sm p-5">
         <h3 class="text-lg font-bold text-white mb-1">Your Subjects</h3>
-        <p class="text-gray-400 text-sm mb-4">Subjects available for searching.</p>
+        <p class="text-gray-400 text-sm mb-4">Subjects available for searching, grouped by first letter.</p>
 
         @if ($subjects->count() > 0)
 
-            <div class="flex flex-col divide-y divide-[#23232f]">
-                @foreach ($subjects as $subject)
-                    <div class="py-3.5 subject-row transition" data-name="{{ mb_strtolower($subject->subject_name) }}">
-                        <strong class="text-white">{{ $subject->subject_name }}</strong>
-                    </div>
-                @endforeach
-            </div>
+            @foreach ($letters as $letter => $items)
+                <p class="text-xs font-bold text-blue-400 mt-4 mb-1 first:mt-0">{{ $letter }}</p>
+
+                <div class="flex flex-col divide-y divide-[#23232f]">
+                    @foreach ($items as $subject)
+                        <div class="py-3 subject-row transition flex items-center justify-between gap-3"
+                             data-name="{{ mb_strtolower($subject->subject_name) }}">
+                            <strong class="text-white">{{ $subject->subject_name }}</strong>
+                            <span class="text-xs text-gray-400 whitespace-nowrap">
+                                {{ $subject->getAttribute('category') ? $subject->getAttribute('category') . ' · ' : '' }}ID {{ $subject->id }} &middot; {{ $subject->tasks_count }} {{ $subject->tasks_count == 1 ? 'task' : 'tasks' }}
+                            </span>
+                        </div>
+                    @endforeach
+                </div>
+            @endforeach
 
         @else
 
@@ -111,11 +123,17 @@
 
 </div>
 
-{{-- Subject names sorted A-Z (required for binary search) --}}
+{{-- Subjects sorted A-Z (required for binary search) --}}
 @php
-    $sortedNames = $subjects
-        ->pluck('subject_name')
-        ->sortBy(fn ($n) => mb_strtolower($n))
+    $searchData = $subjects
+        ->map(fn ($s) => [
+            'id'      => $s->id,
+            'name'    => $s->subject_name,
+            'tasks'   => $s->tasks_count,
+            'pending' => $s->pending_count,
+            'category' => $s->getAttribute('category'),
+        ])
+        ->sortBy(fn ($s) => mb_strtolower($s['name']))
         ->values();
 @endphp
 
@@ -125,8 +143,11 @@
     const box = document.getElementById('subject-results');
     if (!input) return;
 
-    // Sorted subject names
-    const sorted = @json($sortedNames).map(name => ({ name, key: name.toLowerCase() }));
+    // Subjects sorted A-Z
+    const sorted = @json($searchData).map(s => ({ ...s, key: s.name.toLowerCase() }));
+
+    let results = [];
+    let active = -1;
 
     // Binary search: first index whose key is >= the typed text
     function lowerBound(prefix) {
@@ -161,34 +182,96 @@
         });
     }
 
-    input.addEventListener('input', () => {
+    function choose(s) {
+        input.value = s.name;
+        box.classList.add('hidden');
+        highlight(s.key);
+    }
+
+    function paintActive() {
+        [...box.children].forEach((li, i) => li.classList.toggle('bg-[#23232f]', i === active));
+    }
+
+    function render() {
         const q = input.value.trim().toLowerCase();
         box.innerHTML = '';
+        active = -1;
 
         if (!q) { box.classList.add('hidden'); return; }
 
-        const results = search(q);
+        results = search(q);
 
         if (results.length === 0) {
             const li = document.createElement('li');
-            li.className = 'px-4 py-2 text-sm text-gray-500';
-            li.textContent = 'No subjects found';
+            li.className = 'px-4 py-3 text-sm text-gray-500';
+            li.textContent = 'No subject starts with "' + input.value.trim() + '"';
             box.appendChild(li);
         } else {
             results.forEach(s => {
                 const li = document.createElement('li');
-                li.className = 'px-4 py-2 text-sm text-gray-200 hover:bg-[#23232f] cursor-pointer';
-                li.textContent = s.name;
-                li.addEventListener('click', () => {
-                    input.value = s.name;
-                    box.classList.add('hidden');
-                    highlight(s.key);
-                });
+                li.className = 'flex items-center gap-3 px-4 py-2.5 cursor-pointer hover:bg-[#23232f]';
+
+                // First letter badge
+                const badge = document.createElement('span');
+                badge.className = 'w-8 h-8 shrink-0 rounded-lg bg-blue-500/15 text-blue-300 font-bold text-sm flex items-center justify-center';
+                badge.textContent = s.name.charAt(0).toUpperCase();
+
+                // Name with the typed letters in bold, then the task count
+                const mid = document.createElement('div');
+                mid.className = 'flex-1 min-w-0';
+
+                const name = document.createElement('div');
+                name.className = 'text-sm text-gray-200 truncate';
+                const bold = document.createElement('b');
+                bold.className = 'text-white';
+                bold.textContent = s.name.slice(0, q.length);
+                name.appendChild(bold);
+                name.appendChild(document.createTextNode(s.name.slice(q.length)));
+
+                const meta = document.createElement('div');
+                meta.className = 'text-xs text-gray-500';
+                meta.textContent = s.tasks + (s.tasks === 1 ? ' task' : ' tasks') + ' · ' + s.pending + ' pending';
+
+                mid.appendChild(name);
+                mid.appendChild(meta);
+
+                // ID
+                const id = document.createElement('span');
+                id.className = 'text-xs text-gray-400 shrink-0';
+                id.textContent = (s.category ? s.category + ' · ' : '') + 'ID ' + s.id;
+
+                li.appendChild(badge);
+                li.appendChild(mid);
+                li.appendChild(id);
+                li.addEventListener('click', () => choose(s));
                 box.appendChild(li);
             });
         }
 
         box.classList.remove('hidden');
+    }
+
+    input.addEventListener('input', render);
+    input.addEventListener('focus', () => { if (input.value.trim()) render(); });
+
+    // Arrow keys, Enter and Escape
+    input.addEventListener('keydown', e => {
+        if (box.classList.contains('hidden') || results.length === 0) return;
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            active = (active + 1) % results.length;
+            paintActive();
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            active = (active - 1 + results.length) % results.length;
+            paintActive();
+        } else if (e.key === 'Enter' && active >= 0) {
+            e.preventDefault();
+            choose(results[active]);
+        } else if (e.key === 'Escape') {
+            box.classList.add('hidden');
+        }
     });
 
     // Close the pop up when clicking outside

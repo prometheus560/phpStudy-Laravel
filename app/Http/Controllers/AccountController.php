@@ -6,16 +6,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Password;
 
 class AccountController extends Controller
 {
-   
     public function index()
     {
         return view('account.index');
     }
 
-   
     public function updatePassword(Request $request)
     {
         $user = Auth::user();
@@ -33,8 +33,6 @@ class AccountController extends Controller
                 ->withInput();
         }
 
-   
-
         $validated = $request->validate([
             'current_password' => [
                 'required',
@@ -44,11 +42,14 @@ class AccountController extends Controller
             'password' => [
                 'required',
                 'string',
-                'min:8',
                 'confirmed',
+                // Same rule as the Create Account page
+                Password::min(8)->letters()->numbers(),
             ],
+        ], [
+            'password.confirmed' => 'The two new passwords do not match.',
+            'password.min'       => 'Your new password must be at least 8 characters.',
         ]);
-
 
         if (!Hash::check(
             $validated['current_password'],
@@ -63,6 +64,7 @@ class AccountController extends Controller
                 ])
                 ->withInput();
         }
+
         if (Hash::check(
             $validated['password'],
             $user->password
@@ -77,11 +79,11 @@ class AccountController extends Controller
                 ->withInput();
         }
 
-        $user->update([
-            'password' => Hash::make(
-                $validated['password']
-            ),
-        ]);
+        // Also replaces the "remember me" token, so other devices must log in again
+        $user->forceFill([
+            'password'       => Hash::make($validated['password']),
+            'remember_token' => Str::random(60),
+        ])->save();
 
         RateLimiter::clear($rateLimitKey);
 

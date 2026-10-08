@@ -8,26 +8,20 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('subjects')) {
-            Schema::create('subjects', function (Blueprint $table) {
-                $table->increments('id');
-
-                $table->unsignedInteger('user_id');
-
-                $table->string('subject_name');
-
-                $table->timestamps();
-
-                $table->foreign('user_id')
-                    ->references('id')
-                    ->on('users')
-                    ->onDelete('cascade');
+        // Only add the column if it isn't there yet
+        if (Schema::hasTable('subjects') && !Schema::hasColumn('subjects', 'category')) {
+            Schema::table('subjects', function (Blueprint $table) {
+                $table->string('category', 50)->default('General');
             });
         }
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('subjects');
+        if (Schema::hasColumn('subjects', 'category')) {
+            Schema::table('subjects', function (Blueprint $table) {
+                $table->dropColumn('category');
+            });
+        }
     }
 };

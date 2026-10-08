@@ -84,6 +84,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/subjects', [SubjectController::class, 'store'])
         ->name('subjects.store');
 
+    Route::patch('/subjects/{subject}', [SubjectController::class, 'update'])
+        ->name('subjects.update');
+
     Route::delete('/subjects/{subject}', [SubjectController::class, 'destroy'])
         ->name('subjects.destroy');
 
@@ -98,7 +101,7 @@ Route::middleware('auth')->group(function () {
     Route::patch('/tasks/{task}', [TaskController::class, 'update'])
         ->name('tasks.update');
 
-    // Done button
+    // NEW: Done button
     Route::patch('/tasks/{task}/complete', [TaskController::class, 'complete'])
         ->name('tasks.complete');
 
