@@ -16,7 +16,7 @@
             --line: rgba(255,255,255,.08);
             --field: #12121c;
             --field-line: #262636;
-            --muted: #8b90a5;
+            --muted: grayblue;
         }
 
         html { color-scheme: dark; }
@@ -34,7 +34,7 @@
         .sidebar-scroll::-webkit-scrollbar { width: 6px; }
         .sidebar-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 3px; }
 
-        /* ---------- Shared "login style" components ---------- */
+        /* Shared "login style" components  */
         .sidebar-glass { background: rgba(12,12,22,.72); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-color: var(--line); }
 
         .glass { background: var(--card); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--line); border-radius: 20px; box-shadow: 0 30px 80px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05); }
@@ -82,7 +82,7 @@
         .alert-err { background: rgba(248,113,113,.10); color: #fca5a5; border: 1px solid rgba(248,113,113,.25); }
         .alert-ok { background: rgba(74,222,128,.10); color: #86efac; border: 1px solid rgba(74,222,128,.25); }
 
-        /* ---------- Dashboard extras ---------- */
+        /*  Dashboard extras  */
         .stat { position: relative; overflow: hidden; padding: 20px; border-radius: 18px; background: var(--card); border: 1px solid var(--line); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: inset 0 1px 0 rgba(255,255,255,.05); transition: transform .2s, border-color .2s; }
         .stat::before { content: ""; position: absolute; right: -40px; top: -40px; width: 170px; height: 170px; border-radius: 50%; background: radial-gradient(circle, var(--glow), transparent 70%); pointer-events: none; }
         .stat:hover { transform: translateY(-2px); border-color: rgba(255,255,255,.16); }
@@ -201,7 +201,7 @@
             </span>
 
             <span class="block text-white font-semibold text-sm leading-tight">
-                Student Study Planner
+                ClassTrack
             </span>
         </a>
 
