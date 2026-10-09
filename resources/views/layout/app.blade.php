@@ -131,6 +131,29 @@
             background-size: 610px 610px; animation: twinkle 7s ease-in-out infinite -2.5s;
         }
         @keyframes twinkle { 0%, 100% { opacity: .2; } 50% { opacity: .7; } }
+        /* ---------- A small planet and moon (kept faint, in the corners) ---------- */
+        .planet {
+            position: absolute; right: -110px; bottom: -150px; width: 400px; height: 400px; border-radius: 50%;
+            background: radial-gradient(circle at 30% 26%, rgba(216,196,255,.6), rgba(139,92,246,.4) 32%, rgba(67,38,140,.55) 60%, rgba(12,9,32,.92) 100%);
+            box-shadow: inset -50px -40px 90px rgba(0,0,0,.7), 0 0 100px rgba(139,92,246,.2);
+            opacity: .8; animation: planetFloat 45s ease-in-out infinite alternate;
+        }
+        .planet::before {
+            content: ""; position: absolute; left: -24%; top: 34%; width: 148%; height: 34%; border-radius: 50%;
+            border: 2px solid rgba(221,200,255,.3); transform: rotate(-16deg);
+        }
+        .moon {
+            position: absolute; right: 5%; top: 3%; width: 42px; height: 42px; border-radius: 50%;
+            background: radial-gradient(circle at 32% 30%, rgba(255,255,255,.75), rgba(190,200,230,.45) 45%, rgba(40,44,80,.6) 100%);
+            box-shadow: inset -8px -6px 14px rgba(0,0,0,.55), 0 0 24px rgba(180,200,255,.18);
+            opacity: .45;
+        }
+        @keyframes planetFloat { to { transform: translate(-16px, -12px); } }
+        @media (max-width: 640px) {
+            .planet { width: 260px; height: 260px; right: -110px; bottom: -110px; }
+            .moon { display: none; }
+        }
+
 
         /* ---------- Theme bridge: older pages still use fixed dark colours.
                       These rules give them the same glass / violet look. ---------- */
@@ -146,7 +169,7 @@
 
 <body class="text-gray-200 min-h-screen">
 
-    <div class="space" aria-hidden="true"><i class="stars s1"></i><i class="stars s2"></i><i class="stars s3"></i></div>
+    <div class="space" aria-hidden="true"><i class="stars s1"></i><i class="stars s2"></i><i class="stars s3"></i><i class="planet"></i><i class="moon"></i></div>
 
 @php
     // Simple line icons
