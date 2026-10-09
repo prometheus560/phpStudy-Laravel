@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
 class AccountController extends Controller
@@ -14,6 +15,39 @@ class AccountController extends Controller
     public function index()
     {
         return view('account.index');
+    }
+
+    // NEW: edit name and email
+    public function updateProfile(Request $request)
+    {
+        $user = Auth::user();
+
+        $validated = $request->validate([
+            'name' => [
+                'required',
+                'string',
+                'max:100',
+            ],
+
+            'email' => [
+                'required',
+                'email',
+                'max:100',
+                Rule::unique('users', 'email')->ignore($user->id),
+            ],
+        ], [
+            'name.required'  => 'Please enter your name.',
+            'email.required' => 'Please enter your email.',
+            'email.email'    => 'Please enter a valid email address.',
+            'email.unique'   => 'That email is already used by another account.',
+        ]);
+
+        $user->update([
+            'name'  => trim($validated['name']),
+            'email' => trim($validated['email']),
+        ]);
+
+        return back()->with('success', 'Your information has been updated.');
     }
 
     public function updatePassword(Request $request)

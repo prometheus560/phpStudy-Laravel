@@ -28,6 +28,8 @@
     $user = auth()->user();
     $lock = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
     $eye  = '<svg class="open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.9 10.9 0 0 1 12 19c-7 0-11-7-11-7a19 19 0 0 1 5.06-5.94M9.9 4.24A10.9 10.9 0 0 1 12 5c7 0 11 7 11 7a19 19 0 0 1-3.16 4.19M1 1l22 22"/></svg>';
+    $userIc = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+    $mailIc = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>';
 @endphp
 
 <div class="max-w-5xl mx-auto px-6 py-8">
@@ -58,22 +60,40 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
 
-        {{-- Account Information --}}
+        {{-- Account Information (now editable) --}}
         <div class="glass p-6">
-            <h2 class="text-lg font-bold text-white mb-2">Account information</h2>
+            <h2 class="text-lg font-bold text-white mb-1">Account information</h2>
+            <p class="text-gray-400 text-sm mb-6">Change your name or email, then save.</p>
 
-            <div class="flex flex-col">
-                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 py-4 border-b border-white/10">
-                    <span class="text-gray-400 font-semibold text-sm">Name</span>
-                    <span class="text-gray-200 break-words sm:text-right">{{ $user->name }}</span>
+            <form method="POST" action="{{ route('account.profile.update') }}" id="profile-form">
+                @csrf
+                @method('PATCH')
+
+                <div class="mb-5">
+                    <label for="name" class="f-label">Name</label>
+                    <div class="control">
+                        {!! $userIc !!}
+                        <input type="text" id="name" name="name" value="{{ old('name', $user->name) }}"
+                               maxlength="100" required autocomplete="name"
+                               class="f-input has-icon">
+                    </div>
                 </div>
 
-                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 py-4 border-b border-white/10">
-                    <span class="text-gray-400 font-semibold text-sm">Email</span>
-                    <span class="text-gray-200 break-words sm:text-right">{{ $user->email }}</span>
+                <div class="mb-6">
+                    <label for="email" class="f-label">Email</label>
+                    <div class="control">
+                        {!! $mailIc !!}
+                        <input type="email" id="email" name="email" value="{{ old('email', $user->email) }}"
+                               maxlength="100" required autocomplete="email"
+                               class="f-input has-icon">
+                    </div>
                 </div>
 
-                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 py-4 {{ $user->created_at ? 'border-b border-white/10' : '' }}">
+                <button type="submit" id="profile-btn" class="btn-primary w-full sm:w-auto">Save changes</button>
+            </form>
+
+            <div class="flex flex-col mt-6">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 py-4 border-t border-white/10 {{ $user->created_at ? 'border-b' : '' }}">
                     <span class="text-gray-400 font-semibold text-sm">User ID</span>
                     <span class="text-gray-200 sm:text-right">{{ $user->id }}</span>
                 </div>
@@ -203,6 +223,21 @@
         const btn = document.getElementById('save-btn');
         btn.disabled = true;
         btn.textContent = 'Saving...';
+    });
+
+    // NEW: profile form button
+    document.getElementById('profile-form').addEventListener('submit', () => {
+        const btn = document.getElementById('profile-btn');
+        btn.disabled = true;
+        btn.textContent = 'Saving...';
+    });
+
+    // Re-enable buttons if the user comes back with the Back button
+    window.addEventListener('pageshow', () => {
+        const a = document.getElementById('profile-btn');
+        const b = document.getElementById('save-btn');
+        a.disabled = false; a.textContent = 'Save changes';
+        b.disabled = false; b.textContent = 'Change password';
     });
 })();
 </script>

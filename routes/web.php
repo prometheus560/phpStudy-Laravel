@@ -73,6 +73,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/account', [AccountController::class, 'index'])
         ->name('account.index');
 
+    // NEW: edit name and email
+    Route::patch('/account/profile', [AccountController::class, 'updateProfile'])
+        ->name('account.profile.update');
+
     Route::post('/account/password', [AccountController::class, 'updatePassword'])
         ->name('account.password.update');
 
