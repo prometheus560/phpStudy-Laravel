@@ -162,6 +162,11 @@
         [class*="border-[#23232f]"] { border-color: var(--line) !important; }
         [class*="border-[#2a2a38]"] { border-color: rgba(190,175,255,.16) !important; }
 
+        /* Search pop-ups: the card that holds the focused field rises above the cards below it,
+           so a dropdown is never hidden behind the next card. */
+        .glass:focus-within,
+        [class*="bg-[#14141f]"]:focus-within { position: relative; z-index: 30; }
+
         :focus-visible { outline: 2px solid #7db4ff; outline-offset: 2px; }
         @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
     </style>
