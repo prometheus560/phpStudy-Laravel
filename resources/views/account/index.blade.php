@@ -81,7 +81,7 @@
                 @if ($user->created_at)
                     <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 py-4">
                         <span class="text-gray-400 font-semibold text-sm">Member since</span>
-                        <span class="text-gray-200 sm:text-right">{{ $user->created_at->format('F d, Y') }}</span>
+                        <span class="text-gray-200 sm:text-right">{{ \Illuminate\Support\Carbon::parse($user->created_at)->format('F d, Y') }}</span>
                     </div>
                 @endif
             </div>

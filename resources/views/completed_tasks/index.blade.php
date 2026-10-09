@@ -8,31 +8,10 @@
 
     <div class="mb-6">
         <h2 class="text-3xl font-bold text-white tracking-tight">Completed Tasks</h2>
-        <p class="text-gray-400 text-sm mt-1">The tasks you have finished, most recent first.</p>
+        <p class="text-gray-400 text-sm mt-1">
+            The tasks you have finished, most recent first, using a Stack (last in, first out).
+        </p>
     </div>
-
-  
-        @if (count($pushed) > 0)
-            @php $top = array_slice(array_reverse($pushed), 0, 6); @endphp
-            <div class="flex flex-col items-start gap-1.5">
-                <span class="text-[11px] font-bold uppercase tracking-wider text-green-400">Top &darr;</span>
-
-                @foreach ($top as $i => $t)
-                    <span class="w-full max-w-sm rounded-lg border px-3 py-1.5 text-xs font-medium {{ $i === 0 ? 'border-green-500/50 bg-green-500/15 text-green-200' : 'border-[#2a2a38] bg-[#12121c] text-gray-300' }}">
-                        {{ \Illuminate\Support\Str::limit($t->task_name, 36) }}
-                    </span>
-                @endforeach
-
-                @if (count($pushed) > 6)
-                    <span class="text-xs text-gray-500">+{{ count($pushed) - 6 }} more below</span>
-                @endif
-
-                <span class="text-[11px] font-bold uppercase tracking-wider text-amber-400">Bottom</span>
-            </div>
-        @else
-            <p class="text-sm text-gray-500">The stack is empty.</p>
-  
-    </x-ds-panel>
 
     <div class="bg-[#14141f] border border-[#23232f] rounded-2xl p-6">
 

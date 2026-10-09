@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Password;
 
 class AuthController extends Controller
 {
@@ -46,13 +47,14 @@ class AuthController extends Controller
         }
 
 
-        // The "true" keeps the user logged in even after the browser is closed.
+        // "Remember me" is ticked by default on the login page.
+        // If the user unticks it, they are logged out when the browser closes.
         if (Auth::attempt(
             [
                 'email' => $email,
                 'password' => $credentials['password'],
             ],
-            true
+            $request->boolean('remember')
         )) {
 
             RateLimiter::clear($rateLimitKey);
@@ -102,9 +104,13 @@ class AuthController extends Controller
             'password' => [
                 'required',
                 'string',
-                'min:8',
                 'confirmed',
+                Password::min(8)->letters()->numbers(),
             ],
+        ], [
+            'email.unique'       => 'That email is already registered. Try logging in instead.',
+            'password.confirmed' => 'The two passwords do not match.',
+            'password.min'       => 'Your password must be at least 8 characters.',
         ]);
 
 
