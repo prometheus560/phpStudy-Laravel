@@ -36,18 +36,37 @@
         .bg { position: fixed; inset: 0; overflow: hidden; z-index: 0; pointer-events: none; }
         .orb { position: absolute; border-radius: 50%; filter: blur(100px); opacity: .42; animation: drift 18s ease-in-out infinite alternate; }
         .orb.a { width: 520px; height: 520px; background: #2563eb; top: -170px; left: -130px; }
-        .orb.b { width: 480px; height: 480px; background: #6d28d9; bottom: -190px; right: -130px; animation-delay: -6s; }
-        .orb.c { width: 300px; height: 300px; background: #0ea5e9; top: 42%; left: 58%; opacity: .2; animation-delay: -12s; }
+        .orb.b { width: 480px; height: 480px; background: #7c3aed; bottom: -190px; right: -130px; animation-delay: -6s; }
+        .orb.c { width: 300px; height: 300px; background: #c026d3; top: 42%; left: 58%; opacity: .14; animation-delay: -12s; }
         @keyframes drift { to { transform: translate(60px, 40px) scale(1.12); } }
-        .grid {
-            position: absolute; inset: 0;
+        .stars { position: absolute; inset: 0; background-repeat: repeat; }
+        .stars.s1 {
             background-image:
-                linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
-            background-size: 46px 46px;
-            -webkit-mask-image: radial-gradient(ellipse at center, #000 15%, transparent 70%);
-            mask-image: radial-gradient(ellipse at center, #000 15%, transparent 70%);
+                radial-gradient(1px 1px at 23px 41px, rgba(255,255,255,.9), transparent),
+                radial-gradient(1px 1px at 97px 163px, rgba(255,255,255,.7), transparent),
+                radial-gradient(1.2px 1.2px at 211px 87px, rgba(200,215,255,.85), transparent),
+                radial-gradient(1px 1px at 151px 249px, rgba(255,255,255,.6), transparent),
+                radial-gradient(1px 1px at 281px 197px, rgba(255,255,255,.8), transparent);
+            background-size: 320px 320px; opacity: .55;
         }
+        .stars.s2 {
+            background-image:
+                radial-gradient(1px 1px at 61px 23px, rgba(255,255,255,.9), transparent),
+                radial-gradient(1.3px 1.3px at 223px 131px, rgba(220,200,255,.9), transparent),
+                radial-gradient(1px 1px at 347px 289px, rgba(255,255,255,.7), transparent),
+                radial-gradient(1px 1px at 131px 377px, rgba(255,255,255,.8), transparent),
+                radial-gradient(1px 1px at 419px 61px, rgba(200,225,255,.8), transparent);
+            background-size: 470px 470px; animation: twinkle 5s ease-in-out infinite;
+        }
+        .stars.s3 {
+            background-image:
+                radial-gradient(1.4px 1.4px at 83px 97px, rgba(255,255,255,.95), transparent),
+                radial-gradient(1px 1px at 301px 211px, rgba(230,205,255,.9), transparent),
+                radial-gradient(1.2px 1.2px at 503px 351px, rgba(255,255,255,.85), transparent),
+                radial-gradient(1px 1px at 197px 487px, rgba(200,215,255,.8), transparent);
+            background-size: 610px 610px; animation: twinkle 7s ease-in-out infinite -2.5s;
+        }
+        @keyframes twinkle { 0%, 100% { opacity: .2; } 50% { opacity: .7; } }
 
         /* ---------- Layout ---------- */
         .wrap { position: relative; z-index: 1; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 28px 18px; }
@@ -58,7 +77,7 @@
             max-width: 420px;
             padding: 38px 34px 30px;
             border-radius: 26px;
-            background: rgba(14,14,24,.72);
+            background: rgba(14,12,30,.74);
             backdrop-filter: blur(22px);
             -webkit-backdrop-filter: blur(22px);
             box-shadow: 0 40px 100px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.06);
@@ -86,7 +105,7 @@
         @keyframes float { 50% { transform: translateY(-5px); } }
 
         h1 { text-align: center; font-size: 28px; font-weight: 700; letter-spacing: -.03em; color: #fff; line-height: 1.15; }
-        h1 .grad { background: linear-gradient(90deg, #60a5fa, #a78bfa); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        h1 .grad { background: linear-gradient(90deg, #60a5fa, #a78bfa 70%, #d8a8ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
         .sub { text-align: center; color: var(--muted); font-size: 14px; margin: 8px 0 26px; }
 
         /* ---------- Alerts ---------- */
@@ -171,7 +190,7 @@
 <body>
 
     <div class="bg" aria-hidden="true">
-        <i class="orb a"></i><i class="orb b"></i><i class="orb c"></i><i class="grid"></i>
+        <i class="orb a"></i><i class="orb b"></i><i class="orb c"></i><i class="stars s1"></i><i class="stars s2"></i><i class="stars s3"></i>
     </div>
 
     <main class="wrap">

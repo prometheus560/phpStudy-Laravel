@@ -12,11 +12,11 @@
 
     <style>
         :root {
-            --card: rgba(20,20,31,.78);
-            --line: rgba(255,255,255,.08);
-            --field: #12121c;
-            --field-line: #262636;
-            --muted: grayblue;
+            --card: rgba(16,14,32,.72);
+            --line: rgba(190,175,255,.11);
+            --field: #100f1d;
+            --field-line: #2a2842;
+            --muted: #8b90a5;
         }
 
         html { color-scheme: dark; }
@@ -25,24 +25,26 @@
             font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
             -webkit-font-smoothing: antialiased;
             background:
-                radial-gradient(60rem 40rem at 8% -10%, rgba(59,130,246,.20), transparent 60%),
-                radial-gradient(50rem 40rem at 110% 110%, rgba(99,102,241,.16), transparent 60%),
-                #07070d;
+                radial-gradient(45rem 32rem at 8% -8%, rgba(99,102,241,.20), transparent 60%),
+                radial-gradient(40rem 30rem at 105% 12%, rgba(168,85,247,.14), transparent 60%),
+                radial-gradient(50rem 36rem at 100% 108%, rgba(37,99,235,.16), transparent 60%),
+                radial-gradient(34rem 24rem at -4% 100%, rgba(192,38,211,.07), transparent 60%),
+                #05060d;
             background-attachment: fixed;
         }
 
         .sidebar-scroll::-webkit-scrollbar { width: 6px; }
-        .sidebar-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 3px; }
+        .sidebar-scroll::-webkit-scrollbar-thumb { background: rgba(167,139,250,.28); border-radius: 3px; }
 
-        /* Shared "login style" components  */
-        .sidebar-glass { background: rgba(12,12,22,.72); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-color: var(--line); }
+        /* ---------- Shared "login style" components ---------- */
+        .sidebar-glass { background: rgba(10,9,24,.74); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-color: var(--line); }
 
         .glass { background: var(--card); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--line); border-radius: 20px; box-shadow: 0 30px 80px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05); }
-        .glass-accent { border-color: rgba(59,130,246,.28); box-shadow: 0 30px 80px rgba(0,0,0,.45), 0 0 60px rgba(59,130,246,.08), inset 0 1px 0 rgba(255,255,255,.06); }
+        .glass-accent { border-color: rgba(129,140,248,.34); box-shadow: 0 30px 80px rgba(0,0,0,.45), 0 0 60px rgba(59,130,246,.08), inset 0 1px 0 rgba(255,255,255,.06); }
 
         .page-title { font-size: 30px; font-weight: 700; letter-spacing: -.02em; color: #fff; }
         .page-sub { color: var(--muted); font-size: 14px; margin-top: 4px; }
-        .grad-text { background: linear-gradient(90deg, #60a5fa, #818cf8); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .grad-text { background: linear-gradient(90deg, #60a5fa, #a78bfa 70%, #d8a8ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
 
         .f-label { display: block; font-size: 13px; font-weight: 600; color: #cfd2e0; margin-bottom: 8px; }
         .control { position: relative; }
@@ -82,7 +84,7 @@
         .alert-err { background: rgba(248,113,113,.10); color: #fca5a5; border: 1px solid rgba(248,113,113,.25); }
         .alert-ok { background: rgba(74,222,128,.10); color: #86efac; border: 1px solid rgba(74,222,128,.25); }
 
-        /*  Dashboard extras  */
+        /* ---------- Dashboard extras ---------- */
         .stat { position: relative; overflow: hidden; padding: 20px; border-radius: 18px; background: var(--card); border: 1px solid var(--line); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: inset 0 1px 0 rgba(255,255,255,.05); transition: transform .2s, border-color .2s; }
         .stat::before { content: ""; position: absolute; right: -40px; top: -40px; width: 170px; height: 170px; border-radius: 50%; background: radial-gradient(circle, var(--glow), transparent 70%); pointer-events: none; }
         .stat:hover { transform: translateY(-2px); border-color: rgba(255,255,255,.16); }
@@ -98,12 +100,53 @@
         .pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: #60a5fa; box-shadow: 0 0 0 0 rgba(96,165,250,.6); animation: pulse 2s infinite; }
         @keyframes pulse { 70% { box-shadow: 0 0 0 8px rgba(96,165,250,0); } 100% { box-shadow: 0 0 0 0 rgba(96,165,250,0); } }
 
+
+        /* ---------- Galaxy touch: faint twinkling stars ---------- */
+        .space { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+        .stars { position: absolute; inset: 0; background-repeat: repeat; }
+        .stars.s1 {
+            background-image:
+                radial-gradient(1px 1px at 23px 41px, rgba(255,255,255,.9), transparent),
+                radial-gradient(1px 1px at 97px 163px, rgba(255,255,255,.7), transparent),
+                radial-gradient(1.2px 1.2px at 211px 87px, rgba(200,215,255,.85), transparent),
+                radial-gradient(1px 1px at 151px 249px, rgba(255,255,255,.6), transparent),
+                radial-gradient(1px 1px at 281px 197px, rgba(255,255,255,.8), transparent);
+            background-size: 320px 320px; opacity: .5;
+        }
+        .stars.s2 {
+            background-image:
+                radial-gradient(1px 1px at 61px 23px, rgba(255,255,255,.9), transparent),
+                radial-gradient(1.3px 1.3px at 223px 131px, rgba(220,200,255,.9), transparent),
+                radial-gradient(1px 1px at 347px 289px, rgba(255,255,255,.7), transparent),
+                radial-gradient(1px 1px at 131px 377px, rgba(255,255,255,.8), transparent),
+                radial-gradient(1px 1px at 419px 61px, rgba(200,225,255,.8), transparent);
+            background-size: 470px 470px; animation: twinkle 5s ease-in-out infinite;
+        }
+        .stars.s3 {
+            background-image:
+                radial-gradient(1.4px 1.4px at 83px 97px, rgba(255,255,255,.95), transparent),
+                radial-gradient(1px 1px at 301px 211px, rgba(230,205,255,.9), transparent),
+                radial-gradient(1.2px 1.2px at 503px 351px, rgba(255,255,255,.85), transparent),
+                radial-gradient(1px 1px at 197px 487px, rgba(200,215,255,.8), transparent);
+            background-size: 610px 610px; animation: twinkle 7s ease-in-out infinite -2.5s;
+        }
+        @keyframes twinkle { 0%, 100% { opacity: .2; } 50% { opacity: .7; } }
+
+        /* ---------- Theme bridge: older pages still use fixed dark colours.
+                      These rules give them the same glass / violet look. ---------- */
+        [class*="bg-[#14141f]"] { background-color: var(--card) !important; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+        [class*="bg-[#1b1b28]"] { background-color: rgba(255,255,255,.035) !important; }
+        [class*="border-[#23232f]"] { border-color: var(--line) !important; }
+        [class*="border-[#2a2a38]"] { border-color: rgba(190,175,255,.16) !important; }
+
         :focus-visible { outline: 2px solid #7db4ff; outline-offset: 2px; }
         @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
     </style>
 </head>
 
 <body class="text-gray-200 min-h-screen">
+
+    <div class="space" aria-hidden="true"><i class="stars s1"></i><i class="stars s2"></i><i class="stars s3"></i></div>
 
 @php
     // Simple line icons
@@ -183,7 +226,7 @@
     <div
         id="sidebarOverlay"
         onclick="toggleSidebar()"
-        class="hidden fixed inset-0 bg-black/60 z-30">
+        class="hidden fixed inset-0 bg-black/60 z-30 lg:hidden">
     </div>
 
     {{-- Sidebar --}}
@@ -196,12 +239,12 @@
             href="{{ route('dashboard') }}"
             class="flex items-center gap-3 px-5 py-5 border-b border-white/10">
 
-            <span class="w-10 h-10 rounded-xl bg-white overflow-hidden flex items-center justify-center shadow-lg shadow-blue-500/20 ring-1 ring-white/10 shrink-0">
+            <span class="w-10 h-10 rounded-xl bg-white overflow-hidden flex items-center justify-center shadow-lg shadow-violet-500/30 ring-1 ring-white/10 shrink-0">
                 <img src="{{ asset('logo.jpg') }}" alt="Logo" class="w-full h-full object-contain">
             </span>
 
             <span class="block text-white font-semibold text-sm leading-tight">
-                ClassTrack
+                Student Study Planner
             </span>
         </a>
 
@@ -250,7 +293,7 @@
                     <a
                         href="{{ route($routeName) }}"
                         {{ request()->routeIs($pattern) ? 'data-active=1' : '' }}
-                        class="flex items-center gap-3 px-3 py-2 mb-0.5 rounded-xl border text-sm {{ request()->routeIs($pattern) ? 'bg-blue-500/10 border-blue-500/25 text-[#a9cdff] font-medium' : 'border-transparent text-gray-400 hover:text-white hover:bg-white/5' }}">
+                        class="flex items-center gap-3 px-3 py-2 mb-0.5 rounded-xl border text-sm {{ request()->routeIs($pattern) ? 'bg-violet-500/10 border-violet-400/25 text-[#c4b5fd] font-medium' : 'border-transparent text-gray-400 hover:text-white hover:bg-white/5' }}">
 
                         <svg
                             class="w-[18px] h-[18px] shrink-0"
@@ -433,40 +476,6 @@
 @endauth
 
 @stack('scripts')
-
-{{-- Web Push Service Worker --}}
-<script>
-document.addEventListener('DOMContentLoaded', async function () {
-
-    if (!('serviceWorker' in navigator)) {
-        console.log('Service Worker is not supported.');
-        return;
-    }
-
-    if (!('PushManager' in window)) {
-        console.log('Push notifications are not supported.');
-        return;
-    }
-
-    try {
-        const registration = await navigator.serviceWorker.register('/sw.js');
-
-        console.log('Service Worker registered successfully:', registration);
-
-        const permission = await Notification.requestPermission();
-
-        if (permission === 'granted') {
-            console.log('Notification permission granted.');
-        } else {
-            console.log('Notification permission not granted.');
-        }
-
-    } catch (error) {
-        console.error('Push notification setup failed:', error);
-    }
-
-});
-</script>
 
 </body>
 </html>
