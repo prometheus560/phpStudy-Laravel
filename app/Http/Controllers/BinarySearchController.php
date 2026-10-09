@@ -11,16 +11,17 @@ class BinarySearchController extends Controller
     {
         $search = trim($request->query('search', ''));
 
-        // Binary search needs the list sorted by name (A-Z)
+        // Binary search needs the list sorted by name (A-Z, ignoring case)
         $subjects = Auth::user()
             ->subjects()
+            ->withCount('tasks')
             ->get()
             ->sortBy(fn ($subject) => mb_strtolower($subject->subject_name))
             ->values();
 
         $message = '';
-        $steps = [];
 
+        // Exact-name search (the Search button), using binary search
         if ($search !== '') {
             $target = mb_strtolower($search);
 
@@ -32,30 +33,16 @@ class BinarySearchController extends Controller
                 $mid = intdiv($low + $high, 2);
                 $midName = mb_strtolower($subjects[$mid]->subject_name);
 
-                // Remember this step (positions start at 1 to read nicely)
-                $step = [
-                    'low'  => $low + 1,
-                    'high' => $high + 1,
-                    'mid'  => $mid + 1,
-                    'name' => $subjects[$mid]->subject_name,
-                ];
-
                 if ($midName === $target) {
-                    $step['result'] = 'This is the one.';
-                    $steps[] = $step;
                     $foundIndex = $mid;
                     break;
                 }
 
                 if ($midName < $target) {
-                    $step['result'] = 'Comes before your search, so look in the lower half.';
                     $low = $mid + 1;
                 } else {
-                    $step['result'] = 'Comes after your search, so look in the upper half.';
                     $high = $mid - 1;
                 }
-
-                $steps[] = $step;
             }
 
             if ($foundIndex !== null) {
@@ -66,6 +53,11 @@ class BinarySearchController extends Controller
             }
         }
 
-        return view('binary_search.index', compact('search', 'message', 'subjects', 'steps'));
+        // Group by first letter for display (the list is already sorted)
+        $groups = $subjects->groupBy(
+            fn ($subject) => mb_strtoupper(mb_substr($subject->subject_name, 0, 1))
+        );
+
+        return view('binary_search.index', compact('search', 'message', 'subjects', 'groups'));
     }
 }
