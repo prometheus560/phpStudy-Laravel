@@ -109,6 +109,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/tasks/{task}/complete', [TaskController::class, 'complete'])
         ->name('tasks.complete');
 
+    // NEW: delete several selected tasks at once
+    Route::delete('/tasks', [TaskController::class, 'bulkDestroy'])
+        ->name('tasks.bulk_destroy');
+
     Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])
         ->name('tasks.destroy');
 

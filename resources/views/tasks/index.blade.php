@@ -111,6 +111,13 @@
 
     @if ($tasks->count() > 0)
 
+        <div class="flex items-center mb-3 px-1">
+            <label class="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-gray-200 cursor-pointer select-none">
+                <input type="checkbox" id="select-all" class="w-4 h-4 accent-blue-500 cursor-pointer">
+                Select all
+            </label>
+        </div>
+
         <div id="task-list" class="flex flex-col gap-3">
 
             @foreach ($tasks as $task)
@@ -123,6 +130,11 @@
                 <div id="task-{{ $task->id }}" data-search-item data-name="{{ mb_strtolower($task->task_name) }}" data-filter="{{ $task->subject_id }}"
                      class="rounded-2xl p-5 border border-white/[.08] border-l-4 {{ $isDone ? 'border-l-gray-600' : ($accent[$task->priority] ?? 'border-l-gray-500') }} bg-white/[.03] hover:border-blue-500/30 transition">
                     <div class="flex flex-wrap items-center justify-between gap-4">
+
+                        {{-- Select checkbox (for deleting several tasks at once) --}}
+                        <input type="checkbox" name="ids[]" value="{{ $task->id }}" form="bulk-form"
+                               class="task-check w-4 h-4 shrink-0 accent-blue-500 cursor-pointer"
+                               aria-label="Select task {{ $task->task_name }}">
 
                         {{-- Task Information --}}
                         <div class="flex-1 min-w-[240px]">
@@ -360,6 +372,105 @@
 
     document.getElementById('edit-cancel').addEventListener('click', () => dlg.close());
     dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+})();
+</script>
+
+@endif
+
+@if ($tasks->count() > 0)
+
+{{-- Bulk delete --}}
+<form method="POST" action="{{ route('tasks.bulk_destroy') }}" id="bulk-form">
+    @csrf
+    @method('DELETE')
+</form>
+
+<div id="bulk-bar"
+     class="hidden fixed bottom-6 left-1/2 lg:left-[calc(50%+8rem)] -translate-x-1/2 z-40 items-center gap-3 rounded-2xl border border-[#2a2a38] bg-[#14141f] px-4 py-3 shadow-2xl shadow-black/60">
+    <span id="bulk-count" class="text-sm font-semibold text-white whitespace-nowrap">0 selected</span>
+
+    <button type="button" id="bulk-cancel"
+            class="rounded-lg px-3 py-1.5 text-sm font-medium border border-[#2a2a38] text-gray-300 hover:bg-white/5">
+        Cancel
+    </button>
+
+    <button type="submit" form="bulk-form"
+            class="rounded-lg px-3.5 py-1.5 text-sm font-semibold border border-red-500/40 text-red-300 bg-red-500/10 hover:bg-red-500/20">
+        Delete selected
+    </button>
+</div>
+
+<script>
+(() => {
+    const form   = document.getElementById('bulk-form');
+    const bar    = document.getElementById('bulk-bar');
+    const count  = document.getElementById('bulk-count');
+    const all    = document.getElementById('select-all');
+    const boxes  = [...document.querySelectorAll('.task-check')];
+    const ring   = ['ring-1', 'ring-blue-500/60', 'bg-blue-500/[.06]'];
+
+    // A task counts only if the search/filter is currently showing it
+    const visible = b => {
+        const item = b.closest('[data-search-item]');
+        return item && item.offsetParent !== null;
+    };
+
+    function refresh() {
+        const vis = boxes.filter(visible);
+        const sel = vis.filter(b => b.checked);
+
+        boxes.forEach(b => {
+            const item = b.closest('[data-search-item]');
+            if (item) ring.forEach(c => item.classList.toggle(c, b.checked));
+        });
+
+        count.textContent = sel.length + ' selected';
+        bar.classList.toggle('hidden', sel.length === 0);
+        bar.classList.toggle('flex', sel.length > 0);
+
+        all.checked = vis.length > 0 && sel.length === vis.length;
+        all.indeterminate = sel.length > 0 && sel.length < vis.length;
+    }
+
+    boxes.forEach(b => b.addEventListener('change', refresh));
+
+    all.addEventListener('change', () => {
+        boxes.filter(visible).forEach(b => { b.checked = all.checked; });
+        refresh();
+    });
+
+    document.getElementById('bulk-cancel').addEventListener('click', () => {
+        boxes.forEach(b => { b.checked = false; });
+        refresh();
+    });
+
+    // Re-count when the search box or subject filter changes
+    document.addEventListener('input',  () => setTimeout(refresh, 0));
+    document.addEventListener('change', () => setTimeout(refresh, 0));
+    document.addEventListener('click',  () => setTimeout(refresh, 0));
+
+    form.addEventListener('submit', e => {
+        const sel = boxes.filter(b => b.checked && visible(b));
+
+        if (sel.length === 0) { e.preventDefault(); return; }
+
+        const word = sel.length === 1 ? 'task' : 'tasks';
+        if (!confirm('Delete ' + sel.length + ' selected ' + word + '? This cannot be undone.')) {
+            e.preventDefault();
+            return;
+        }
+
+        // Hidden (filtered-out) tasks are never sent
+        boxes.forEach(b => { b.disabled = !(b.checked && visible(b)); });
+    });
+
+    // Back button: start clean
+    window.addEventListener('pageshow', () => {
+        boxes.forEach(b => { b.disabled = false; b.checked = false; });
+        refresh();
+    });
+
+    refresh();
 })();
 </script>
 

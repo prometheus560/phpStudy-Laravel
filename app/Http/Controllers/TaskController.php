@@ -121,4 +121,34 @@ class TaskController extends Controller
             ->route('tasks.index')
             ->with('success', 'Task deleted successfully.');
     }
+
+    // NEW: delete several selected tasks at once
+    public function bulkDestroy(Request $request)
+    {
+        $data = $request->validate([
+            'ids'   => 'required|array|min:1',
+            'ids.*' => 'integer',
+        ], [
+            'ids.required' => 'Please select at least one task.',
+        ]);
+
+        // Only the logged-in user's own tasks can be deleted
+        $ids = $this->ownedByMe(Task::query())
+            ->whereIn('id', $data['ids'])
+            ->pluck('id');
+
+        if ($ids->isEmpty()) {
+            return redirect()
+                ->route('tasks.index')
+                ->withErrors(['ids' => 'No matching tasks were found.']);
+        }
+
+        Task::whereIn('id', $ids)->delete();
+
+        $count = $ids->count();
+
+        return redirect()
+            ->route('tasks.index')
+            ->with('success', $count . ($count === 1 ? ' task' : ' tasks') . ' deleted successfully.');
+    }
 }
