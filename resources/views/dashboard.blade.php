@@ -5,18 +5,13 @@
 @section('content')
 
 @php
-    $priorityBadge = [
-        'High'   => 'bg-rose-500/15 text-rose-400',
-        'Medium' => 'bg-yellow-500/15 text-yellow-400',
-        'Low'    => 'bg-green-500/15 text-green-400',
-    ];
-    $priorityBar = [
-        'High'   => 'bg-rose-500',
-        'Medium' => 'bg-yellow-500',
-        'Low'    => 'bg-green-500',
+    $priorityChip = [
+        'High'   => 'chip-high',
+        'Medium' => 'chip-med',
+        'Low'    => 'chip-low',
     ];
 
-    // NEW: countdown text for a deadline (e.g. "Overdue by 2d", "Due today", "5 days left")
+    // Countdown text for a deadline (e.g. "Overdue by 2d", "Due today", "5 days left")
     $dueLabel = function ($deadline) {
         $days = (int) today()->diffInDays($deadline->copy()->startOfDay(), false);
         if ($days < 0)   return 'Overdue by ' . abs($days) . 'd';
@@ -24,21 +19,46 @@
         if ($days === 1) return 'Due tomorrow';
         return $days . ' days left';
     };
+
+    // Overall progress
+    $overallTotal = $stats['pending'] + $stats['completed'];
+    $overallPct   = $overallTotal > 0 ? (int) round($stats['completed'] / $overallTotal * 100) : 0;
+
+    // Greeting line
+    $todayCount = $sessions->filter(fn ($s) => $s->study_date->isToday())->count();
+    $parts = [];
+    if ($dueThisWeek > 0) { $parts[] = $dueThisWeek . ($dueThisWeek == 1 ? ' task' : ' tasks') . ' due this week'; }
+    if ($todayCount > 0)  { $parts[] = $todayCount . ($todayCount == 1 ? ' study session' : ' study sessions') . ' today'; }
+    $summary = count($parts) ? 'You have ' . implode(' and ', $parts) . '.' : 'Nothing urgent right now. A good day to get ahead.';
+
+    // Subjects with the most pending work first, top 5
+    $topSubjects = $subjects->sortByDesc('pending_tasks_count')->take(5);
 @endphp
 
 <div class="max-w-6xl mx-auto px-6 py-8">
 
     {{-- Greeting --}}
-    <div class="mb-6">
-        <h2 class="text-3xl font-bold text-white">{{ $greeting }}, {{ $user->name }}</h2>
-        <p class="text-gray-400 text-sm mt-1">Overview of Today's Study.</p>
+    <div class="flex flex-wrap items-center justify-between gap-5 mb-8">
+        <div>
+            <h2 class="text-3xl font-bold text-white tracking-tight">{{ $greeting }}, <span class="grad-text">{{ $user->name }}</span></h2>
+            <p class="text-gray-400 text-sm mt-1">{{ $summary }}</p>
+        </div>
+
+        <div class="flex items-center gap-3">
+            <div class="relative w-14 h-14 rounded-full grid place-items-center"
+                 style="background: conic-gradient(#6366f1 {{ $overallPct }}%, rgba(255,255,255,.08) 0)">
+                <div class="w-11 h-11 rounded-full grid place-items-center text-xs font-bold text-white" style="background:#0c0b1a">{{ $overallPct }}%</div>
+            </div>
+            <div>
+                <p class="text-sm font-semibold text-white leading-tight">Overall progress</p>
+                <p class="text-xs text-gray-500">{{ $stats['completed'] }} of {{ $overallTotal }} tasks done</p>
+            </div>
+        </div>
     </div>
 
-    {{-- NEW: success message after clicking Done --}}
+    {{-- Success message after clicking Done --}}
     @if (session('success'))
-        <div class="bg-green-500/10 border border-green-500/25 text-green-300 text-sm rounded-xl px-4 py-3 mb-6">
-            {{ session('success') }}
-        </div>
+        <div class="alert alert-ok" role="status">{{ session('success') }}</div>
     @endif
 
     {{-- Alert banner --}}
@@ -46,10 +66,9 @@
         <a href="{{ route('tasks.index') }}"
            class="flex items-center justify-between bg-yellow-500/10 border border-yellow-500/25 text-yellow-300 text-sm rounded-xl px-4 py-3 mb-6 hover:bg-yellow-500/15">
             <span class="flex items-center gap-3">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                 <span>
                     {{ $dueSoon }} {{ $dueSoon == 1 ? 'task is' : 'tasks are' }} due soon:
-                    {{-- NEW: names the tasks --}}
                     <strong class="font-semibold">
                         @foreach (collect($dueSoonTasks ?? [])->take(2) as $t)
                             {{ \Illuminate\Support\Str::limit($t->task_name, 40) }} ({{ strtolower($dueLabel($t->deadline)) }}){{ !$loop->last ? ',' : '' }}
@@ -62,51 +81,47 @@
         </a>
     @endif
 
-    {{-- Stat cards --}}
+    {{-- Stat cards (each one opens its page) --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
 
-        <div class="bg-[#14141f] border border-[#23232f] rounded-xl p-5">
+        <a href="{{ route('subjects.index') }}" class="stat block"
+           style="--glow:rgba(59,130,246,.22);--c:#60a5fa;--bg:rgba(59,130,246,.12);--bd:rgba(59,130,246,.25)">
             <div class="flex items-start justify-between mb-4">
-                <span class="w-10 h-10 rounded-lg bg-blue-600/15 border border-blue-500/20 text-blue-400 flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-                </span>
+                <span class="stat-icon"><svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
             </div>
-            <p class="text-3xl font-bold text-white">{{ $stats['subjects'] }}</p>
-            <p class="text-gray-400 text-sm mt-1">Subjects</p>
-        </div>
+            <p class="text-3xl font-bold text-white relative">{{ $stats['subjects'] }}</p>
+            <p class="text-gray-400 text-sm mt-1 relative">Subjects</p>
+        </a>
 
-        <div class="bg-[#14141f] border border-[#23232f] rounded-xl p-5">
+        <a href="{{ route('tasks.index') }}" class="stat block"
+           style="--glow:rgba(249,115,22,.20);--c:#fb923c;--bg:rgba(249,115,22,.12);--bd:rgba(249,115,22,.25)">
             <div class="flex items-start justify-between mb-4">
-                <span class="w-10 h-10 rounded-lg bg-orange-500/15 border border-orange-500/20 text-orange-400 flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                </span>
+                <span class="stat-icon"><svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
                 @if ($stats['overdue'] > 0)
-                    <span class="text-[11px] font-semibold bg-rose-500/15 text-rose-400 px-2 py-0.5 rounded-md">{{ $stats['overdue'] }} overdue</span>
+                    <span class="relative text-[11px] font-semibold bg-rose-500/15 text-rose-400 px-2 py-0.5 rounded-md">{{ $stats['overdue'] }} overdue</span>
                 @endif
             </div>
-            <p class="text-3xl font-bold text-white">{{ $stats['pending'] }}</p>
-            <p class="text-gray-400 text-sm mt-1">Pending Tasks</p>
-        </div>
+            <p class="text-3xl font-bold text-white relative">{{ $stats['pending'] }}</p>
+            <p class="text-gray-400 text-sm mt-1 relative">Pending Tasks</p>
+        </a>
 
-        <div class="bg-[#14141f] border border-[#23232f] rounded-xl p-5">
+        <a href="{{ route('completed_tasks.index') }}" class="stat block"
+           style="--glow:rgba(34,197,94,.18);--c:#4ade80;--bg:rgba(34,197,94,.12);--bd:rgba(34,197,94,.25)">
             <div class="flex items-start justify-between mb-4">
-                <span class="w-10 h-10 rounded-lg bg-green-500/15 border border-green-500/20 text-green-400 flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                </span>
+                <span class="stat-icon"><svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>
             </div>
-            <p class="text-3xl font-bold text-white">{{ $stats['completed'] }}</p>
-            <p class="text-gray-400 text-sm mt-1">Completed Tasks</p>
-        </div>
+            <p class="text-3xl font-bold text-white relative">{{ $stats['completed'] }}</p>
+            <p class="text-gray-400 text-sm mt-1 relative">Completed Tasks</p>
+        </a>
 
-        <div class="bg-[#14141f] border border-[#23232f] rounded-xl p-5">
+        <a href="{{ route('priority_tasks.index') }}" class="stat block"
+           style="--glow:rgba(244,63,94,.18);--c:#fb7185;--bg:rgba(244,63,94,.12);--bd:rgba(244,63,94,.25)">
             <div class="flex items-start justify-between mb-4">
-                <span class="w-10 h-10 rounded-lg bg-rose-500/15 border border-rose-500/20 text-rose-400 flex items-center justify-center">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
-                </span>
+                <span class="stat-icon"><svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></span>
             </div>
-            <p class="text-3xl font-bold text-white">{{ $stats['high'] }}</p>
-            <p class="text-gray-400 text-sm mt-1">High Priority</p>
-        </div>
+            <p class="text-3xl font-bold text-white relative">{{ $stats['high'] }}</p>
+            <p class="text-gray-400 text-sm mt-1 relative">High Priority</p>
+        </a>
 
     </div>
 
@@ -116,44 +131,41 @@
         <div class="lg:col-span-2 flex flex-col gap-4">
 
             {{-- Active workbench --}}
-            <div class="bg-[#14141f] border border-blue-500/30 rounded-xl p-5">
-                <div class="flex items-center justify-between mb-4">
+            <div class="glass glass-accent p-5">
+                <div class="flex items-center justify-between mb-3">
                     <div class="flex items-center gap-3">
-                        <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+                        <span class="pulse-dot"></span>
                         <h3 class="font-semibold text-blue-300">Active Workbench</h3>
-                        <span class="text-xs bg-blue-500/15 text-blue-300 rounded-md px-2 py-0.5">{{ $workbench->count() }} / {{ $stats['pending'] }}</span>
+                        <span class="chip chip-blue">{{ $workbench->count() }} / {{ $stats['pending'] }}</span>
                     </div>
                     <a href="{{ route('tasks.index') }}" class="text-xs text-gray-400 hover:text-white">View All &rarr;</a>
                 </div>
 
                 @forelse ($workbench as $task)
-                    @php $overdue = $task->deadline->lt(today()); @endphp
-                    <div class="flex items-center justify-between gap-4 py-3.5 border-t border-[#23232f]">
+                    @php
+                        $days  = (int) today()->diffInDays($task->deadline->copy()->startOfDay(), false);
+                        $dueCl = $days < 0 ? 'text-rose-400' : ($days === 0 ? 'text-amber-300' : 'text-gray-400');
+                    @endphp
+                    <div class="row-item flex flex-wrap items-center justify-between gap-3 py-3.5 px-2 -mx-2 rounded-lg">
                         <div class="min-w-0">
                             <p class="text-sm font-medium text-white truncate">{{ $task->task_name }}</p>
-                            <span class="inline-block mt-1 text-[10px] font-semibold uppercase tracking-wide bg-white/5 text-gray-400 rounded px-1.5 py-0.5">
-                                {{ $task->subject->subject_name }}
-                            </span>
+                            <span class="inline-block mt-1 chip chip-muted" style="font-size:10px;padding:2px 8px">{{ $task->subject->subject_name }}</span>
                         </div>
                         <div class="flex items-center gap-3 shrink-0">
-                            <span class="text-xs font-semibold rounded-md px-2 py-1 {{ $priorityBadge[$task->priority] ?? 'bg-white/5 text-gray-400' }}">{{ $task->priority }}</span>
-                            {{-- CHANGED: date now also shows the countdown --}}
-                            <span class="text-xs font-mono {{ $overdue ? 'text-rose-400' : 'text-gray-400' }}">
-                                {{ $task->deadline->format('M d') }} &middot; {{ $dueLabel($task->deadline) }}
-                            </span>
-                            {{-- NEW: Done button --}}
-                            <form method="POST" action="{{ route('tasks.complete', $task) }}">
+                            <span class="chip {{ $priorityChip[$task->priority] ?? 'chip-muted' }}">{{ $task->priority }}</span>
+                            <span class="text-xs {{ $dueCl }}">{{ $task->deadline->format('M d') }} &middot; {{ $dueLabel($task->deadline) }}</span>
+                            <form method="POST" action="{{ route('tasks.complete', $task) }}" data-once>
                                 @csrf
                                 @method('PATCH')
-                                <button type="submit" title="Mark as done"
-                                        class="text-xs font-semibold text-green-400 border border-green-500/40 hover:bg-green-500/15 rounded-md px-2 py-1">
-                                    &#10003; Done
-                                </button>
+                                <button type="submit" title="Mark as done" class="btn-sm btn-ok">&#10003; Done</button>
                             </form>
                         </div>
                     </div>
                 @empty
-                    <div class="text-center py-10 border-t border-[#23232f]">
+                    <div class="text-center py-10 border-t border-white/10">
+                        <span class="w-12 h-12 mx-auto rounded-2xl bg-green-500/12 border border-green-500/25 text-green-400 grid place-items-center mb-3">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        </span>
                         <p class="text-white font-semibold">You're all caught up</p>
                         <p class="text-gray-400 text-sm mt-1">No pending tasks right now.</p>
                     </div>
@@ -161,22 +173,22 @@
             </div>
 
             {{-- Recently completed --}}
-            <div class="bg-[#14141f] border border-[#23232f] rounded-xl p-5">
-                <div class="flex items-center justify-between mb-4">
+            <div class="glass p-5">
+                <div class="flex items-center justify-between mb-3">
                     <h3 class="font-semibold text-white">Recently Completed</h3>
                     <a href="{{ route('completed_tasks.index') }}" class="text-xs text-gray-400 hover:text-white">Full List &rarr;</a>
                 </div>
 
                 @forelse ($recentCompleted as $task)
-                    <div class="flex items-center justify-between gap-4 py-3 border-t border-[#23232f]">
+                    <div class="row-item flex items-center justify-between gap-4 py-3 px-2 -mx-2 rounded-lg">
                         <div class="min-w-0">
                             <p class="text-sm text-gray-200 truncate">{{ $task->task_name }}</p>
                             <p class="text-xs text-gray-500">{{ $task->subject->subject_name }}</p>
                         </div>
-                        <span class="text-xs font-semibold text-green-400">Completed</span>
+                        <span class="chip chip-low">Completed</span>
                     </div>
                 @empty
-                    <p class="text-center text-gray-500 text-sm py-6 border-t border-[#23232f]">No completed tasks yet.</p>
+                    <p class="text-center text-gray-500 text-sm py-6 border-t border-white/10">Finished tasks will show up here.</p>
                 @endforelse
             </div>
 
@@ -185,51 +197,61 @@
         {{-- RIGHT COLUMN --}}
         <div class="flex flex-col gap-4">
 
-            {{-- Upcoming --}}
-            <div class="bg-[#14141f] border border-[#23232f] rounded-xl p-5">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="font-semibold text-white">Upcoming</h3>
-                    <a href="{{ route('upcoming_tasks.index') }}" class="text-xs text-gray-400 hover:text-white">All &rarr;</a>
+            {{-- Study sessions --}}
+            <div class="glass p-5">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-semibold text-white">Study Sessions</h3>
+                    <a href="{{ route('schedule.index') }}" class="text-xs text-gray-400 hover:text-white">Schedule &rarr;</a>
                 </div>
 
-                @forelse ($upcoming as $task)
-                    <div class="flex items-stretch gap-3 mb-3 last:mb-0">
-                        <span class="w-1 rounded-full {{ $priorityBar[$task->priority] ?? 'bg-gray-500' }}"></span>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-white truncate">{{ $task->task_name }}</p>
-                            {{-- CHANGED: shows countdown next to the date --}}
-                            <p class="text-xs text-gray-500 font-mono">{{ $task->deadline->format('D, M d') }} &middot; {{ $dueLabel($task->deadline) }}</p>
+                @forelse ($sessions as $session)
+                    @php
+                        $diff = (int) today()->diffInDays($session->study_date->copy()->startOfDay(), false);
+                        $tag  = $diff === 0 ? 'Today' : ($diff === 1 ? 'Tomorrow' : $session->study_date->format('D, M d'));
+                    @endphp
+                    <div class="row-item flex items-start justify-between gap-3 py-3 px-2 -mx-2 rounded-lg">
+                        <div class="min-w-0">
+                            <p class="text-sm font-medium text-white truncate">{{ $session->subject->subject_name }}</p>
+                            <p class="text-xs text-gray-500 mt-0.5">{{ date('g:i A', strtotime($session->start_time)) }} &ndash; {{ date('g:i A', strtotime($session->end_time)) }}</p>
                         </div>
-                        @if ($task->deadline->isToday())
-                            <span class="self-start text-[10px] font-semibold bg-blue-500/15 text-blue-300 rounded-md px-2 py-0.5">Today</span>
-                        @endif
+                        <span class="chip {{ $diff === 0 ? 'chip-blue' : 'chip-muted' }} shrink-0">{{ $tag }}</span>
                     </div>
                 @empty
-                    <p class="text-center text-gray-500 text-sm py-6">No upcoming tasks.</p>
+                    <div class="text-center py-6 border-t border-white/10">
+                        <p class="text-gray-400 text-sm">No study sessions planned.</p>
+                        <a href="{{ route('schedule.index') }}" class="inline-block mt-2 text-sm font-semibold text-blue-400 hover:text-blue-300">Plan a session &rarr;</a>
+                    </div>
                 @endforelse
             </div>
 
             {{-- Subject overview --}}
-            <div class="bg-[#14141f] border border-[#23232f] rounded-xl p-5">
+            <div class="glass p-5">
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="font-semibold text-white">Subject Overview</h3>
-                    <a href="{{ route('subjects.index') }}" class="text-xs text-gray-400 hover:text-white">Manage &rarr;</a>
+                    <a href="{{ route('subjects.index') }}" class="text-xs text-gray-400 hover:text-white">
+                        {{ $subjects->count() > 5 ? 'See all ' . $subjects->count() : 'Manage' }} &rarr;
+                    </a>
                 </div>
 
-                @forelse ($subjects as $subject)
+                @forelse ($topSubjects as $subject)
                     @php
                         $done = $subject->tasks_count - $subject->pending_tasks_count;
-                        $pct = $subject->tasks_count > 0 ? round($done / $subject->tasks_count * 100) : 0;
+                        $pct  = $subject->tasks_count > 0 ? round($done / $subject->tasks_count * 100) : 0;
                     @endphp
                     <div class="mb-4 last:mb-0">
-                        <div class="flex items-center justify-between text-sm mb-1.5">
+                        <div class="flex items-center justify-between gap-3 text-sm mb-1.5">
                             <span class="text-gray-200 truncate">{{ $subject->subject_name }}</span>
-                            {{-- CHANGED: added the percentage --}}
-                            <span class="text-xs text-gray-500">{{ $subject->pending_tasks_count }} pending &middot; {{ $done }} done &middot; {{ $pct }}%</span>
+                            <span class="text-xs shrink-0 {{ $subject->tasks_count == 0 ? 'text-gray-600' : ($subject->pending_tasks_count > 0 ? 'text-amber-300' : 'text-green-400') }}">
+                                @if ($subject->tasks_count == 0)
+                                    No tasks yet
+                                @elseif ($subject->pending_tasks_count > 0)
+                                    {{ $subject->pending_tasks_count }} pending
+                                @else
+                                    All done
+                                @endif
+                            </span>
                         </div>
-                        <div class="h-1.5 rounded-full bg-white/5 overflow-hidden">
-                            <div class="h-full bg-blue-500 rounded-full" style="width: {{ $pct }}%"></div>
-                        </div>
+                        <div class="bar"><i style="width: {{ $pct }}%"></i></div>
                     </div>
                 @empty
                     <p class="text-center text-gray-500 text-sm py-6">No subjects yet.</p>
@@ -243,7 +265,7 @@
 </div>
 
 @push('scripts')
-{{-- NEW: refreshes the dashboard by itself when the date changes (midnight),
+{{-- Refreshes the dashboard by itself when the date changes (midnight),
      so "Due tomorrow" becomes "Due today", "Overdue", etc. without pressing refresh. --}}
 <script>
     (function () {
@@ -260,10 +282,25 @@
             }
         }
 
-        setInterval(check, 30000);                      
-        window.addEventListener('focus', check);        
+        setInterval(check, 30000);                       // every 30 seconds
+        window.addEventListener('focus', check);         // when you come back to the window
         document.addEventListener('visibilitychange', function () {
             if (!document.hidden) check();               // when you switch back to the tab
+        });
+
+        // Stops a double click on "Done" from sending the form twice
+        document.querySelectorAll('form[data-once]').forEach(function (f) {
+            f.addEventListener('submit', function () {
+                var b = f.querySelector('button[type="submit"]');
+                if (b) { b.disabled = true; b.style.opacity = '.6'; }
+            });
+        });
+
+        window.addEventListener('pageshow', function () {
+            document.querySelectorAll('form[data-once] button[type="submit"]').forEach(function (b) {
+                b.disabled = false;
+                b.style.opacity = '';
+            });
         });
     })();
 </script>
