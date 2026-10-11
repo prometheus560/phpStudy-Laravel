@@ -151,13 +151,13 @@
     // No subjects yet: nothing to pick from
     if (items.length === 0) return;
 
-    let selected = null;  
-    let matches = items;   
-    let active = -1;       
+    let selected = null;   // the chosen subject
+    let matches = items;   // what the list currently shows
+    let active = -1;       // highlighted row in the list
     let isOpen = false;
-    let currentQ = '';    
+    let currentQ = '';     // the text the list is filtered by
 
-   
+    // Binary search: first index whose name is >= the typed text
     function lowerBound(prefix) {
         let lo = 0, hi = items.length;
         while (lo < hi) {
