@@ -57,6 +57,44 @@ class ScheduleController extends Controller
     }
 
 
+    // NEW: edit a study session
+    public function update(Request $request, Schedule $schedule)
+    {
+        if ($schedule->subject->user_id !== Auth::id()) {
+            abort(403);
+        }
+
+
+        $validated = $request->validate([
+            'subject_id' => ['required', 'integer'],
+            'study_date' => ['required', 'date'],
+            'start_time' => ['required', 'date_format:H:i'],
+            'end_time' => ['required', 'date_format:H:i', 'after:start_time'],
+        ], [
+            'end_time.after' => 'The end time must be later than the start time.',
+        ]);
+
+
+        // The chosen subject must belong to this user
+        $subject = Subject::where('id', $validated['subject_id'])
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+
+        $schedule->update([
+            'subject_id' => $subject->id,
+            'study_date' => $validated['study_date'],
+            'start_time' => $validated['start_time'],
+            'end_time' => $validated['end_time'],
+        ]);
+
+
+        return redirect()
+            ->route('schedule.index')
+            ->with('success', 'Study schedule updated successfully.');
+    }
+
+
     public function destroy(Schedule $schedule)
     {
         if ($schedule->subject->user_id !== Auth::id()) {

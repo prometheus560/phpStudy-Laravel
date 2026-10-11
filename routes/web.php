@@ -130,6 +130,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/schedule', [ScheduleController::class, 'store'])
         ->name('schedule.store');
 
+    // NEW: edit a study session
+    Route::patch('/schedule/{schedule}', [ScheduleController::class, 'update'])
+        ->name('schedule.update');
+
     Route::delete('/schedule/{schedule}', [ScheduleController::class, 'destroy'])
         ->name('schedule.destroy');
 
