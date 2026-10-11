@@ -73,12 +73,20 @@ Route::middleware('auth')->group(function () {
     Route::get('/account', [AccountController::class, 'index'])
         ->name('account.index');
 
-    // NEW: edit name and email
+    // Edit name and email
     Route::patch('/account/profile', [AccountController::class, 'updateProfile'])
         ->name('account.profile.update');
 
     Route::post('/account/password', [AccountController::class, 'updatePassword'])
         ->name('account.password.update');
+
+    // NEW: sign out every device except this one
+    Route::post('/account/sessions/logout-others', [AccountController::class, 'logoutOtherDevices'])
+        ->name('account.sessions.logout_others');
+
+    // NEW: delete the account and all its data
+    Route::delete('/account', [AccountController::class, 'destroy'])
+        ->name('account.destroy');
 
 
     // Subjects
@@ -105,11 +113,11 @@ Route::middleware('auth')->group(function () {
     Route::patch('/tasks/{task}', [TaskController::class, 'update'])
         ->name('tasks.update');
 
-    // NEW: Done button
+    // Done button
     Route::patch('/tasks/{task}/complete', [TaskController::class, 'complete'])
         ->name('tasks.complete');
 
-    // NEW: delete several selected tasks at once
+    // Delete several selected tasks at once
     Route::delete('/tasks', [TaskController::class, 'bulkDestroy'])
         ->name('tasks.bulk_destroy');
 
@@ -134,7 +142,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/schedule', [ScheduleController::class, 'store'])
         ->name('schedule.store');
 
-    // NEW: edit a study session
+    // Edit a study session
     Route::patch('/schedule/{schedule}', [ScheduleController::class, 'update'])
         ->name('schedule.update');
 

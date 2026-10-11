@@ -22,6 +22,9 @@
     .hint { font-size: 12px; margin-top: 7px; min-height: 16px; color: #8b90a5; }
     .hint.ok { color: #4ade80; }
     .hint.bad { color: #f87171; }
+    .btn-red { display: inline-flex; align-items: center; justify-content: center; height: 44px; padding: 0 20px; border-radius: 12px; border: 1px solid rgba(248,113,113,.4); background: rgba(248,113,113,.10); color: #fca5a5; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: .2s; }
+    .btn-red:hover:not(:disabled) { background: rgba(248,113,113,.2); }
+    .btn-red:disabled { opacity: .45; cursor: not-allowed; }
 </style>
 
 @php
@@ -30,6 +33,8 @@
     $eye  = '<svg class="open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg><svg class="off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.9 10.9 0 0 1 12 19c-7 0-11-7-11-7a19 19 0 0 1 5.06-5.94M9.9 4.24A10.9 10.9 0 0 1 12 5c7 0 11 7 11 7a19 19 0 0 1-3.16 4.19M1 1l22 22"/></svg>';
     $userIc = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
     $mailIc = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>';
+
+    $size = fn ($b) => $b >= 1048576 ? number_format($b / 1048576, 1) . ' MB' : number_format($b / 1024, 1) . ' KB';
 @endphp
 
 <div class="max-w-5xl mx-auto px-6 py-8">
@@ -60,7 +65,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
 
-        {{-- Account Information (now editable) --}}
+        {{-- Account Information --}}
         <div class="glass p-6">
             <h2 class="text-lg font-bold text-white mb-1">Account information</h2>
             <p class="text-gray-400 text-sm mb-6">Change your name or email, then save.</p>
@@ -79,7 +84,7 @@
                     </div>
                 </div>
 
-                <div class="mb-6">
+                <div class="mb-5">
                     <label for="email" class="f-label">Email</label>
                     <div class="control">
                         {!! $mailIc !!}
@@ -87,6 +92,18 @@
                                maxlength="100" required autocomplete="email"
                                class="f-input has-icon">
                     </div>
+                </div>
+
+                {{-- Shown only when the email is being changed --}}
+                <div class="mb-6" id="email-confirm" style="display:none">
+                    <label for="email_password" class="f-label">Your password</label>
+                    <div class="control">
+                        {!! $lock !!}
+                        <input type="password" id="email_password" name="current_password" autocomplete="current-password"
+                               class="f-input has-icon" style="padding-right:46px" disabled>
+                        <button type="button" class="eye" data-eye="email_password" aria-label="Show password">{!! $eye !!}</button>
+                    </div>
+                    <p class="hint">For your safety, enter your password to change your email.</p>
                 </div>
 
                 <button type="submit" id="profile-btn" class="btn-primary w-full sm:w-auto">Save changes</button>
@@ -104,6 +121,21 @@
                         <span class="text-gray-200 sm:text-right">{{ \Illuminate\Support\Carbon::parse($user->created_at)->format('F d, Y') }}</span>
                     </div>
                 @endif
+            </div>
+
+            {{-- Summary --}}
+            <div class="grid grid-cols-2 gap-3 mt-4">
+                @foreach ([
+                    [$stats['subjects'], 'Subjects'],
+                    [$stats['done'] . ' / ' . $stats['tasks'], 'Tasks done'],
+                    [$stats['notes'], 'Notes'],
+                    [$stats['files'], $stats['bytes'] > 0 ? 'Files · ' . $size($stats['bytes']) : 'Files'],
+                ] as [$value, $label])
+                    <div class="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+                        <p class="text-2xl font-bold text-white">{{ $value }}</p>
+                        <p class="text-xs text-gray-400 mt-1">{{ $label }}</p>
+                    </div>
+                @endforeach
             </div>
         </div>
 
@@ -159,6 +191,38 @@
 
     </div>
 
+    {{-- Devices --}}
+    <div class="glass p-6 mt-6">
+        <h2 class="text-lg font-bold text-white mb-1">Devices</h2>
+        <p class="text-gray-400 text-sm leading-relaxed mb-5">
+            @if ($otherDevices === null)
+                Lost a phone or used a shared computer? Sign out everywhere except this device.
+            @elseif ($otherDevices === 0)
+                You are only signed in on this device.
+            @else
+                You are also signed in on {{ $otherDevices }} other {{ $otherDevices == 1 ? 'device' : 'devices' }}.
+            @endif
+        </p>
+
+        <form method="POST" action="{{ route('account.sessions.logout_others') }}" class="flex flex-wrap items-start gap-3">
+            @csrf
+
+            <div style="min-width:240px;flex:1;max-width:360px">
+                <div class="control">
+                    {!! $lock !!}
+                    <input type="password" id="sessions_password" name="sessions_password" required autocomplete="current-password"
+                           placeholder="Your password" class="f-input has-icon" style="padding-right:46px">
+                    <button type="button" class="eye" data-eye="sessions_password" aria-label="Show password">{!! $eye !!}</button>
+                </div>
+                @error('sessions_password', 'sessions')
+                    <p class="hint bad">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <button type="submit" class="btn-ghost" style="height:48px">Sign out other devices</button>
+        </form>
+    </div>
+
     {{-- Security --}}
     <div class="glass p-6 mt-6">
         <h2 class="text-lg font-bold text-white mb-3">Security</h2>
@@ -175,7 +239,55 @@
         </p>
     </div>
 
+    {{-- Danger zone --}}
+    <div class="glass p-6 mt-6" style="border-color:rgba(248,113,113,.3)">
+        <h2 class="text-lg font-bold mb-1" style="color:#fca5a5">Delete account</h2>
+        <p class="text-gray-400 text-sm leading-relaxed mb-5">
+            This permanently deletes your account, {{ $stats['subjects'] }} {{ $stats['subjects'] == 1 ? 'subject' : 'subjects' }},
+            {{ $stats['tasks'] }} {{ $stats['tasks'] == 1 ? 'task' : 'tasks' }},
+            {{ $stats['notes'] }} {{ $stats['notes'] == 1 ? 'note' : 'notes' }} and
+            {{ $stats['files'] }} uploaded {{ $stats['files'] == 1 ? 'file' : 'files' }}. It cannot be undone.
+        </p>
+
+        <button type="button" id="delete-open" class="btn-red">Delete my account</button>
+    </div>
+
 </div>
+
+{{-- Delete confirmation --}}
+<dialog id="delete-dialog" class="bg-transparent p-0 m-auto w-full max-w-md backdrop:bg-black/70">
+    <form method="POST" action="{{ route('account.destroy') }}" id="delete-form" class="glass p-6" style="border-color:rgba(248,113,113,.3)">
+        @csrf
+        @method('DELETE')
+
+        <h3 class="text-lg font-bold mb-2" style="color:#fca5a5">Delete your account?</h3>
+        <p class="text-gray-400 text-sm leading-relaxed mb-5">
+            Everything you saved will be removed for good. Enter your password to confirm.
+        </p>
+
+        <div class="mb-4">
+            <div class="control">
+                {!! $lock !!}
+                <input type="password" id="delete_password" name="delete_password" required autocomplete="current-password"
+                       placeholder="Your password" class="f-input has-icon" style="padding-right:46px">
+                <button type="button" class="eye" data-eye="delete_password" aria-label="Show password">{!! $eye !!}</button>
+            </div>
+            @error('delete_password', 'deleteAccount')
+                <p class="hint bad">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <label class="flex items-start gap-2 text-sm text-gray-300 mb-6 cursor-pointer">
+            <input type="checkbox" id="delete-check" class="mt-1" style="accent-color:#f87171">
+            <span>I understand this cannot be undone.</span>
+        </label>
+
+        <div class="flex justify-end gap-2">
+            <button type="button" id="delete-cancel" class="btn-ghost">Cancel</button>
+            <button type="submit" id="delete-confirm" class="btn-red" disabled>Delete everything</button>
+        </div>
+    </form>
+</dialog>
 
 <script>
 (() => {
@@ -225,12 +337,40 @@
         btn.textContent = 'Saving...';
     });
 
-    // NEW: profile form button
+    // Profile form: ask for the password only when the email is being changed
+    const emailInput = document.getElementById('email');
+    const originalEmail = emailInput.defaultValue.trim().toLowerCase();
+    const confirmBox = document.getElementById('email-confirm');
+    const confirmInput = document.getElementById('email_password');
+
+    function checkEmail() {
+        const changed = emailInput.value.trim().toLowerCase() !== originalEmail;
+        confirmBox.style.display = changed ? '' : 'none';
+        confirmInput.disabled = !changed;
+        confirmInput.required = changed;
+    }
+    emailInput.addEventListener('input', checkEmail);
+    checkEmail();
+
     document.getElementById('profile-form').addEventListener('submit', () => {
         const btn = document.getElementById('profile-btn');
         btn.disabled = true;
         btn.textContent = 'Saving...';
     });
+
+    // Delete account dialog
+    const dlg = document.getElementById('delete-dialog');
+    const check = document.getElementById('delete-check');
+    const confirmBtn = document.getElementById('delete-confirm');
+
+    document.getElementById('delete-open').addEventListener('click', () => dlg.showModal());
+    document.getElementById('delete-cancel').addEventListener('click', () => dlg.close());
+    dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+    check.addEventListener('change', () => { confirmBtn.disabled = !check.checked; });
+
+    @if ($errors->deleteAccount->any())
+        dlg.showModal();
+    @endif
 
     // Re-enable buttons if the user comes back with the Back button
     window.addEventListener('pageshow', () => {
