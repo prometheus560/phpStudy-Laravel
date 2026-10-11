@@ -44,6 +44,20 @@ class ScheduleController extends Controller
             ->firstOrFail();
 
 
+        // Double-click / slow connection guard: the same session is never saved twice
+        $alreadyThere = $subject->schedules()
+            ->whereDate('study_date', $validated['study_date'])
+            ->where('start_time', $validated['start_time'])
+            ->where('end_time', $validated['end_time'])
+            ->exists();
+
+        if ($alreadyThere) {
+            return redirect()
+                ->route('schedule.index')
+                ->with('success', 'That study session is already in your schedule.');
+        }
+
+
         $subject->schedules()->create([
             'study_date' => $validated['study_date'],
             'start_time' => $validated['start_time'],

@@ -334,8 +334,22 @@
         const t = f.querySelector('[name="end_time"]').value;
         const bad = s && t && t <= s;
         f.querySelector('.time-error').classList.toggle('hidden', !bad);
-        if (bad) e.preventDefault();
+
+        if (bad) { e.preventDefault(); return; }
+
+        // Stop double clicks from sending the form twice
+        const btn = f.querySelector('button[type="submit"]');
+        if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
     }));
+
+    // Remember button labels and restore them if the user comes back with the Back button
+    document.querySelectorAll('.time-form button[type="submit"]').forEach(b => { b.dataset.label = b.textContent.trim(); });
+    window.addEventListener('pageshow', () => {
+        document.querySelectorAll('.time-form button[type="submit"]').forEach(b => {
+            b.disabled = false;
+            b.textContent = b.dataset.label;
+        });
+    });
 })();
 </script>
 
