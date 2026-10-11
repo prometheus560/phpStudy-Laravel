@@ -43,7 +43,8 @@
     </div>
 
     {{-- Search bar: raised above the card below so the pop-up list is never hidden --}}
-    <div class="glass p-6 mb-6" style="position: relative; z-index: 30;">
+    <div id="subject-picker" class="glass p-6 mb-6" style="position: relative; z-index: 30;"
+         data-subjects="{{ json_encode($subjectData) }}">
         <div class="flex flex-wrap gap-3">
 
             <div class="control flex-1" style="min-width: 220px">
@@ -143,8 +144,9 @@
     const iconX = document.getElementById('icon-x');
     const $ = (id) => document.getElementById(id);
 
-    // Subjects sorted A-Z (required for binary search)
-    const items = @json($subjectData)
+    // Subjects sent by the server (data-subjects attribute), sorted A-Z for binary search
+    const picker = document.getElementById('subject-picker');
+    const items = JSON.parse(picker.dataset.subjects)
         .map(s => ({ ...s, key: s.name.toLowerCase() }))
         .sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));
 
