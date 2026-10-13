@@ -272,7 +272,7 @@
             </span>
 
             <span class="block text-white font-semibold text-sm leading-tight">
-                Student Study Planner
+                CLASSSTRACK
             </span>
         </a>
 
