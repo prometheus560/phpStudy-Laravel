@@ -10,7 +10,6 @@
     $latest    = $list->first();
     $subjCount = $list->map(fn ($t) => optional($t->subject)->subject_name)->filter()->unique()->count();
 
-    // NEW: the subjects that have completed tasks, for the dropdown of the search bar
     $subjectFilter = $list
         ->map(fn ($t) => $t->subject)
         ->filter()
