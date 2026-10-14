@@ -4,37 +4,31 @@ namespace App\Http\Controllers;
 
 use App\DataStructures\Queue;
 use App\Models\Task;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 
 class UpcomingTaskController extends Controller
 {
-    // DATA STRUCTURE: Queue (FIFO)
-    public function index()
+   
+    public function index(): View
     {
-        $userId = Auth::id();
+        // Pending tasks for the authenticated user, nearest deadline first.
+        $pending = $this->pendingTasksForUser(Auth::id());
 
-        // Pending tasks, nearest deadline first (the order they join the queue)
-        $pending = Task::whereHas('subject', function ($query) use ($userId) {
-            $query->where('user_id', $userId);
-        })
-        ->with('subject')
-        ->where('status', 'Pending')
-        ->orderBy('deadline')
-        ->get();
-
-        // Enqueue every task at the rear
+        // Build the queue: enqueue each task at the rear.
         $queue = new Queue();
 
         foreach ($pending as $task) {
             $queue->enqueue($task);
         }
 
-        $waiting = $queue->toArray();   // what the queue looks like before processing
+        // Snapshot of the queue before processing.
+        $waiting = $queue->toArray();
 
-        // Dequeue from the front until the queue is empty
+        // Dequeue from the front until the queue is empty.
         $tasks = [];
 
-        while (!$queue->isEmpty()) {
+        while (! $queue->isEmpty()) {
             $tasks[] = $queue->dequeue();
         }
 
@@ -43,5 +37,16 @@ class UpcomingTaskController extends Controller
             'waiting' => $waiting,
             'trace'   => $queue->trace(),
         ]);
+    }
+
+
+    private function pendingTasksForUser(int $userId)
+    {
+        return Task::query()
+            ->whereHas('subject', fn ($query) => $query->where('user_id', $userId))
+            ->with('subject')
+            ->where('status', 'Pending')
+            ->orderBy('deadline')
+            ->get();
     }
 }
