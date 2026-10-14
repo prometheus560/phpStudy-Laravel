@@ -9,6 +9,15 @@
     $total     = $list->count();
     $latest    = $list->first();
     $subjCount = $list->map(fn ($t) => optional($t->subject)->subject_name)->filter()->unique()->count();
+
+    // NEW: the subjects that have completed tasks, for the dropdown of the search bar
+    $subjectFilter = $list
+        ->map(fn ($t) => $t->subject)
+        ->filter()
+        ->unique('id')
+        ->sortBy('subject_name')
+        ->pluck('subject_name', 'id')
+        ->all();
 @endphp
 
 <div class="max-w-6xl mx-auto px-6 py-8">
@@ -72,20 +81,38 @@
             <h3 class="text-lg font-bold text-white">Pop order</h3>
             <p class="text-gray-500 text-sm mt-1">The newest finished task leaves the stack first.</p>
         </div>
-        <span class="chip chip-muted">{{ $total }} {{ $total == 1 ? 'task' : 'tasks' }}</span>
+        {{-- CHANGED: got an id so the search bar can show "2 of 5 tasks shown." --}}
+        <span id="completed-count" class="chip chip-muted">{{ $total }} {{ $total == 1 ? 'task' : 'tasks' }}</span>
     </div>
 
     @if ($total > 0)
 
+        {{-- NEW: search bar (shared component): type a letter, filter by subject, Clear --}}
+        <div class="mb-5">
+            @include('partials.list-search', [
+                'placeholder' => 'Type a letter to find a completed task...',
+                'filterAll'   => 'All subjects',
+                'filters'     => $subjectFilter,
+                'target'      => '#completed-list',
+                'emptyText'   => 'No completed task matches your search.',
+                'countTarget' => '#completed-count',
+                'unit'        => 'task',
+            ])
+        </div>
+
         <p class="text-[11px] font-semibold uppercase tracking-wider text-blue-300/80 mb-3">&darr; Top of stack</p>
 
-        <div class="flex flex-col gap-3">
+        {{-- CHANGED: the list got an id, and each card sits in a wrapper the search bar can show or hide.
+             The "Popped #" number is not changed by searching: it is the real pop order. --}}
+        <div id="completed-list" class="flex flex-col gap-3">
             @foreach ($tasks as $i => $task)
-                @include('partials.task-card', [
-                    'task' => $task, 'rank' => $i + 1, 'rankLabel' => 'Popped #',
-                    'badge' => $i === 0 ? 'Most recent' : 'Completed',
-                    'badgeClass' => 'bg-green-500/15 text-green-400',
-                ])
+                <div data-search-item data-name="{{ mb_strtolower($task->task_name) }}" data-filter="{{ $task->subject_id }}">
+                    @include('partials.task-card', [
+                        'task' => $task, 'rank' => $i + 1, 'rankLabel' => 'Popped #',
+                        'badge' => $i === 0 ? 'Most recent' : 'Completed',
+                        'badgeClass' => 'bg-green-500/15 text-green-400',
+                    ])
+                </div>
             @endforeach
         </div>
 
