@@ -10,7 +10,6 @@
 
     <div class="mx-auto max-w-6xl px-6 py-8">
 
- 
         <header class="mb-8 flex flex-wrap items-end justify-between gap-4">
             <div>
                 <div class="flex flex-wrap items-center gap-3">
@@ -20,7 +19,7 @@
 
                     <span class="inline-flex items-center gap-1.5 rounded-full border border-blue-400/20 bg-blue-500/10 px-3 py-1 text-xs font-semibold text-blue-300">
                         <span class="h-1.5 w-1.5 rounded-full bg-blue-400"></span>
-                        Queue · FIFO
+                        Priority Order
                     </span>
                 </div>
 
@@ -41,7 +40,6 @@
             </a>
         </header>
 
-      
         <section class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
 
             {{-- Pending count --}}
@@ -90,7 +88,7 @@
                                 {{ $nextTask->task_name }}
                             </p>
                             <p class="mt-1.5 text-sm text-gray-400">
-                                Next in your queue
+                                Next in your list
                             </p>
                         @else
                             <p class="text-base font-bold text-white">
@@ -105,17 +103,16 @@
             </article>
         </section>
 
-     
         <section class="overflow-hidden rounded-2xl border border-[#262638] bg-[#0d0d19]/90 shadow-2xl shadow-black/10">
 
-            {{-- Queue header --}}
+            {{-- Section header --}}
             <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.06] px-5 py-5 sm:px-6">
                 <div>
                     <h3 class="text-lg font-bold text-white">
-                        Processing Order
+                        Your Task Order
                     </h3>
                     <p class="mt-1 text-sm text-gray-500">
-                        Tasks are arranged by nearest deadline.
+                        Sorted by what's due soonest.
                     </p>
                 </div>
 
@@ -124,10 +121,10 @@
                 </span>
             </div>
 
-            {{-- Queue body --}}
+            {{-- Section body --}}
             <div class="p-4 sm:p-6">
                 @if ($total > 0)
-                    {{-- Front marker --}}
+                    {{-- Top marker --}}
                     <div class="mb-4 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-blue-300/80">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8"
                              stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"
@@ -135,7 +132,7 @@
                             <path d="M12 19V5" />
                             <path d="m5 12 7-7 7 7" />
                         </svg>
-                        Front of queue · Next to process
+                        Start here · Do this next
                     </div>
 
                     {{-- Task list --}}
@@ -144,8 +141,8 @@
                             @include('partials.task-card', [
                                 'task'       => $task,
                                 'rank'       => $i + 1,
-                                'rankLabel'  => 'Queue #',
-                                'badge'      => $i === 0 ? 'Next up' : 'Waiting',
+                                'rankLabel'  => '#',
+                                'badge'      => $i === 0 ? 'Next up' : 'Later',
                                 'badgeClass' => $i === 0
                                     ? 'bg-blue-500/15 text-blue-300'
                                     : 'bg-orange-500/10 text-orange-300',
@@ -153,7 +150,7 @@
                         @endforeach
                     </div>
 
-                    {{-- Rear marker --}}
+                    {{-- Bottom marker --}}
                     <div class="mt-5 flex items-center gap-2 border-t border-white/[0.06] pt-4 text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-500">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8"
                              stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"
@@ -161,7 +158,7 @@
                             <path d="M12 5v14" />
                             <path d="m19 12-7 7-7-7" />
                         </svg>
-                        Rear of queue · Latest to process
+                        Ends here · Do these later
                     </div>
                 @else
                     {{-- Empty state --}}

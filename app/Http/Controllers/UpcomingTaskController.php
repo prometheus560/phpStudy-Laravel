@@ -9,10 +9,9 @@ use Illuminate\Support\Facades\Auth;
 
 class UpcomingTaskController extends Controller
 {
-   
+ 
     public function index(): View
     {
-        // Pending tasks for the authenticated user, nearest deadline first.
         $pending = $this->pendingTasksForUser(Auth::id());
 
         // Build the queue: enqueue each task at the rear.
@@ -39,7 +38,7 @@ class UpcomingTaskController extends Controller
         ]);
     }
 
-
+   
     private function pendingTasksForUser(int $userId)
     {
         return Task::query()
