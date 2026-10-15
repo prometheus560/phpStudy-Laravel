@@ -36,43 +36,187 @@
         .sidebar-scroll::-webkit-scrollbar { width: 6px; }
         .sidebar-scroll::-webkit-scrollbar-thumb { background: rgba(167,139,250,.28); border-radius: 3px; }
 
-        /* ---------- Shared "login style" components ---------- */
-        .sidebar-glass { background: rgba(10,9,24,.74); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-color: var(--line); }
+        .sidebar-glass {
+            background: rgba(10,9,24,.74);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-color: var(--line);
+        }
 
-        .glass { background: var(--card); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid var(--line); border-radius: 20px; box-shadow: 0 30px 80px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05); }
-        .glass-accent { border-color: rgba(129,140,248,.34); box-shadow: 0 30px 80px rgba(0,0,0,.45), 0 0 60px rgba(59,130,246,.08), inset 0 1px 0 rgba(255,255,255,.06); }
+        .glass {
+            background: var(--card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            box-shadow: 0 30px 80px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05);
+        }
+
+        .glass-accent {
+            border-color: rgba(129,140,248,.34);
+            box-shadow: 0 30px 80px rgba(0,0,0,.45), 0 0 60px rgba(59,130,246,.08), inset 0 1px 0 rgba(255,255,255,.06);
+        }
 
         .page-title { font-size: 30px; font-weight: 700; letter-spacing: -.02em; color: #fff; }
         .page-sub { color: var(--muted); font-size: 14px; margin-top: 4px; }
-        .grad-text { background: linear-gradient(90deg, #60a5fa, #a78bfa 70%, #d8a8ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+        .grad-text {
+            background: linear-gradient(90deg, #60a5fa, #a78bfa 70%, #d8a8ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
 
         .f-label { display: block; font-size: 13px; font-weight: 600; color: #cfd2e0; margin-bottom: 8px; }
+
         .control { position: relative; }
-        .control .ic { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: #6d7288; pointer-events: none; transition: color .2s; }
+        .control .ic {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 18px;
+            height: 18px;
+            color: #6d7288;
+            pointer-events: none;
+            transition: color .2s;
+        }
         .control:focus-within .ic { color: #7db4ff; }
-        .f-input { width: 100%; height: 48px; padding: 0 14px; background: var(--field); border: 1px solid var(--field-line); border-radius: 12px; color: #f4f5fa; font: inherit; font-size: 15px; transition: border-color .2s, box-shadow .2s, background .2s; }
+
+        .f-input {
+            width: 100%;
+            height: 48px;
+            padding: 0 14px;
+            background: var(--field);
+            border: 1px solid var(--field-line);
+            border-radius: 12px;
+            color: #f4f5fa;
+            font: inherit;
+            font-size: 15px;
+            transition: border-color .2s, box-shadow .2s, background .2s;
+        }
+
         .f-input.has-icon { padding-left: 44px; }
         .f-input::placeholder { color: #5f6479; }
         .f-input:hover { border-color: #34364a; }
-        .f-input:focus { outline: 0; border-color: #3b82f6; background: #14141f; box-shadow: 0 0 0 4px rgba(59,130,246,.16); }
+
+        .f-input:focus {
+            outline: 0;
+            border-color: #3b82f6;
+            background: #14141f;
+            box-shadow: 0 0 0 4px rgba(59,130,246,.16);
+        }
+
         .f-input[type=date] { position: relative; }
-        .f-input[type=date]::-webkit-calendar-picker-indicator { position: absolute; inset: 0; width: auto; height: auto; opacity: 0; cursor: pointer; }
+        .f-input[type=date]::-webkit-calendar-picker-indicator {
+            position: absolute;
+            inset: 0;
+            width: auto;
+            height: auto;
+            opacity: 0;
+            cursor: pointer;
+        }
 
-        .btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 48px; padding: 0 20px; border: 0; border-radius: 12px; font: inherit; font-size: 15px; font-weight: 600; color: #fff; background: linear-gradient(135deg, #3b82f6, #4f46e5); box-shadow: 0 10px 28px rgba(59,130,246,.35); cursor: pointer; text-decoration: none; transition: transform .15s, box-shadow .2s; }
-        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 14px 34px rgba(59,130,246,.45); }
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            height: 48px;
+            padding: 0 20px;
+            border: 0;
+            border-radius: 12px;
+            font: inherit;
+            font-size: 15px;
+            font-weight: 600;
+            color: #fff;
+            background: linear-gradient(135deg, #3b82f6, #4f46e5);
+            box-shadow: 0 10px 28px rgba(59,130,246,.35);
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform .15s, box-shadow .2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 14px 34px rgba(59,130,246,.45);
+        }
+
         .btn-primary:active { transform: translateY(0); }
-        .btn-ghost { display: inline-flex; align-items: center; justify-content: center; height: 46px; padding: 0 18px; border-radius: 12px; background: rgba(255,255,255,.03); border: 1px solid var(--field-line); color: #cfd2e0; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; transition: .2s; }
-        .btn-ghost:hover { border-color: #3b82f6; color: #a9cdff; background: rgba(59,130,246,.08); }
 
-        .btn-sm { display: inline-flex; align-items: center; height: 36px; padding: 0 14px; border-radius: 10px; border: 1px solid transparent; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: .2s; }
-        .btn-ok { background: rgba(74,222,128,.10); color: #4ade80; border-color: rgba(74,222,128,.30); }
+        .btn-ghost {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 46px;
+            padding: 0 18px;
+            border-radius: 12px;
+            background: rgba(255,255,255,.03);
+            border: 1px solid var(--field-line);
+            color: #cfd2e0;
+            font: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: .2s;
+        }
+
+        .btn-ghost:hover {
+            border-color: #3b82f6;
+            color: #a9cdff;
+            background: rgba(59,130,246,.08);
+        }
+
+        .btn-sm {
+            display: inline-flex;
+            align-items: center;
+            height: 36px;
+            padding: 0 14px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            font: inherit;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .btn-ok {
+            background: rgba(74,222,128,.10);
+            color: #4ade80;
+            border-color: rgba(74,222,128,.30);
+        }
+
         .btn-ok:hover { background: rgba(74,222,128,.18); }
-        .btn-warn { background: rgba(251,146,60,.10); color: #fb923c; border-color: rgba(251,146,60,.30); }
+
+        .btn-warn {
+            background: rgba(251,146,60,.10);
+            color: #fb923c;
+            border-color: rgba(251,146,60,.30);
+        }
+
         .btn-warn:hover { background: rgba(251,146,60,.18); }
-        .btn-danger { background: rgba(248,113,113,.08); color: #fca5a5; border-color: rgba(248,113,113,.30); }
+
+        .btn-danger {
+            background: rgba(248,113,113,.08);
+            color: #fca5a5;
+            border-color: rgba(248,113,113,.30);
+        }
+
         .btn-danger:hover { background: rgba(248,113,113,.16); }
 
-        .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 99px; white-space: nowrap; }
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 99px;
+            white-space: nowrap;
+        }
+
         .chip-high { background: rgba(248,113,113,.12); color: #fca5a5; }
         .chip-med { background: rgba(251,191,36,.12); color: #fbbf24; }
         .chip-low { background: rgba(74,222,128,.12); color: #4ade80; }
@@ -80,30 +224,120 @@
         .chip-blue { background: rgba(59,130,246,.12); color: #7db4ff; }
         .chip-muted { background: rgba(255,255,255,.06); color: #9ca3b8; }
 
-        .alert { padding: 12px 14px; border-radius: 12px; margin-bottom: 20px; font-size: 13px; line-height: 1.5; }
-        .alert-err { background: rgba(248,113,113,.10); color: #fca5a5; border: 1px solid rgba(248,113,113,.25); }
-        .alert-ok { background: rgba(74,222,128,.10); color: #86efac; border: 1px solid rgba(74,222,128,.25); }
+        .alert {
+            padding: 12px 14px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            line-height: 1.5;
+        }
 
-        /* ---------- Dashboard extras ---------- */
-        .stat { position: relative; overflow: hidden; padding: 20px; border-radius: 18px; background: var(--card); border: 1px solid var(--line); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: inset 0 1px 0 rgba(255,255,255,.05); transition: transform .2s, border-color .2s; }
-        .stat::before { content: ""; position: absolute; right: -40px; top: -40px; width: 170px; height: 170px; border-radius: 50%; background: radial-gradient(circle, var(--glow), transparent 70%); pointer-events: none; }
-        .stat:hover { transform: translateY(-2px); border-color: rgba(255,255,255,.16); }
-        .stat-icon { position: relative; width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; color: var(--c); background: var(--bg); border: 1px solid var(--bd); }
+        .alert-err {
+            background: rgba(248,113,113,.10);
+            color: #fca5a5;
+            border: 1px solid rgba(248,113,113,.25);
+        }
+
+        .alert-ok {
+            background: rgba(74,222,128,.10);
+            color: #86efac;
+            border: 1px solid rgba(74,222,128,.25);
+        }
+
+        .stat {
+            position: relative;
+            overflow: hidden;
+            padding: 20px;
+            border-radius: 18px;
+            background: var(--card);
+            border: 1px solid var(--line);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+            transition: transform .2s, border-color .2s;
+        }
+
+        .stat::before {
+            content: "";
+            position: absolute;
+            right: -40px;
+            top: -40px;
+            width: 170px;
+            height: 170px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--glow), transparent 70%);
+            pointer-events: none;
+        }
+
+        .stat:hover {
+            transform: translateY(-2px);
+            border-color: rgba(255,255,255,.16);
+        }
+
+        .stat-icon {
+            position: relative;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            color: var(--c);
+            background: var(--bg);
+            border: 1px solid var(--bd);
+        }
+
         .stat-icon svg { width: 20px; height: 20px; }
 
-        .row-item { border-top: 1px solid var(--line); transition: background .2s; }
+        .row-item {
+            border-top: 1px solid var(--line);
+            transition: background .2s;
+        }
+
         .row-item:hover { background: rgba(255,255,255,.025); }
 
-        .bar { height: 6px; border-radius: 99px; background: rgba(255,255,255,.06); overflow: hidden; }
-        .bar > i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #3b82f6, #6366f1); box-shadow: 0 0 12px rgba(99,102,241,.5); }
+        .bar {
+            height: 6px;
+            border-radius: 99px;
+            background: rgba(255,255,255,.06);
+            overflow: hidden;
+        }
 
-        .pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: #60a5fa; box-shadow: 0 0 0 0 rgba(96,165,250,.6); animation: pulse 2s infinite; }
-        @keyframes pulse { 70% { box-shadow: 0 0 0 8px rgba(96,165,250,0); } 100% { box-shadow: 0 0 0 0 rgba(96,165,250,0); } }
+        .bar > i {
+            display: block;
+            height: 100%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, #3b82f6, #6366f1);
+            box-shadow: 0 0 12px rgba(99,102,241,.5);
+        }
 
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #60a5fa;
+            box-shadow: 0 0 0 0 rgba(96,165,250,.6);
+            animation: pulse 2s infinite;
+        }
 
-        /* ---------- Galaxy touch: faint twinkling stars ---------- */
-        .space { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
-        .stars { position: absolute; inset: 0; background-repeat: repeat; }
+        @keyframes pulse {
+            70% { box-shadow: 0 0 0 8px rgba(96,165,250,0); }
+            100% { box-shadow: 0 0 0 0 rgba(96,165,250,0); }
+        }
+
+        .space {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .stars {
+            position: absolute;
+            inset: 0;
+            background-repeat: repeat;
+        }
+
         .stars.s1 {
             background-image:
                 radial-gradient(1px 1px at 23px 41px, rgba(255,255,255,.9), transparent),
@@ -111,8 +345,10 @@
                 radial-gradient(1.2px 1.2px at 211px 87px, rgba(200,215,255,.85), transparent),
                 radial-gradient(1px 1px at 151px 249px, rgba(255,255,255,.6), transparent),
                 radial-gradient(1px 1px at 281px 197px, rgba(255,255,255,.8), transparent);
-            background-size: 320px 320px; opacity: .5;
+            background-size: 320px 320px;
+            opacity: .5;
         }
+
         .stars.s2 {
             background-image:
                 radial-gradient(1px 1px at 61px 23px, rgba(255,255,255,.9), transparent),
@@ -120,64 +356,118 @@
                 radial-gradient(1px 1px at 347px 289px, rgba(255,255,255,.7), transparent),
                 radial-gradient(1px 1px at 131px 377px, rgba(255,255,255,.8), transparent),
                 radial-gradient(1px 1px at 419px 61px, rgba(200,225,255,.8), transparent);
-            background-size: 470px 470px; animation: twinkle 5s ease-in-out infinite;
+            background-size: 470px 470px;
+            animation: twinkle 5s ease-in-out infinite;
         }
+
         .stars.s3 {
             background-image:
                 radial-gradient(1.4px 1.4px at 83px 97px, rgba(255,255,255,.95), transparent),
                 radial-gradient(1px 1px at 301px 211px, rgba(230,205,255,.9), transparent),
                 radial-gradient(1.2px 1.2px at 503px 351px, rgba(255,255,255,.85), transparent),
                 radial-gradient(1px 1px at 197px 487px, rgba(200,215,255,.8), transparent);
-            background-size: 610px 610px; animation: twinkle 7s ease-in-out infinite -2.5s;
+            background-size: 610px 610px;
+            animation: twinkle 7s ease-in-out infinite -2.5s;
         }
-        @keyframes twinkle { 0%, 100% { opacity: .2; } 50% { opacity: .7; } }
-        /* ---------- A small planet and moon (kept faint, in the corners) ---------- */
+
+        @keyframes twinkle {
+            0%, 100% { opacity: .2; }
+            50% { opacity: .7; }
+        }
+
         .planet {
-            position: absolute; right: -110px; bottom: -150px; width: 400px; height: 400px; border-radius: 50%;
+            position: absolute;
+            right: -110px;
+            bottom: -150px;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
             background: radial-gradient(circle at 30% 26%, rgba(216,196,255,.6), rgba(139,92,246,.4) 32%, rgba(67,38,140,.55) 60%, rgba(12,9,32,.92) 100%);
             box-shadow: inset -50px -40px 90px rgba(0,0,0,.7), 0 0 100px rgba(139,92,246,.2);
-            opacity: .8; animation: planetFloat 45s ease-in-out infinite alternate;
+            opacity: .8;
+            animation: planetFloat 45s ease-in-out infinite alternate;
         }
+
         .planet::before {
-            content: ""; position: absolute; left: -24%; top: 34%; width: 148%; height: 34%; border-radius: 50%;
-            border: 2px solid rgba(221,200,255,.3); transform: rotate(-16deg);
+            content: "";
+            position: absolute;
+            left: -24%;
+            top: 34%;
+            width: 148%;
+            height: 34%;
+            border-radius: 50%;
+            border: 2px solid rgba(221,200,255,.3);
+            transform: rotate(-16deg);
         }
+
         .moon {
-            position: absolute; right: 5%; top: 3%; width: 42px; height: 42px; border-radius: 50%;
+            position: absolute;
+            right: 5%;
+            top: 3%;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
             background: radial-gradient(circle at 32% 30%, rgba(255,255,255,.75), rgba(190,200,230,.45) 45%, rgba(40,44,80,.6) 100%);
             box-shadow: inset -8px -6px 14px rgba(0,0,0,.55), 0 0 24px rgba(180,200,255,.18);
             opacity: .45;
         }
-        @keyframes planetFloat { to { transform: translate(-16px, -12px); } }
+
+        @keyframes planetFloat {
+            to { transform: translate(-16px, -12px); }
+        }
+
         @media (max-width: 640px) {
-            .planet { width: 260px; height: 260px; right: -110px; bottom: -110px; }
+            .planet {
+                width: 260px;
+                height: 260px;
+                right: -110px;
+                bottom: -110px;
+            }
+
             .moon { display: none; }
         }
 
+        [class*="bg-[#14141f]"] {
+            background-color: var(--card) !important;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+        }
 
-        /* ---------- Theme bridge: older pages still use fixed dark colours.
-                      These rules give them the same glass / violet look. ---------- */
-        [class*="bg-[#14141f]"] { background-color: var(--card) !important; backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
         [class*="bg-[#1b1b28]"] { background-color: rgba(255,255,255,.035) !important; }
         [class*="border-[#23232f]"] { border-color: var(--line) !important; }
         [class*="border-[#2a2a38]"] { border-color: rgba(190,175,255,.16) !important; }
 
-        /* Search pop-ups: the card that holds the focused field rises above the cards below it,
-           so a dropdown is never hidden behind the next card. */
         .glass:focus-within,
-        [class*="bg-[#14141f]"]:focus-within { position: relative; z-index: 30; }
+        [class*="bg-[#14141f]"]:focus-within {
+            position: relative;
+            z-index: 30;
+        }
 
-        :focus-visible { outline: 2px solid #7db4ff; outline-offset: 2px; }
-        @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+        :focus-visible {
+            outline: 2px solid #7db4ff;
+            outline-offset: 2px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation: none !important;
+                transition: none !important;
+            }
+        }
     </style>
 </head>
 
 <body class="text-gray-200 min-h-screen">
 
-    <div class="space" aria-hidden="true"><i class="stars s1"></i><i class="stars s2"></i><i class="stars s3"></i><i class="planet"></i><i class="moon"></i></div>
+    <div class="space" aria-hidden="true">
+        <i class="stars s1"></i>
+        <i class="stars s2"></i>
+        <i class="stars s3"></i>
+        <i class="planet"></i>
+        <i class="moon"></i>
+    </div>
 
 @php
-    // Simple line icons
     $icons = [
         'home' => '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
 
@@ -199,11 +489,7 @@
 
         'flag' => '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>',
 
-        'list' => '<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>',
-
         'search' => '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
-
-        'layers' => '<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
 
         'user' => '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
 
@@ -212,8 +498,6 @@
         'menu' => '<line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>',
     ];
 
-    // Navigation
-    // [label, route name, active pattern, icon]
     $nav = [
         'home' => [
             ['Dashboard', 'dashboard', 'dashboard', 'chart'],
@@ -234,8 +518,6 @@
             ['Completed Tasks', 'completed_tasks.index', 'completed_tasks.*', 'done'],
             ['Upcoming Tasks', 'upcoming_tasks.index', 'upcoming_tasks.*', 'clock'],
             ['Priority Tasks', 'priority_tasks.index', 'priority_tasks.*', 'flag'],
-            ['Sorted Tasks', 'sorted_tasks.index', 'sorted_tasks.*', 'list'],
-            ['Selection Sort', 'selection_sort.index', 'selection_sort.*', 'layers'],
         ],
     ];
 
@@ -250,19 +532,16 @@
 
 @auth
 
-    {{-- Mobile overlay --}}
     <div
         id="sidebarOverlay"
         onclick="toggleSidebar()"
         class="hidden fixed inset-0 bg-black/60 z-30 lg:hidden">
     </div>
 
-    {{-- Sidebar --}}
     <aside
         id="sidebar"
         class="sidebar-glass fixed inset-y-0 left-0 z-40 w-64 border-r flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-200">
 
-        {{-- Brand --}}
         <a
             href="{{ route('dashboard') }}"
             class="flex items-center gap-3 px-5 py-5 border-b border-white/10">
@@ -276,7 +555,6 @@
             </span>
         </a>
 
-        {{-- New Task + Search --}}
         <div class="px-4 pt-4 flex gap-2">
 
             <a
@@ -307,7 +585,6 @@
             </a>
         </div>
 
-        {{-- Navigation (id added so the scroll position can be remembered) --}}
         <nav id="sidebarNav" class="sidebar-scroll flex-1 overflow-y-auto px-3 py-4">
 
             @foreach ($nav as $section => $links)
@@ -340,7 +617,6 @@
                             {{ $label }}
                         </span>
 
-                        {{-- Pending Tasks Badge --}}
                         @if ($label === 'Tasks' && $pendingCount > 0)
 
                             <span class="text-[11px] font-semibold bg-blue-600 text-white rounded-md px-1.5 py-0.5">
@@ -357,8 +633,6 @@
 
         </nav>
 
-        {{-- Keeps the sidebar scroll position between pages.
-             Runs right after the menu is drawn, so there is no jump. --}}
         <script>
             (function () {
                 var nav = document.getElementById('sidebarNav');
@@ -372,7 +646,6 @@
                 if (saved !== null) {
                     nav.scrollTop = parseInt(saved, 10) || 0;
                 } else {
-                    // First visit: make sure the current page's menu item is visible
                     var active = nav.querySelector('a[data-active]');
                     if (active) active.scrollIntoView({ block: 'nearest' });
                 }
@@ -383,7 +656,6 @@
             })();
         </script>
 
-        {{-- User card --}}
         <div class="border-t border-white/10 p-3">
 
             <div class="flex items-center gap-3 px-2 py-2">
@@ -406,7 +678,6 @@
 
                 </a>
 
-                {{-- Logout --}}
                 <form
                     method="POST"
                     action="{{ route('logout') }}">
@@ -441,10 +712,8 @@
 
     </aside>
 
-    {{-- Content area --}}
     <div class="lg:pl-64 min-h-screen">
 
-        {{-- Mobile top bar --}}
         <div class="sidebar-glass lg:hidden flex items-center gap-3 px-4 py-3 border-b">
 
             <button
@@ -496,7 +765,6 @@
 
 @else
 
-    {{-- Guests (login / register pages) get no sidebar --}}
     <main>
         @yield('content')
     </main>
