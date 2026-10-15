@@ -9,8 +9,6 @@ use App\Http\Controllers\NoteController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\PriorityTaskController;
 use App\Http\Controllers\ScheduleController;
-use App\Http\Controllers\SelectionSortController;
-use App\Http\Controllers\SortedTaskController;
 use App\Http\Controllers\StudyFileController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TaskController;
@@ -189,18 +187,9 @@ Route::middleware('auth')->group(function () {
         ->name('priority_tasks.index');
 
 
-    // DSA - Sorted Tasks
-    Route::get('/sorted-tasks', [SortedTaskController::class, 'index'])
-        ->name('sorted_tasks.index');
-
-
     // DSA - Binary Search
     Route::get('/binary-search', [BinarySearchController::class, 'index'])
         ->name('binary_search.index');
 
-
-    // DSA - Selection Sort
-    Route::get('/selection-sort', [SelectionSortController::class, 'index'])
-        ->name('selection_sort.index');
 
 });
