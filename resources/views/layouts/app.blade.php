@@ -547,7 +547,7 @@
             class="flex items-center gap-3 px-5 py-5 border-b border-white/10">
 
             <span class="w-10 h-10 rounded-xl bg-white overflow-hidden flex items-center justify-center shadow-lg shadow-violet-500/30 ring-1 ring-white/10 shrink-0">
-                <img src="{{ asset('logo.jpg') }}" alt="Logo" class="w-full h-full object-contain">
+                <img src="{{ asset('logo.png') }}" alt="Logo" class="w-full h-full object-contain">
             </span>
 
             <span class="block text-white font-semibold text-sm leading-tight">
