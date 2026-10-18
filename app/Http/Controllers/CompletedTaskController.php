@@ -2,29 +2,46 @@
 
 namespace App\Http\Controllers;
 
+use App\DataStructures\Stack;
 use App\Models\Task;
-use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 
-class UpcomingTaskController extends Controller
+class CompletedTaskController extends Controller
 {
-    public function index(): View
+    // DATA STRUCTURE: Stack (LIFO)
+    public function index()
     {
-        abort_unless(Auth::check(), 401);
-
         $userId = Auth::id();
 
-        $tasks = Task::query()
-            ->whereHas('subject', function ($query) use ($userId) {
-                $query->where('user_id', $userId);
-            })
+        // Get completed tasks belonging to the logged-in user.
+        $completed = Task::whereHas('subject', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })
             ->with('subject')
-            ->where('status', 'Pending')
-            ->orderBy('deadline')
+            ->where('status', 'Completed')
+            ->orderBy('updated_at')
             ->get();
 
-        return view('upcoming_tasks.index', [
+        // Push tasks onto the stack.
+        $stack = new Stack();
+
+        foreach ($completed as $task) {
+            $stack->push($task);
+        }
+
+        $pushed = $stack->toArray();
+
+        // Pop tasks so the most recently completed appears first.
+        $tasks = [];
+
+        while (!$stack->isEmpty()) {
+            $tasks[] = $stack->pop();
+        }
+
+        return view('completed_tasks.index', [
             'tasks' => $tasks,
+            'pushed' => $pushed,
+            'trace' => $stack->trace(),
         ]);
     }
 }
