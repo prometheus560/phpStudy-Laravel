@@ -231,7 +231,7 @@
 
     <main class="wrap">
         <section class="auth-card">
-            <div class="logo"><img src="{{ asset('logo.png') }}" alt="Logo"></div>
+            <div class="logo"><img src="{{ asset('llogo.png') }}" alt="Logo"></div>
             @yield('content')
         </section>
     </main>

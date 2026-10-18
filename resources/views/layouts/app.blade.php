@@ -551,7 +551,7 @@
                          rounded-xl overflow-hidden
                          bg-white shadow-[0_0_20px_rgba(139,92,246,0.3)]">
                 
-                <img src="{{ asset('logo.png') }}"
+                <img src="{{ asset('llogo.png') }}"
                      alt="ClassTrack logo"
                      class="h-full w-full object-contain p-1.5
                             mix-blend-multiply brightness-110">
