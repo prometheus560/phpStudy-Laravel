@@ -1,3 +1,4 @@
+
 <?php
 
 namespace App\Http\Controllers;
@@ -8,7 +9,9 @@ use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
-   
+    /**
+     * Return only tasks belonging to the logged-in user's subjects.
+     */
     private function ownedByMe($query)
     {
         abort_unless(auth()->check(), 401);
@@ -19,7 +22,7 @@ class TaskController extends Controller
     }
 
     /**
-     * Prevent access to another user's task.
+     * Prevent users from accessing another user's task.
      */
     private function authorizeTask(Task $task): void
     {
@@ -36,6 +39,8 @@ class TaskController extends Controller
 
     public function index()
     {
+        abort_unless(auth()->check(), 401);
+
         $tasks = $this->ownedByMe(Task::with('subject'))
             ->orderBy('deadline')
             ->get();
@@ -161,6 +166,8 @@ class TaskController extends Controller
 
     public function bulkDestroy(Request $request)
     {
+        abort_unless(auth()->check(), 401);
+
         $data = $request->validate([
             'ids' => 'required|array|min:1',
             'ids.*' => 'required|integer|distinct',
