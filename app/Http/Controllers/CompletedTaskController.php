@@ -1,3 +1,4 @@
+
 <?php
 
 namespace App\Http\Controllers;
@@ -10,16 +11,11 @@ class UpcomingTaskController extends Controller
 {
     public function index(): View
     {
-        $tasks = $this->pendingTasksForUser(Auth::id());
+        abort_unless(Auth::check(), 401);
 
-        return view('upcoming_tasks.index', [
-            'tasks' => $tasks,
-        ]);
-    }
+        $userId = Auth::id();
 
-    private function pendingTasksForUser(int $userId)
-    {
-        return Task::query()
+        $tasks = Task::query()
             ->whereHas('subject', function ($query) use ($userId) {
                 $query->where('user_id', $userId);
             })
@@ -27,5 +23,9 @@ class UpcomingTaskController extends Controller
             ->where('status', 'Pending')
             ->orderBy('deadline')
             ->get();
+
+        return view('upcoming_tasks.index', [
+            'tasks' => $tasks,
+        ]);
     }
 }
