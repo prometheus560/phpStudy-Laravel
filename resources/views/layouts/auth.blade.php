@@ -90,7 +90,6 @@
             .moon { display: none; }
         }
 
-
         /* ---------- Layout ---------- */
         .wrap { position: relative; z-index: 1; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 28px 18px; }
 
@@ -117,14 +116,31 @@
         }
         @keyframes rise { from { opacity: 0; transform: translateY(16px); } }
 
+        /* ---------- Updated Logo Styling ---------- */
         .logo {
-            width: 68px; height: 68px; margin: 0 auto 22px;
-            background: #fff; border-radius: 19px; overflow: hidden;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 0 1px rgba(255,255,255,.14), 0 14px 44px rgba(59,130,246,.45);
+            width: 76px; 
+            height: 76px; 
+            margin: 0 auto 24px;
+            border-radius: 22px; 
+            overflow: hidden;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            padding: 10px; /* Gives the logo breathing room */
+            background: linear-gradient(145deg, #ffffff 0%, #f4f5fa 100%);
+            box-shadow: 
+                0 0 0 1px rgba(255,255,255,.18), 
+                0 16px 44px rgba(59,130,246,.45),
+                0 0 60px rgba(139,92,246,.25); /* Purple/Blue glow */
             animation: float 6s ease-in-out infinite;
         }
-        .logo img { width: 100%; height: 100%; object-fit: contain; }
+        .logo img { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: contain; 
+            /* Optional: if the logo is a dark icon, this drop-shadow helps it pop */
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); 
+        }
         @keyframes float { 50% { transform: translateY(-5px); } }
 
         h1 { text-align: center; font-size: 28px; font-weight: 700; letter-spacing: -.03em; color: #fff; line-height: 1.15; }
