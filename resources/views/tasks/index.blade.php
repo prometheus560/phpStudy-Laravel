@@ -30,22 +30,57 @@
             <p class="page-sub">Create, manage, and track your study tasks.</p>
         </div>
 
-        @if ($subjects->count() > 0)
-            <button type="button" data-open-add
-                    class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl px-5 py-2.5 text-sm font-semibold shadow-lg shadow-blue-900/30 hover:from-blue-500 hover:to-indigo-500">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Add Task
-            </button>
-        @else
-            <a href="{{ route('subjects.index') }}"
-               class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl px-5 py-2.5 text-sm font-semibold">
-                Add Subject first
-            </a>
-        @endif
+        <div class="flex flex-wrap items-center gap-3">
+            {{-- Delete All --}}
+            <form
+                method="POST"
+                action="{{ route('tasks.destroy_all') }}"
+                onsubmit="return confirm('Are you sure you want to delete all tasks? This action cannot be undone.');"
+            >
+                @csrf
+                @method('DELETE')
+
+                <button
+                    type="submit"
+                    @disabled($tasks->isEmpty())
+                    class="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold border border-red-500/40 text-red-300 bg-red-500/10 hover:bg-red-500/20 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                    title="{{ $tasks->isEmpty() ? 'No tasks to delete.' : 'Delete all your tasks' }}"
+                >
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6l-1 14H6L5 6"/>
+                        <path d="M10 11v6M14 11v6"/>
+                        <path d="M9 6V4h6v2"/>
+                    </svg>
+                    Delete All
+                </button>
+            </form>
+
+            @if ($subjects->count() > 0)
+                <button type="button" data-open-add
+                        class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl px-5 py-2.5 text-sm font-semibold shadow-lg shadow-blue-900/30 hover:from-blue-500 hover:to-indigo-500">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Add Task
+                </button>
+            @else
+                <a href="{{ route('subjects.index') }}"
+                   class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl px-5 py-2.5 text-sm font-semibold">
+                    Add Subject first
+                </a>
+            @endif
+        </div>
     </div>
+
+    @if ($tasks->isEmpty())
+        <p class="text-sm text-gray-400 mb-4">No tasks to delete.</p>
+    @endif
 
     @if (session('success'))
         <div class="alert alert-ok" role="status">{{ session('success') }}</div>
+    @endif
+
+    @if (session('info'))
+        <div class="alert" role="status">{{ session('info') }}</div>
     @endif
 
     @if ($errors->any())
@@ -95,7 +130,6 @@
         </div>
         <p class="text-sm mt-1" style="color: var(--muted)">Everything in your planner, soonest deadline first.</p>
 
-        {{-- Search bar (shared component): type a letter, filter by subject, Clear --}}
         @if ($tasks->count() > 0)
             <div class="mt-5">
                 @include('partials.list-search', [
@@ -118,362 +152,4 @@
             </label>
         </div>
 
-        <div id="task-list" class="flex flex-col gap-3">
-
-            @foreach ($tasks as $task)
-
-                @php
-                    $prioClass = ['High' => 'chip-high', 'Medium' => 'chip-med', 'Low' => 'chip-low'][$task->priority] ?? 'chip-muted';
-                    $isDone    = $task->status === 'Completed';
-                @endphp
-
-                <div id="task-{{ $task->id }}" data-search-item data-name="{{ mb_strtolower($task->task_name) }}" data-filter="{{ $task->subject_id }}"
-                     class="rounded-2xl p-5 border border-white/[.08] border-l-4 {{ $isDone ? 'border-l-gray-600' : ($accent[$task->priority] ?? 'border-l-gray-500') }} bg-white/[.03] hover:border-blue-500/30 transition">
-                    <div class="flex flex-wrap items-center justify-between gap-4">
-
-                        {{-- Select checkbox (for deleting several tasks at once) --}}
-                        <input type="checkbox" name="ids[]" value="{{ $task->id }}" form="bulk-form"
-                               class="task-check w-4 h-4 shrink-0 accent-blue-500 cursor-pointer"
-                               aria-label="Select task {{ $task->task_name }}">
-
-                        {{-- Task Information --}}
-                        <div class="flex-1 min-w-[240px]">
-                            <h4 data-search-name class="font-semibold text-lg mb-3 {{ $isDone ? 'text-gray-500 line-through' : 'text-white' }}">{{ $task->task_name }}</h4>
-
-                            <div class="flex flex-wrap items-center gap-2">
-                                <span class="chip chip-blue">{{ $task->subject->subject_name }}</span>
-
-                                <span class="chip chip-muted">
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                                    {{ $task->deadline->format('F d, Y') }}
-                                </span>
-
-                                <span class="chip {{ $prioClass }}">{{ $task->priority }}</span>
-
-                                @if ($isDone)
-                                    <span class="chip chip-low">Completed</span>
-                                @else
-                                    <span class="chip {{ $task->is_overdue ? 'chip-high' : 'chip-warn' }}">{{ $task->is_overdue ? $task->due_label : 'Pending' }}</span>
-                                @endif
-                            </div>
-                        </div>
-
-                        {{-- Actions --}}
-                        <div class="flex flex-wrap items-center gap-2">
-
-                            <button type="button" class="btn-sm edit-btn"
-                                    style="background:rgba(255,255,255,.04);border:1px solid #2a2a38;color:#cfd2e0"
-                                    data-task="{{ json_encode([
-                                        'id'         => $task->id,
-                                        'name'       => $task->task_name,
-                                        'subject_id' => $task->subject_id,
-                                        'deadline'   => $task->deadline->format('Y-m-d'),
-                                        'priority'   => $task->priority,
-                                    ]) }}">
-                                Edit
-                            </button>
-
-                            @if ($isDone)
-                                <form method="POST" action="{{ route('tasks.update', $task) }}">
-                                    @csrf
-                                    @method('PATCH')
-                                    <input type="hidden" name="status" value="Pending">
-                                    <button type="submit" class="btn-sm btn-warn">Mark Pending</button>
-                                </form>
-                            @else
-                                <form method="POST" action="{{ route('tasks.update', $task) }}">
-                                    @csrf
-                                    @method('PATCH')
-                                    <input type="hidden" name="status" value="Completed">
-                                    <button type="submit" class="btn-sm btn-ok">Complete</button>
-                                </form>
-                            @endif
-
-                            <form method="POST" action="{{ route('tasks.destroy', $task) }}"
-                                  onsubmit="return confirm('Are you sure you want to delete this task?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn-sm btn-danger">Delete</button>
-                            </form>
-
-                        </div>
-
-                    </div>
-                </div>
-
-            @endforeach
-
-        </div>
-
-    @else
-
-        <div class="bg-[#14141f] border border-[#23232f] rounded-2xl text-center py-16 px-6">
-            <span class="w-14 h-14 mx-auto rounded-2xl bg-blue-600/15 border border-blue-500/20 text-blue-400 flex items-center justify-center mb-4">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-            </span>
-
-            @if ($subjects->count() > 0)
-                <h4 class="font-semibold text-white">No tasks yet</h4>
-                <p class="text-sm mt-1 mb-5" style="color: var(--muted)">Add your first task to start organizing your study work.</p>
-                <button type="button" data-open-add class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl px-5 py-2.5 text-sm font-semibold">+ Add Task</button>
-            @else
-                <h4 class="font-semibold text-white">No subjects available</h4>
-                <p class="text-sm mt-1 mb-5" style="color: var(--muted)">You need to create a subject before adding a task.</p>
-                <a href="{{ route('subjects.index') }}" class="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl px-5 py-2.5 text-sm font-semibold">Add Subject</a>
-            @endif
-        </div>
-
-    @endif
-
-</div>
-
-@if ($subjects->count() > 0)
-
-{{-- Add dialog --}}
-<dialog id="add-dialog" class="bg-transparent p-0 m-auto w-full max-w-lg backdrop:bg-black/70">
-    <form method="POST" action="{{ route('tasks.store') }}" class="bg-[#14141f] border border-[#2a2a38] rounded-2xl p-6 grid grid-cols-1 sm:grid-cols-2 gap-5 text-gray-200">
-        @csrf
-
-        <div class="sm:col-span-2">
-            <h3 class="text-lg font-bold text-white">Add new task</h3>
-            <p class="text-sm mt-1" style="color: var(--muted)">Organize it by subject, deadline, and priority.</p>
-        </div>
-
-        <div class="sm:col-span-2">
-            <label for="task_name" class="f-label">Task Name</label>
-            <div class="control">
-                {!! $icTask !!}
-                <input id="task_name" type="text" name="task_name" value="{{ old('task_name') }}"
-                       placeholder="Enter task name" maxlength="150" required class="f-input has-icon">
-            </div>
-        </div>
-
-        <div>
-            <label for="subject_id" class="f-label">Subject</label>
-            <div class="control">
-                {!! $icBook !!}
-                <select id="subject_id" name="subject_id" required class="f-input has-icon">
-                    <option value="">Select Subject</option>
-                    @foreach ($subjects as $subject)
-                        <option value="{{ $subject->id }}" @selected(old('subject_id') == $subject->id)>{{ $subject->subject_name }}</option>
-                    @endforeach
-                </select>
-            </div>
-        </div>
-
-        <div>
-            <label for="deadline" class="f-label">Deadline</label>
-            <div class="control">
-                {!! $icCal !!}
-                <input id="deadline" type="date" name="deadline" value="{{ old('deadline') }}" required class="f-input has-icon">
-            </div>
-        </div>
-
-        <div class="sm:col-span-2">
-            <label for="priority" class="f-label">Priority</label>
-            <div class="control">
-                {!! $icFlag !!}
-                <select id="priority" name="priority" required class="f-input has-icon">
-                    <option value="High" @selected(old('priority') === 'High')>High</option>
-                    <option value="Medium" @selected(old('priority', 'Medium') === 'Medium')>Medium</option>
-                    <option value="Low" @selected(old('priority') === 'Low')>Low</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="sm:col-span-2 flex justify-end gap-2 pt-1">
-            <button type="button" id="add-cancel" class="rounded-xl px-4 py-2 text-sm font-medium border border-[#2a2a38] text-gray-300 hover:bg-white/5">Cancel</button>
-            <button type="submit" class="rounded-xl px-5 py-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500">Add Task</button>
-        </div>
-    </form>
-</dialog>
-
-{{-- Edit dialog --}}
-<dialog id="edit-dialog" class="bg-transparent p-0 m-auto w-full max-w-lg backdrop:bg-black/70">
-    <form method="POST" id="edit-form" class="bg-[#14141f] border border-[#2a2a38] rounded-2xl p-6 grid grid-cols-1 sm:grid-cols-2 gap-5 text-gray-200">
-        @csrf
-        @method('PATCH')
-
-        <div class="sm:col-span-2">
-            <h3 class="text-lg font-bold text-white">Edit task</h3>
-        </div>
-
-        <div class="sm:col-span-2">
-            <label for="e_name" class="f-label">Task Name</label>
-            <div class="control">
-                {!! $icTask !!}
-                <input id="e_name" type="text" name="task_name" maxlength="150" required class="f-input has-icon">
-            </div>
-        </div>
-
-        <div>
-            <label for="e_subject" class="f-label">Subject</label>
-            <div class="control">
-                {!! $icBook !!}
-                <select id="e_subject" name="subject_id" required class="f-input has-icon">
-                    @foreach ($subjects as $subject)
-                        <option value="{{ $subject->id }}">{{ $subject->subject_name }}</option>
-                    @endforeach
-                </select>
-            </div>
-        </div>
-
-        <div>
-            <label for="e_deadline" class="f-label">Deadline</label>
-            <div class="control">
-                {!! $icCal !!}
-                <input id="e_deadline" type="date" name="deadline" required class="f-input has-icon">
-            </div>
-        </div>
-
-        <div class="sm:col-span-2">
-            <label for="e_priority" class="f-label">Priority</label>
-            <div class="control">
-                {!! $icFlag !!}
-                <select id="e_priority" name="priority" required class="f-input has-icon">
-                    <option value="High">High</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Low">Low</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="sm:col-span-2 flex justify-end gap-2 pt-1">
-            <button type="button" id="edit-cancel" class="rounded-xl px-4 py-2 text-sm font-medium border border-[#2a2a38] text-gray-300 hover:bg-white/5">Cancel</button>
-            <button type="submit" class="rounded-xl px-5 py-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500">Save changes</button>
-        </div>
-    </form>
-</dialog>
-
-<script>
-(() => {
-    const add  = document.getElementById('add-dialog');
-    const dlg  = document.getElementById('edit-dialog');
-    const form = document.getElementById('edit-form');
-
-    // Add dialog
-    document.querySelectorAll('[data-open-add]').forEach(b => b.addEventListener('click', () => {
-        add.showModal();
-        document.getElementById('task_name').focus();
-    }));
-    document.getElementById('add-cancel').addEventListener('click', () => add.close());
-    add.addEventListener('click', e => { if (e.target === add) add.close(); });
-
-    // Edit dialog
-    document.querySelectorAll('.edit-btn').forEach(b => b.addEventListener('click', () => {
-        const t = JSON.parse(b.dataset.task);
-        form.action = "{{ url('/tasks') }}/" + t.id;
-        document.getElementById('e_name').value     = t.name;
-        document.getElementById('e_subject').value  = t.subject_id;
-        document.getElementById('e_deadline').value = t.deadline;
-        document.getElementById('e_priority').value = t.priority;
-        dlg.showModal();
-    }));
-
-    document.getElementById('edit-cancel').addEventListener('click', () => dlg.close());
-    dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
-})();
-</script>
-
-@endif
-
-@if ($tasks->count() > 0)
-
-{{-- Bulk delete --}}
-<form method="POST" action="{{ route('tasks.bulk_destroy') }}" id="bulk-form">
-    @csrf
-    @method('DELETE')
-</form>
-
-<div id="bulk-bar"
-     class="hidden fixed bottom-6 left-1/2 lg:left-[calc(50%+8rem)] -translate-x-1/2 z-40 items-center gap-3 rounded-2xl border border-[#2a2a38] bg-[#14141f] px-4 py-3 shadow-2xl shadow-black/60">
-    <span id="bulk-count" class="text-sm font-semibold text-white whitespace-nowrap">0 selected</span>
-
-    <button type="button" id="bulk-cancel"
-            class="rounded-lg px-3 py-1.5 text-sm font-medium border border-[#2a2a38] text-gray-300 hover:bg-white/5">
-        Cancel
-    </button>
-
-    <button type="submit" form="bulk-form"
-            class="rounded-lg px-3.5 py-1.5 text-sm font-semibold border border-red-500/40 text-red-300 bg-red-500/10 hover:bg-red-500/20">
-        Delete selected
-    </button>
-</div>
-
-<script>
-(() => {
-    const form   = document.getElementById('bulk-form');
-    const bar    = document.getElementById('bulk-bar');
-    const count  = document.getElementById('bulk-count');
-    const all    = document.getElementById('select-all');
-    const boxes  = [...document.querySelectorAll('.task-check')];
-    const ring   = ['ring-1', 'ring-blue-500/60', 'bg-blue-500/[.06]'];
-
-    // A task counts only if the search/filter is currently showing it
-    const visible = b => {
-        const item = b.closest('[data-search-item]');
-        return item && item.offsetParent !== null;
-    };
-
-    function refresh() {
-        const vis = boxes.filter(visible);
-        const sel = vis.filter(b => b.checked);
-
-        boxes.forEach(b => {
-            const item = b.closest('[data-search-item]');
-            if (item) ring.forEach(c => item.classList.toggle(c, b.checked));
-        });
-
-        count.textContent = sel.length + ' selected';
-        bar.classList.toggle('hidden', sel.length === 0);
-        bar.classList.toggle('flex', sel.length > 0);
-
-        all.checked = vis.length > 0 && sel.length === vis.length;
-        all.indeterminate = sel.length > 0 && sel.length < vis.length;
-    }
-
-    boxes.forEach(b => b.addEventListener('change', refresh));
-
-    all.addEventListener('change', () => {
-        boxes.filter(visible).forEach(b => { b.checked = all.checked; });
-        refresh();
-    });
-
-    document.getElementById('bulk-cancel').addEventListener('click', () => {
-        boxes.forEach(b => { b.checked = false; });
-        refresh();
-    });
-
-    // Re-count when the search box or subject filter changes
-    document.addEventListener('input',  () => setTimeout(refresh, 0));
-    document.addEventListener('change', () => setTimeout(refresh, 0));
-    document.addEventListener('click',  () => setTimeout(refresh, 0));
-
-    form.addEventListener('submit', e => {
-        const sel = boxes.filter(b => b.checked && visible(b));
-
-        if (sel.length === 0) { e.preventDefault(); return; }
-
-        const word = sel.length === 1 ? 'task' : 'tasks';
-        if (!confirm('Delete ' + sel.length + ' selected ' + word + '? This cannot be undone.')) {
-            e.preventDefault();
-            return;
-        }
-
-        // Hidden (filtered-out) tasks are never sent
-        boxes.forEach(b => { b.disabled = !(b.checked && visible(b)); });
-    });
-
-    // Back button: start clean
-    window.addEventListener('pageshow', () => {
-        boxes.forEach(b => { b.disabled = false; b.checked = false; });
-        refresh();
-    });
-
-    refresh();
-})();
-</script>
-
-@endif
-
-@endsection
+        <div id

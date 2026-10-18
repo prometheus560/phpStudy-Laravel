@@ -1,3 +1,4 @@
+
 <?php
 
 namespace App\Http\Controllers;
@@ -8,7 +9,9 @@ use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
-    // Only tasks that belong to the logged-in user's subjects
+    /**
+     * Only tasks belonging to the logged-in user's subjects.
+     */
     private function ownedByMe($query)
     {
         return $query->whereHas('subject', function ($query) {
@@ -16,7 +19,9 @@ class TaskController extends Controller
         });
     }
 
-    // Stop users from loading or changing another user's task
+    /**
+     * Prevent users from accessing another user's task.
+     */
     private function authorizeTask(Task $task): void
     {
         $task->loadMissing('subject');
@@ -54,13 +59,12 @@ class TaskController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'subject_id' => 'required|exists:subjects,id',
+            'subject_id' => 'required|integer|exists:subjects,id',
             'task_name'  => 'required|string|max:255',
             'deadline'   => 'required|date',
             'priority'   => 'required|in:High,Medium,Low',
         ]);
 
-        // The chosen subject must belong to this user
         Subject::where('id', $data['subject_id'])
             ->where('user_id', auth()->id())
             ->firstOrFail();
@@ -83,9 +87,8 @@ class TaskController extends Controller
     {
         $this->authorizeTask($task);
 
-        // Supports both status-only buttons and the Edit form
         $data = $request->validate([
-            'subject_id' => 'sometimes|required|exists:subjects,id',
+            'subject_id' => 'sometimes|required|integer|exists:subjects,id',
             'task_name'  => 'sometimes|required|string|max:255',
             'deadline'   => 'sometimes|required|date',
             'priority'   => 'sometimes|required|in:High,Medium,Low',
@@ -105,17 +108,17 @@ class TaskController extends Controller
             ->with('success', 'Task updated successfully.');
     }
 
-    // Used by the Done button
     public function complete(Task $task)
     {
         $this->authorizeTask($task);
 
         $task->update(['status' => 'Completed']);
 
-        return back()->with('success', 'Task marked as completed.');
+        return redirect()
+            ->route('tasks.index')
+            ->with('success', 'Task marked as completed.');
     }
 
-    // Delete one task
     public function destroy(Task $task)
     {
         $this->authorizeTask($task);
@@ -127,7 +130,9 @@ class TaskController extends Controller
             ->with('success', 'Task deleted successfully.');
     }
 
-    // Delete all tasks belonging only to the logged-in user
+    /**
+     * Delete all tasks belonging to the logged-in user's subjects.
+     */
     public function destroyAll()
     {
         $deletedCount = $this->ownedByMe(Task::query())->delete();
@@ -143,7 +148,9 @@ class TaskController extends Controller
             ->with('success', 'All tasks have been deleted.');
     }
 
-    // Delete several selected tasks
+    /**
+     * Delete selected tasks belonging to the logged-in user.
+     */
     public function bulkDestroy(Request $request)
     {
         $data = $request->validate([
@@ -154,12 +161,12 @@ class TaskController extends Controller
             'ids.min'      => 'Please select at least one task.',
         ]);
 
-        // Filter submitted IDs to the logged-in user's own tasks
-        $ids = $this->ownedByMe(Task::query())
-            ->whereIn('id', $data['ids'])
-            ->pluck('id');
+        $query = $this->ownedByMe(Task::query())
+            ->whereIn('id', $data['ids']);
 
-        if ($ids->isEmpty()) {
+        $count = $query->count();
+
+        if ($count === 0) {
             return redirect()
                 ->route('tasks.index')
                 ->withErrors([
@@ -167,17 +174,15 @@ class TaskController extends Controller
                 ]);
         }
 
-        $count = $ids->count();
-
-        $this->ownedByMe(Task::query())
-            ->whereIn('id', $ids)
-            ->delete();
+        $query->delete();
 
         return redirect()
             ->route('tasks.index')
             ->with(
                 'success',
-                $count . ($count === 1 ? ' task' : ' tasks') . ' deleted successfully.'
+                $count . ($count === 1
+                    ? ' task deleted successfully.'
+                    : ' tasks deleted successfully.')
             );
     }
 }
