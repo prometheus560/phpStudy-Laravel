@@ -1,35 +1,37 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Task;
+
 use App\Models\Subject;
+use App\Models\Task;
 use Illuminate\Http\Request;
 
 class TaskController extends Controller
 {
-    /**
-     * Only tasks belonging to the logged-in user's subjects.
-     */
+   
     private function ownedByMe($query)
     {
+        abort_unless(auth()->check(), 401);
+
         return $query->whereHas('subject', function ($query) {
             $query->where('user_id', auth()->id());
         });
     }
 
     /**
-     * Prevent users from accessing another user's task.
+     * Prevent access to another user's task.
      */
     private function authorizeTask(Task $task): void
     {
+        abort_unless(auth()->check(), 401);
+
         $task->loadMissing('subject');
 
-        if (
-            !$task->subject ||
-            (int) $task->subject->user_id !== (int) auth()->id()
-        ) {
-            abort(403);
-        }
+        abort_unless(
+            $task->subject &&
+            (int) $task->subject->user_id === (int) auth()->id(),
+            403
+        );
     }
 
     public function index()
@@ -47,6 +49,8 @@ class TaskController extends Controller
 
     public function create()
     {
+        abort_unless(auth()->check(), 401);
+
         $subjects = Subject::where('user_id', auth()->id())
             ->orderBy('subject_name')
             ->get();
@@ -56,11 +60,13 @@ class TaskController extends Controller
 
     public function store(Request $request)
     {
+        abort_unless(auth()->check(), 401);
+
         $data = $request->validate([
             'subject_id' => 'required|integer|exists:subjects,id',
-            'task_name'  => 'required|string|max:255',
-            'deadline'   => 'required|date',
-            'priority'   => 'required|in:High,Medium,Low',
+            'task_name' => 'required|string|max:255',
+            'deadline' => 'required|date',
+            'priority' => 'required|in:High,Medium,Low',
         ]);
 
         Subject::where('id', $data['subject_id'])
@@ -68,17 +74,28 @@ class TaskController extends Controller
             ->firstOrFail();
 
         Task::create([
-            'user_id'    => auth()->id(),
+            'user_id' => auth()->id(),
             'subject_id' => $data['subject_id'],
-            'task_name'  => $data['task_name'],
-            'deadline'   => $data['deadline'],
-            'priority'   => $data['priority'],
-            'status'     => 'Pending',
+            'task_name' => $data['task_name'],
+            'deadline' => $data['deadline'],
+            'priority' => $data['priority'],
+            'status' => 'Pending',
         ]);
 
         return redirect()
             ->route('tasks.index')
             ->with('success', 'Task added successfully.');
+    }
+
+    public function edit(Task $task)
+    {
+        $this->authorizeTask($task);
+
+        $subjects = Subject::where('user_id', auth()->id())
+            ->orderBy('subject_name')
+            ->get();
+
+        return view('tasks.edit', compact('task', 'subjects'));
     }
 
     public function update(Request $request, Task $task)
@@ -87,10 +104,10 @@ class TaskController extends Controller
 
         $data = $request->validate([
             'subject_id' => 'sometimes|required|integer|exists:subjects,id',
-            'task_name'  => 'sometimes|required|string|max:255',
-            'deadline'   => 'sometimes|required|date',
-            'priority'   => 'sometimes|required|in:High,Medium,Low',
-            'status'     => 'sometimes|required|in:Pending,Completed',
+            'task_name' => 'sometimes|required|string|max:255',
+            'deadline' => 'sometimes|required|date',
+            'priority' => 'sometimes|required|in:High,Medium,Low',
+            'status' => 'sometimes|required|in:Pending,Completed',
         ]);
 
         if (isset($data['subject_id'])) {
@@ -128,59 +145,49 @@ class TaskController extends Controller
             ->with('success', 'Task deleted successfully.');
     }
 
-    /**
-     * Delete all tasks belonging to the logged-in user's subjects.
-     */
     public function destroyAll()
     {
         $deletedCount = $this->ownedByMe(Task::query())->delete();
 
-        if ($deletedCount === 0) {
-            return redirect()
-                ->route('tasks.index')
-                ->with('info', 'No tasks to delete.');
-        }
-
         return redirect()
             ->route('tasks.index')
-            ->with('success', 'All tasks have been deleted.');
+            ->with(
+                $deletedCount > 0 ? 'success' : 'info',
+                $deletedCount > 0
+                    ? 'All tasks have been deleted.'
+                    : 'No tasks to delete.'
+            );
     }
 
-    /**
-     * Delete selected tasks belonging to the logged-in user.
-     */
     public function bulkDestroy(Request $request)
     {
         $data = $request->validate([
-            'ids'   => 'required|array|min:1',
+            'ids' => 'required|array|min:1',
             'ids.*' => 'required|integer|distinct',
         ], [
             'ids.required' => 'Please select at least one task.',
-            'ids.min'      => 'Please select at least one task.',
+            'ids.min' => 'Please select at least one task.',
         ]);
 
-        $query = $this->ownedByMe(Task::query())
-            ->whereIn('id', $data['ids']);
+        $deletedCount = $this->ownedByMe(Task::query())
+            ->whereIn('id', $data['ids'])
+            ->delete();
 
-        $count = $query->count();
-
-        if ($count === 0) {
+        if ($deletedCount === 0) {
             return redirect()
                 ->route('tasks.index')
-                ->withErrors([
-                    'ids' => 'No matching tasks were found.',
-                ]);
+                ->with('info', 'No matching tasks were found.');
         }
-
-        $query->delete();
 
         return redirect()
             ->route('tasks.index')
             ->with(
                 'success',
-                $count . ($count === 1
-                    ? ' task deleted successfully.'
-                    : ' tasks deleted successfully.')
+                $deletedCount . (
+                    $deletedCount === 1
+                        ? ' task deleted successfully.'
+                        : ' tasks deleted successfully.'
+                )
             );
     }
 }
