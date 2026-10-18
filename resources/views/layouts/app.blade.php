@@ -546,22 +546,18 @@
             href="{{ route('dashboard') }}"
             class="group flex items-center gap-3 px-5 py-5 border-b border-white/10">
 
-            {{-- Logo — dark glass tile, no white box, subtle glow --}}
-            <span class="relative flex h-11 w-11 shrink-0 items-center justify-center
+            {{-- Logo — clean, modern, white-background removed --}}
+            <span class="relative flex h-10 w-10 shrink-0 items-center justify-center
                          rounded-xl overflow-hidden
-                         bg-gradient-to-br from-indigo-500/20 via-violet-500/10 to-purple-500/15
-                         ring-1 ring-white/15
-                         shadow-[0_0_28px_-6px_rgba(139,92,246,0.65)]
-                         transition group-hover:ring-violet-400/40
-                         group-hover:shadow-[0_0_32px_-4px_rgba(139,92,246,0.85)]">
-
+                         bg-white shadow-[0_0_20px_rgba(139,92,246,0.3)]">
+                
                 <img src="{{ asset('logo.png') }}"
                      alt="ClassTrack logo"
                      class="h-full w-full object-contain p-1.5
-                            drop-shadow-[0_0_6px_rgba(167,139,250,0.45)]">
+                            mix-blend-multiply brightness-110">
             </span>
 
-            <span class="block text-white font-semibold text-sm leading-tight tracking-wide">
+            <span class="block text-white font-bold text-[15px] leading-tight tracking-wide">
                 CLASSSTRACK
             </span>
         </a>

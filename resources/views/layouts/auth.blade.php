@@ -116,30 +116,27 @@
         }
         @keyframes rise { from { opacity: 0; transform: translateY(16px); } }
 
-        /* ---------- Updated Logo Styling ---------- */
+        /* ---------- Updated Logo Styling (Fixing clarity) ---------- */
         .logo {
-            width: 76px; 
-            height: 76px; 
+            width: 80px; 
+            height: 80px; 
             margin: 0 auto 24px;
-            border-radius: 22px; 
+            border-radius: 20px; 
             overflow: hidden;
             display: flex; 
             align-items: center; 
             justify-content: center;
-            padding: 10px; /* Gives the logo breathing room */
-            background: linear-gradient(145deg, #ffffff 0%, #f4f5fa 100%);
-            box-shadow: 
-                0 0 0 1px rgba(255,255,255,.18), 
-                0 16px 44px rgba(59,130,246,.45),
-                0 0 60px rgba(139,92,246,.25); /* Purple/Blue glow */
+            background: #ffffff;
+            box-shadow: 0 8px 32px rgba(139, 92, 246, 0.3);
             animation: float 6s ease-in-out infinite;
         }
         .logo img { 
             width: 100%; 
             height: 100%; 
             object-fit: contain; 
-            /* Optional: if the logo is a dark icon, this drop-shadow helps it pop */
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); 
+            padding: 10px;
+            /* Blends the white background of the PNG with the white box cleanly */
+            mix-blend-mode: multiply; 
         }
         @keyframes float { 50% { transform: translateY(-5px); } }
 
