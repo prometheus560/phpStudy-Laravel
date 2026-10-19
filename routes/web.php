@@ -1,4 +1,3 @@
-
 <?php
 
 use App\Http\Controllers\AccountController;
@@ -97,12 +96,20 @@ Route::middleware('auth')->group(function () {
     Route::get('/tasks', [TaskController::class, 'index'])
         ->name('tasks.index');
 
+    // NEW: the Add Task page (the "Add Task" button on the Tasks page opens it)
+    Route::get('/tasks/create', [TaskController::class, 'create'])
+        ->name('tasks.create');
+
     Route::post('/tasks', [TaskController::class, 'store'])
         ->name('tasks.store');
 
     // IMPORTANT: keep delete-all before /tasks/{task}
     Route::delete('/tasks/delete-all', [TaskController::class, 'destroyAll'])
         ->name('tasks.destroy_all');
+
+    // NEW: the Edit Task page (the "Edit" button on every task opens it)
+    Route::get('/tasks/{task}/edit', [TaskController::class, 'edit'])
+        ->name('tasks.edit');
 
     Route::patch('/tasks/{task}', [TaskController::class, 'update'])
         ->name('tasks.update');
