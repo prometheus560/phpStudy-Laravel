@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Route;
 // Home
 Route::get('/', function () {
     return redirect()->route('dashboard');
-    }););
+});
 // Authentication
 Route::get('/login', [AuthController::class, 'showLogin'])
     ->name('login');
@@ -194,4 +194,5 @@ Route::middleware('auth')->group(function () {
     Route::get('/sorted-tasks', [SortedTaskController::class, 'index'])->name('sorted_tasks.index');
 
 });
+
 
