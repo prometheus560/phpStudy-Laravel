@@ -259,8 +259,6 @@
             ['Completed Tasks', 'completed_tasks.index', 'completed_tasks.*', 'done'],
             ['Upcoming Tasks', 'upcoming_tasks.index', 'upcoming_tasks.*', 'clock'],
             ['Priority Tasks', 'priority_tasks.index', 'priority_tasks.*', 'flag'],
-            ['Sorted Tasks', 'sorted_tasks.index', 'sorted_tasks.*', 'list'],
-            ['Selection Sort', 'selection_sort.index', 'selection_sort.*', 'layers'],
         ],
     ];
 
@@ -538,3 +536,4 @@
 
 </body>
 </html>
+
