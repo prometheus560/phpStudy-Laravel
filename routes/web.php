@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\AuthController;
@@ -9,6 +9,7 @@ use App\Http\Controllers\NoteController;
 use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\PriorityTaskController;
 use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\SortedTaskController;
 use App\Http\Controllers\StudyFileController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TaskController;
@@ -18,8 +19,10 @@ use Illuminate\Support\Facades\Route;
 // Home
 Route::get('/', function () {
     return redirect()->route('dashboard');
-});
+    // DSA - Sorted Tasks (Bubble Sort)
+    Route::get('/sorted-tasks', [SortedTaskController::class, 'index'])->name('sorted_tasks.index');
 
+});
 // Authentication
 Route::get('/login', [AuthController::class, 'showLogin'])
     ->name('login');
@@ -185,4 +188,7 @@ Route::middleware('auth')->group(function () {
     // DSA - Binary Search
     Route::get('/binary-search', [BinarySearchController::class, 'index'])
         ->name('binary_search.index');
+    // DSA - Sorted Tasks (Bubble Sort)
+    Route::get('/sorted-tasks', [SortedTaskController::class, 'index'])->name('sorted_tasks.index');
+
 });
