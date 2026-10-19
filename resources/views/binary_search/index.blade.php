@@ -43,7 +43,7 @@
     </div>
 
     {{-- Search bar: raised above the card below so the pop-up list is never hidden --}}
-    <div id="subject-picker" class="glass p-6 mb-6" style="position: relative; z-index: 30;"
+    <div id="subject-picker" class="glass p-6 mb-6" style="position: relative; z-index: 15;"
          data-subjects="{{ json_encode($subjectData) }}">
         <div class="flex flex-wrap gap-3">
 
