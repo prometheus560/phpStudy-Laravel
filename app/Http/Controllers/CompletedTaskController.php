@@ -19,7 +19,7 @@ class CompletedTaskController extends Controller
         })
             ->with('subject')
             ->where('status', 'Completed')
-            ->orderBy('updated_at')
+            ->orderBy('id')
             ->get();
 
         // Push tasks onto the stack.
@@ -45,3 +45,5 @@ class CompletedTaskController extends Controller
         ]);
     }
 }
+
+
