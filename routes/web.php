@@ -182,5 +182,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/priority-tasks', [PriorityTaskController::class, 'index'])
         ->name('priority_tasks.index');
 
-
+    // DSA - Binary Search
+    Route::get('/binary-search', [BinarySearchController::class, 'index'])
+        ->name('binary_search.index');
 });
