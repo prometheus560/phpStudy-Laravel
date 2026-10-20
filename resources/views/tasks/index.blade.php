@@ -7,374 +7,171 @@
     $pendingCount = $tasks->where('status', '!=', 'Completed')->count();
     $completedCount = $tasks->where('status', 'Completed')->count();
     $overdueCount = $tasks->filter(fn ($task) => $task->is_overdue)->count();
+    $barColor = ['High' => '#fb7185', 'Medium' => '#fbbf24', 'Low' => '#60a5fa'];
 @endphp
 
-<div class="max-w-6xl mx-auto px-6 py-8">
+@include('partials.page-kit')
+
+<div class="pg">
 
     {{-- Page Header --}}
-    <div class="flex flex-wrap items-end justify-between gap-4 mb-8">
-        <div>
-            <h2 class="page-title">My Tasks</h2>
-            <p class="page-sub">Create, manage, and track your study tasks.</p>
+    <header class="pg-head">
+        <div style="position:relative;z-index:1">
+            <h1 class="pg-title">My Tasks</h1>
+            <p class="pg-sub">Create, manage, and track your study tasks.</p>
         </div>
 
-        <div class="flex flex-wrap items-center gap-3">
-            {{-- Delete All Tasks --}}
-            <form
-                method="POST"
-                action="{{ route('tasks.destroy_all') }}"
-                onsubmit="return confirm('Are you sure you want to delete all tasks? This action cannot be undone.');"
-            >
+        <div class="pg-actions">
+            <form method="POST" action="{{ route('tasks.destroy_all') }}"
+                  onsubmit="return confirm('Are you sure you want to delete all tasks? This action cannot be undone.');">
                 @csrf
                 @method('DELETE')
-
-                <button
-                    type="submit"
-                    @disabled($tasks->isEmpty())
-                    title="{{ $tasks->isEmpty() ? 'No tasks to delete.' : 'Delete all your tasks' }}"
-                    class="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold border border-red-500/40 text-red-300 bg-red-500/10 hover:bg-red-500/20 disabled:opacity-40 disabled:cursor-not-allowed transition"
-                >
-                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2"
-                         stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="3 6 5 6 21 6"/>
-                        <path d="M19 6l-1 14H6L5 6"/>
-                        <path d="M10 11v6M14 11v6"/>
-                        <path d="M9 6V4h6v2"/>
-                    </svg>
+                <button type="submit" @disabled($tasks->isEmpty())
+                        title="{{ $tasks->isEmpty() ? 'No tasks to delete.' : 'Delete all your tasks' }}"
+                        class="pg-btn danger">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
                     Delete All
                 </button>
             </form>
 
             @if ($subjects->isNotEmpty())
-                <a
-                    href="{{ route('tasks.create') }}"
-                    class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl px-5 py-2.5 text-sm font-semibold shadow-lg shadow-blue-900/30 hover:from-blue-500 hover:to-indigo-500 transition"
-                >
-                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2.2"
-                         stroke-linecap="round">
-                        <line x1="12" y1="5" x2="12" y2="19"/>
-                        <line x1="5" y1="12" x2="19" y2="12"/>
-                    </svg>
+                <a href="{{ route('tasks.create') }}" class="pg-btn main">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     Add Task
                 </a>
             @else
-                <a
-                    href="{{ route('subjects.index') }}"
-                    class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl px-5 py-2.5 text-sm font-semibold"
-                >
-                    Add Subject First
-                </a>
+                <a href="{{ route('subjects.index') }}" class="pg-btn main">Add Subject First</a>
             @endif
         </div>
-    </div>
+    </header>
 
     {{-- Flash Messages --}}
-    @if (session('success'))
-        <div class="alert alert-ok mb-5" role="status">
-            {{ session('success') }}
-        </div>
-    @endif
+    @if (session('success'))<div class="pg-flash" role="status">{{ session('success') }}</div>@endif
+    @if (session('info'))<div class="pg-flash info" role="status">{{ session('info') }}</div>@endif
+    @if ($errors->any())<div class="pg-flash err" role="alert">{{ $errors->first() }}</div>@endif
 
-    @if (session('info'))
-        <div class="alert mb-5" role="status">
-            {{ session('info') }}
-        </div>
-    @endif
-
-    @if ($errors->any())
-        <div class="alert alert-err mb-5" role="alert">
-            {{ $errors->first() }}
-        </div>
-    @endif
-
-    {{-- Summary Cards --}}
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-
-        <div class="bg-[#14141f] border border-[#23232f] rounded-2xl p-5 flex items-center gap-4">
-            <span class="w-11 h-11 rounded-xl bg-orange-500/15 border border-orange-500/20 text-orange-400 flex items-center justify-center">
-                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="1.8"
-                     stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"/>
-                    <polyline points="12 6 12 12 16 14"/>
-                </svg>
-            </span>
-            <div>
-                <p class="text-2xl font-bold text-white leading-none">{{ $pendingCount }}</p>
-                <p class="text-gray-400 text-sm mt-1">Pending</p>
-            </div>
-        </div>
-
-        <div class="bg-[#14141f] border border-[#23232f] rounded-2xl p-5 flex items-center gap-4">
-            <span class="w-11 h-11 rounded-xl bg-green-500/15 border border-green-500/20 text-green-400 flex items-center justify-center">
-                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="1.8"
-                     stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                    <polyline points="22 4 12 14.01 9 11.01"/>
-                </svg>
-            </span>
-            <div>
-                <p class="text-2xl font-bold text-white leading-none">{{ $completedCount }}</p>
-                <p class="text-gray-400 text-sm mt-1">Completed</p>
-            </div>
-        </div>
-
-        <div class="bg-[#14141f] border border-[#23232f] rounded-2xl p-5 flex items-center gap-4">
-            <span class="w-11 h-11 rounded-xl bg-rose-500/15 border border-rose-500/20 text-rose-400 flex items-center justify-center">
-                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="1.8"
-                     stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"/>
-                    <line x1="12" y1="8" x2="12" y2="12"/>
-                    <line x1="12" y1="16" x2="12.01" y2="16"/>
-                </svg>
-            </span>
-            <div>
-                <p class="text-2xl font-bold text-white leading-none">{{ $overdueCount }}</p>
-                <p class="text-gray-400 text-sm mt-1">Overdue</p>
-            </div>
-        </div>
-
+    {{-- Readout strip --}}
+    <div class="pg-stats">
+        <div class="pg-stat" style="--c:#fb923c"><b>{{ $pendingCount }}</b><span>Pending</span></div>
+        <div class="pg-stat" style="--c:#4ade80"><b>{{ $completedCount }}</b><span>Completed</span></div>
+        <div class="pg-stat" style="--c:#fb7185"><b>{{ $overdueCount }}</b><span>Overdue</span></div>
     </div>
 
-    {{-- Task List Heading --}}
-    <div class="mb-5">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-            <div class="flex items-center gap-3">
-                <h3 class="text-xl font-bold text-white">All Tasks</h3>
-                <span class="chip chip-blue">
-                    {{ $tasks->count() }}
-                    {{ $tasks->count() === 1 ? 'task' : 'tasks' }}
-                </span>
-            </div>
-        </div>
-        <p class="text-sm mt-1" style="color: var(--muted)">
-            Everything in your planner, ordered by deadline.
-        </p>
+    <div class="pg-section">
+        <h3>All Tasks</h3>
+        <small>{{ $tasks->count() }} {{ $tasks->count() === 1 ? 'task' : 'tasks' }}, ordered by deadline</small>
     </div>
 
     @if ($tasks->isNotEmpty())
 
         {{-- Search and Subject Filter --}}
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
-            <input
-                type="search"
-                id="task-search"
-                placeholder="Search tasks..."
-                aria-label="Search tasks"
-                class="w-full rounded-xl border border-[#303040] bg-[#12121c] text-white px-4 py-3 text-sm focus:outline-none focus:border-blue-500"
-            >
+        <div class="pg-tools">
+            <input type="search" id="task-search" placeholder="Search tasks..." aria-label="Search tasks" class="pg-input">
 
-            <select
-                id="subject-filter"
-                aria-label="Filter by subject"
-                class="w-full rounded-xl border border-[#303040] bg-[#12121c] text-white px-4 py-3 text-sm focus:outline-none focus:border-blue-500"
-            >
+            <select id="subject-filter" aria-label="Filter by subject" class="pg-input">
                 <option value="">All subjects</option>
                 @foreach ($subjects as $subject)
-                    <option value="{{ $subject->id }}">
-                        {{ $subject->subject_name }}
-                    </option>
+                    <option value="{{ $subject->id }}">{{ $subject->subject_name }}</option>
                 @endforeach
             </select>
         </div>
 
         {{-- Bulk Delete Form --}}
-        <form
-            id="bulk-delete-form"
-            method="POST"
-            action="{{ route('tasks.bulk_destroy') }}"
-            onsubmit="return confirm('Are you sure you want to delete the selected tasks? This action cannot be undone.');"
-        >
+        <form id="bulk-delete-form" method="POST" action="{{ route('tasks.bulk_destroy') }}"
+              onsubmit="return confirm('Are you sure you want to delete the selected tasks? This action cannot be undone.');">
             @csrf
             @method('DELETE')
 
-            <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-                <label class="inline-flex items-center gap-2 text-sm text-gray-400 cursor-pointer">
-                    <input
-                        type="checkbox"
-                        id="select-all"
-                        class="w-4 h-4 accent-blue-500"
-                    >
+            <div class="pg-bulk">
+                <label>
+                    <input type="checkbox" id="select-all" class="pg-check" style="width:16px;height:16px;accent-color:#6366f1">
                     Select all visible tasks
                 </label>
 
-                <button
-                    type="submit"
-                    id="delete-selected"
-                    disabled
-                    class="rounded-xl px-4 py-2 text-sm font-semibold border border-red-500/30 text-red-300 bg-red-500/10 hover:bg-red-500/20 disabled:opacity-40 disabled:cursor-not-allowed transition"
-                >
-                    Delete Selected
-                    (<span id="selected-count">0</span>)
+                <button type="submit" id="delete-selected" disabled class="pg-btn danger" style="height:36px;font-size:12.5px">
+                    Delete Selected (<span id="selected-count">0</span>)
                 </button>
             </div>
         </form>
 
         {{-- Task Cards --}}
-        <div id="task-list" class="space-y-3">
+        <div id="task-list" class="pg-tlist">
 
             @foreach ($tasks as $task)
                 @php
-                    $priorityClasses = [
-                        'High' => 'border-l-rose-500',
-                        'Medium' => 'border-l-yellow-500',
-                        'Low' => 'border-l-green-500',
-                    ];
-
-                    $priorityBadge = [
-                        'High' => 'bg-rose-500/10 text-rose-300 border-rose-500/20',
-                        'Medium' => 'bg-yellow-500/10 text-yellow-300 border-yellow-500/20',
-                        'Low' => 'bg-green-500/10 text-green-300 border-green-500/20',
-                    ];
-
                     $isCompleted = $task->status === 'Completed';
                     $subjectName = $task->subject?->subject_name ?? 'No subject';
+                    $dl = $task->deadline ? \Illuminate\Support\Carbon::parse($task->deadline)->startOfDay() : null;
+                    $late = !$isCompleted && $task->is_overdue;
+                    $state = $isCompleted ? 'done' : ($late ? 'late' : ($dl && $dl->isToday() ? 'now' : ''));
+                    $prio = strtolower($task->priority ?? '');
                 @endphp
 
-                <article
-                    class="task-card bg-[#14141f] border border-[#23232f] border-l-4 {{ $priorityClasses[$task->priority] ?? 'border-l-gray-500' }} rounded-2xl p-5"
-                    data-task-name="{{ strtolower($task->task_name) }}"
-                    data-subject-id="{{ $task->subject_id }}"
-                >
-                    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <article class="task-card pg-task"
+                         style="--bar: {{ $barColor[$task->priority] ?? '#5b5f78' }}"
+                         data-task-name="{{ strtolower($task->task_name) }}"
+                         data-subject-id="{{ $task->subject_id }}">
 
-                        <div class="flex items-start gap-3 min-w-0">
-                            <input
-                                type="checkbox"
-                                name="ids[]"
-                                value="{{ $task->id }}"
-                                form="bulk-delete-form"
-                                class="task-checkbox mt-1 w-4 h-4 accent-blue-500 shrink-0"
-                                aria-label="Select {{ $task->task_name }}"
-                            >
+                    <input type="checkbox" name="ids[]" value="{{ $task->id }}" form="bulk-delete-form"
+                           class="task-checkbox pg-check" aria-label="Select {{ $task->task_name }}">
 
-                            <div class="min-w-0">
-                                <h4 class="text-base font-semibold text-white break-words">
-                                    {{ $task->task_name }}
-                                </h4>
+                    @if ($isCompleted)
+                        <div class="pg-date done"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg></div>
+                    @elseif ($dl)
+                        <div class="pg-date {{ $state }}"><small>{{ $dl->format('M') }}</small><b>{{ $dl->format('d') }}</b></div>
+                    @else
+                        <div class="pg-date"><small>No</small><b>&ndash;</b></div>
+                    @endif
 
-                                <p class="text-sm text-gray-400 mt-1">
-                                    {{ $subjectName }}
-                                </p>
-
-                                <div class="flex flex-wrap items-center gap-2 mt-3">
-                                    <span class="inline-flex items-center rounded-lg border px-2.5 py-1 text-xs font-medium {{ $priorityBadge[$task->priority] ?? 'bg-gray-500/10 text-gray-300 border-gray-500/20' }}">
-                                        {{ $task->priority }} Priority
-                                    </span>
-
-                                    <span class="inline-flex items-center rounded-lg border px-2.5 py-1 text-xs font-medium {{ $isCompleted ? 'bg-green-500/10 text-green-300 border-green-500/20' : 'bg-blue-500/10 text-blue-300 border-blue-500/20' }}">
-                                        {{ $task->status }}
-                                    </span>
-
-                                    @if (!$isCompleted && $task->is_overdue)
-                                        <span class="inline-flex items-center rounded-lg border border-rose-500/20 bg-rose-500/10 text-rose-300 px-2.5 py-1 text-xs font-medium">
-                                            Overdue
-                                        </span>
-                                    @endif
-                                </div>
-
-                                <p class="text-sm text-gray-400 mt-3">
-                                    Deadline:
-                                    <span class="text-gray-200">
-                                        {{ $task->deadline ? \Illuminate\Support\Carbon::parse($task->deadline)->format('M d, Y') : 'No deadline' }}
-                                    </span>
-                                </p>
-                            </div>
+                    <div style="min-width:0">
+                        <h4 class="pg-name">{{ $task->task_name }}</h4>
+                        <div class="pg-meta">
+                            <span class="pg-pill">{{ $subjectName }}</span>
+                            <span class="pg-pill pg-p-{{ $prio }}">{{ $task->priority }} Priority</span>
+                            <span class="pg-pill {{ $isCompleted ? 'pg-p-low' : '' }}" @if($isCompleted) style="color:#86efac;border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.1)" @endif>{{ $task->status }}</span>
+                            @if ($late)<span class="pg-pill pg-p-high">Overdue</span>@endif
+                            <span>Deadline {{ $dl ? $dl->format('M d, Y') : 'not set' }}</span>
                         </div>
+                    </div>
 
-                        {{-- Task Actions --}}
-                        <div class="flex flex-wrap items-center gap-2 lg:justify-end lg:shrink-0">
+                    {{-- Task Actions --}}
+                    <div class="pg-task-acts">
+                        <a href="{{ route('tasks.edit', $task) }}" class="pg-act edit">Edit</a>
 
-                            <a
-                                href="{{ route('tasks.edit', $task) }}"
-                                class="rounded-lg px-3 py-2 text-sm font-medium text-blue-300 border border-blue-500/20 bg-blue-500/10 hover:bg-blue-500/20 transition"
-                            >
-                                Edit
-                            </a>
-
-                            @if (!$isCompleted)
-                                <form
-                                    method="POST"
-                                    action="{{ route('tasks.complete', $task) }}"
-                                    onsubmit="return confirm('Mark this task as completed?');"
-                                >
-                                    @csrf
-                                    @method('PATCH')
-
-                                    <button
-                                        type="submit"
-                                        class="rounded-lg px-3 py-2 text-sm font-medium text-green-300 border border-green-500/20 bg-green-500/10 hover:bg-green-500/20 transition"
-                                    >
-                                        Complete
-                                    </button>
-                                </form>
-                            @endif
-
-                            <form
-                                method="POST"
-                                action="{{ route('tasks.destroy', $task) }}"
-                                onsubmit="return confirm('Are you sure you want to delete this task?');"
-                            >
+                        @if (!$isCompleted)
+                            <form method="POST" action="{{ route('tasks.complete', $task) }}"
+                                  onsubmit="return confirm('Mark this task as completed?');">
                                 @csrf
-                                @method('DELETE')
-
-                                <button
-                                    type="submit"
-                                    class="rounded-lg px-3 py-2 text-sm font-medium text-red-300 border border-red-500/20 bg-red-500/10 hover:bg-red-500/20 transition"
-                                >
-                                    Delete
-                                </button>
+                                @method('PATCH')
+                                <button type="submit" class="pg-act ok">Complete</button>
                             </form>
+                        @endif
 
-                        </div>
+                        <form method="POST" action="{{ route('tasks.destroy', $task) }}"
+                              onsubmit="return confirm('Are you sure you want to delete this task?');">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="pg-act del">Delete</button>
+                        </form>
                     </div>
                 </article>
             @endforeach
 
         </div>
 
-        <p id="no-search-results" class="hidden text-center text-sm text-gray-400 py-10">
-            No tasks match your search.
-        </p>
+        <p id="no-search-results" class="hidden pg-empty" style="padding:30px 0"><span style="color:#8d92ad;font-size:13.5px">No tasks match your search.</span></p>
 
     @else
 
         {{-- Empty State --}}
-        <div class="bg-[#14141f] border border-[#23232f] rounded-2xl px-6 py-14 text-center">
-            <div class="mx-auto mb-4 w-14 h-14 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-                <svg class="w-7 h-7 text-blue-400" viewBox="0 0 24 24"
-                     fill="none" stroke="currentColor" stroke-width="1.7"
-                     stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="4" width="18" height="17" rx="2"/>
-                    <line x1="16" y1="2" x2="16" y2="6"/>
-                    <line x1="8" y1="2" x2="8" y2="6"/>
-                    <line x1="3" y1="10" x2="21" y2="10"/>
-                </svg>
-            </div>
-
-            <h3 class="text-lg font-semibold text-white">No tasks yet</h3>
-            <p class="text-sm text-gray-400 mt-2">
-                Your tasks will appear here after you create one.
-            </p>
-
+        <div class="pg-panel pg-empty">
+            <span class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="17" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+            <b>No tasks yet</b>
+            <p>Your tasks will appear here after you create one.</p>
             @if ($subjects->isNotEmpty())
-                <a
-                    href="{{ route('tasks.create') }}"
-                    class="inline-flex items-center gap-2 mt-5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl px-5 py-2.5 text-sm font-semibold transition"
-                >
-                    Add Your First Task
-                </a>
+                <a href="{{ route('tasks.create') }}" class="pg-cta">Add Your First Task</a>
             @else
-                <a
-                    href="{{ route('subjects.index') }}"
-                    class="inline-flex items-center gap-2 mt-5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl px-5 py-2.5 text-sm font-semibold transition"
-                >
-                    Create a Subject First
-                </a>
+                <a href="{{ route('subjects.index') }}" class="pg-cta">Create a Subject First</a>
             @endif
         </div>
 
