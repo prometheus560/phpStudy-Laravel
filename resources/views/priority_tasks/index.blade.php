@@ -5,43 +5,49 @@
 @section('content')
 
 @php
-    $lane = [
-        'High'   => ['border-rose-500/30 bg-rose-500/5', 'text-rose-400', 'border-rose-500/40 bg-rose-500/10 text-rose-200'],
-        'Medium' => ['border-yellow-500/30 bg-yellow-500/5', 'text-yellow-400', 'border-yellow-500/40 bg-yellow-500/10 text-yellow-200'],
-        'Low'    => ['border-green-500/30 bg-green-500/5', 'text-green-400', 'border-green-500/40 bg-green-500/10 text-green-200'],
-    ];
+    $all   = collect($tasks);
+    $count = $all->count();
+    $by    = $all->groupBy(fn ($t) => strtolower($t->priority ?? ''));
+    $high  = $by->get('high', collect())->count();
+    $med   = $by->get('medium', collect())->count();
+    $low   = $by->get('low', collect())->count();
 @endphp
 
-<div class="max-w-5xl mx-auto px-6 py-8">
+@include('partials.page-kit')
 
-    <div class="mb-6">
-        <h2 class="text-3xl font-bold text-white tracking-tight">
-            Priority Tasks
-        </h2>
+<div class="pg">
 
-        <p class="text-gray-400 text-sm mt-1">
-            Your pending tasks, from highest to lowest priority.
-        </p>
-    </div>
+    <header class="pg-head">
+        <div style="position:relative;z-index:1">
+            <h1 class="pg-title">Priority Tasks</h1>
+            <p class="pg-sub">Your pending tasks, from highest to lowest priority.</p>
+        </div>
+        <span class="pg-pill" style="position:relative;z-index:1;font-size:12px;padding:6px 14px">
+            {{ $count }} {{ $count == 1 ? 'task' : 'tasks' }}
+        </span>
+    </header>
 
+    @if ($count > 0)
 
-    <div class="bg-[#14141f] border border-[#23232f] rounded-2xl p-6">
-
-        <div class="flex items-center justify-between mb-5">
-
-            <h3 class="text-lg font-bold text-white">
-                Task in order
-            </h3>
-
-            <span class="text-xs font-semibold text-gray-400">
-                {{ count($tasks) }}
-                {{ count($tasks) == 1 ? 'task' : 'tasks' }}
-            </span>
-
+        {{-- Priority spectrum: how your pending work is spread --}}
+        <div class="pg-panel pad" style="margin-bottom:12px">
+            <div class="pg-spectrum" role="img" aria-label="{{ $high }} high, {{ $med }} medium, {{ $low }} low priority">
+                @if ($high) <i style="flex:{{ $high }};background:#fb7185"></i> @endif
+                @if ($med)  <i style="flex:{{ $med }};background:#fbbf24"></i> @endif
+                @if ($low)  <i style="flex:{{ $low }};background:#60a5fa"></i> @endif
+            </div>
+            <div class="pg-legend">
+                <span style="--c:#fb7185">High<b>{{ $high }}</b></span>
+                <span style="--c:#fbbf24">Medium<b>{{ $med }}</b></span>
+                <span style="--c:#60a5fa">Low<b>{{ $low }}</b></span>
+            </div>
         </div>
 
+        <div class="pg-panel pad">
 
-        @if (count($tasks) > 0)
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+                <h3 style="font-family:'Sora',sans-serif;font-size:15px;font-weight:600">Task in order</h3>
+            </div>
 
             <div class="flex flex-col gap-3">
 
@@ -63,30 +69,18 @@
 
             </div>
 
-        @else
+        </div>
 
-            <div class="text-center py-14">
+    @else
 
-                <h4 class="font-semibold text-white text-lg">
-                    No pending tasks
-                </h4>
+        <div class="pg-panel pg-empty">
+            <span class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></span>
+            <b>No pending tasks</b>
+            <p>You don't have any pending tasks.</p>
+            <a href="{{ route('tasks.index') }}" class="pg-cta">View Tasks</a>
+        </div>
 
-                <p class="text-gray-400 text-sm mt-1">
-                    You don't have any pending tasks.
-                </p>
-
-                <a
-                    href="{{ route('tasks.index') }}"
-                    class="inline-block mt-4 bg-blue-600 text-white rounded-xl px-5 py-2 text-sm font-semibold hover:bg-blue-500"
-                >
-                    View Tasks
-                </a>
-
-            </div>
-
-        @endif
-
-    </div>
+    @endif
 
 </div>
 

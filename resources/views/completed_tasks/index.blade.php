@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('title', 'Completed Tasks')
@@ -14,78 +13,45 @@
             ->unique('id')
             ->sortBy('subject_name')
             ->pluck('subject_name', 'id');
-
-        $priorityStyles = [
-            'high' => 'border-red-500/20 bg-red-500/10 text-red-300',
-            'medium' => 'border-yellow-500/20 bg-yellow-500/10 text-yellow-300',
-            'low' => 'border-blue-500/20 bg-blue-500/10 text-blue-300',
-        ];
     @endphp
 
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+    @include('partials.page-kit')
 
-        <header class="flex flex-wrap items-center justify-between gap-4 mb-8">
-            <div>
-                <h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-                    Completed Tasks
-                </h1>
+    <div class="pg">
 
-                <p class="mt-2 text-sm text-gray-400">
-                    {{ $total }} {{ $total === 1 ? 'completed task' : 'completed tasks' }}
-                </p>
+        <header class="pg-head">
+            <div style="position:relative;z-index:1">
+                <h1 class="pg-title">Completed Tasks</h1>
+                <p class="pg-sub">{{ $total }} {{ $total === 1 ? 'completed task' : 'completed tasks' }}</p>
             </div>
-
-            <a
-                href="{{ route('tasks.index') }}"
-                class="inline-flex items-center justify-center rounded-xl border border-gray-700 px-4 py-2.5 text-sm font-medium text-gray-300 transition hover:bg-white/5 hover:text-white"
-            >
-                &larr; Back to Tasks
-            </a>
+            <a href="{{ route('tasks.index') }}" class="pg-back">&larr; Back to Tasks</a>
         </header>
 
         @if (session('success'))
-            <div class="mb-5 rounded-xl border border-green-500/20 bg-green-500/10 px-4 py-3 text-sm text-green-300" role="status">
-                {{ session('success') }}
-            </div>
+            <div class="pg-flash" role="status">{{ session('success') }}</div>
         @endif
 
         @if ($total > 0)
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
-                <input
-                    id="completed-search"
-                    type="search"
-                    placeholder="Search completed tasks..."
-                    aria-label="Search completed tasks"
-                    class="w-full rounded-xl border border-gray-700 bg-gray-900 px-4 py-3 text-sm text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
-                >
+            <div class="pg-tools">
+                <input id="completed-search" type="search" placeholder="Search completed tasks..." aria-label="Search completed tasks" class="pg-input">
 
-                <select
-                    id="completed-subject"
-                    aria-label="Filter by subject"
-                    class="w-full rounded-xl border border-gray-700 bg-gray-900 px-4 py-3 text-sm text-white focus:border-blue-500 focus:outline-none"
-                >
+                <select id="completed-subject" aria-label="Filter by subject" class="pg-input">
                     <option value="">All subjects</option>
-
                     @foreach ($subjectFilter as $subjectId => $subjectName)
-                        <option value="{{ $subjectId }}">
-                            {{ $subjectName }}
-                        </option>
+                        <option value="{{ $subjectId }}">{{ $subjectName }}</option>
                     @endforeach
                 </select>
             </div>
 
-            <p id="completed-count" class="mb-4 text-sm text-gray-500" aria-live="polite">
+            <p id="completed-count" class="pg-count" aria-live="polite">
                 {{ $total }} {{ $total === 1 ? 'task' : 'tasks' }}
             </p>
 
-            <div id="completed-list" class="flex flex-col gap-3">
+            <div id="completed-list" class="pg-panel">
                 @foreach ($list as $task)
                     @php
                         $priority = strtolower($task->priority ?? '');
-                        $priorityClass = $priorityStyles[$priority]
-                            ?? 'border-gray-700 bg-gray-800 text-gray-300';
-
                         $subjectName = $task->subject?->subject_name ?? 'No subject';
                     @endphp
 
@@ -93,51 +59,21 @@
                         data-completed-card
                         data-name="{{ mb_strtolower($task->task_name ?? '') }}"
                         data-subject="{{ $task->subject_id ?? '' }}"
-                        class="rounded-2xl border border-gray-800 bg-gray-900/50 p-4 sm:p-5 transition hover:border-gray-700"
+                        class="pg-row"
                     >
-                        <div class="flex items-start gap-4">
-                            <span class="flex shrink-0 items-center justify-center rounded-xl"
-                                  style="width:40px;height:40px;color:#4ade80;background:rgba(34,197,94,.10)">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="20"
-                                    height="20"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    aria-hidden="true"
-                                >
-                                    <path d="m5 12 4 4L19 6"/>
-                                </svg>
-                            </span>
+                        <span class="pg-date done">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12 4 4L19 6"/></svg>
+                        </span>
 
-                            <div class="min-w-0 flex-1">
-                                <h2 class="break-words text-base font-semibold leading-6 text-white">
-                                    {{ $task->task_name }}
-                                </h2>
-
-                                <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2">
-                                    <span class="text-sm text-gray-400">
-                                        {{ $subjectName }}
-                                    </span>
-
-                                    @if ($priority !== '')
-                                        <span class="inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium {{ $priorityClass }}">
-                                            {{ ucfirst($priority) }}
-                                        </span>
-                                    @endif
-                                </div>
-
+                        <div style="min-width:0">
+                            <h2 class="pg-name">{{ $task->task_name }}</h2>
+                            <div class="pg-meta">
+                                <span>{{ $subjectName }}</span>
+                                @if ($priority !== '')
+                                    <span class="pg-pill pg-p-{{ $priority }}">{{ ucfirst($priority) }}</span>
+                                @endif
                                 @if ($task->deadline)
-                                    <p class="mt-3 text-sm text-gray-400">
-                                        Deadline:
-                                        <span class="text-gray-200">
-                                            {{ \Illuminate\Support\Carbon::parse($task->deadline)->format('M d, Y') }}
-                                        </span>
-                                    </p>
+                                    <span>Deadline {{ \Illuminate\Support\Carbon::parse($task->deadline)->format('M d, Y') }}</span>
                                 @endif
                             </div>
                         </div>
@@ -145,50 +81,17 @@
                 @endforeach
             </div>
 
-            <div
-                id="completed-no-results"
-                hidden
-                class="rounded-2xl border border-gray-800 px-6 py-12 text-center"
-            >
-                <p class="text-sm text-gray-400">No matching tasks.</p>
+            <div id="completed-no-results" hidden class="pg-panel pg-empty" style="margin-top:12px">
+                <p>No matching tasks.</p>
             </div>
 
         @else
 
-            <div class="rounded-2xl border border-gray-800 bg-gray-900/40 px-6 py-14 text-center">
-                <span class="mx-auto flex items-center justify-center rounded-2xl"
-                      style="width:56px;height:56px;color:#4ade80;background:rgba(34,197,94,.10)">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="28"
-                        height="28"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.8"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        aria-hidden="true"
-                    >
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                        <polyline points="22 4 12 14.01 9 11.01"/>
-                    </svg>
-                </span>
-
-                <h2 class="mt-5 text-lg font-semibold text-white">
-                    No completed tasks yet
-                </h2>
-
-                <p class="mt-2 text-sm text-gray-400">
-                    Tasks you complete will appear here.
-                </p>
-
-                <a
-                    href="{{ route('tasks.index') }}"
-                    class="mt-6 inline-flex items-center justify-center rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-500"
-                >
-                    View Tasks
-                </a>
+            <div class="pg-panel pg-empty">
+                <span class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>
+                <b>No completed tasks yet</b>
+                <p>Tasks you complete will appear here.</p>
+                <a href="{{ route('tasks.index') }}" class="pg-cta">View Tasks</a>
             </div>
 
         @endif
