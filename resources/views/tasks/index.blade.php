@@ -25,13 +25,7 @@
             <form method="POST" action="{{ route('tasks.destroy_all') }}"
                   onsubmit="return confirm('Are you sure you want to delete all tasks? This action cannot be undone.');">
                 @csrf
-                @method('DELETE')
-                <button type="submit" @disabled($tasks->isEmpty())
-                        title="{{ $tasks->isEmpty() ? 'No tasks to delete.' : 'Delete all your tasks' }}"
-                        class="pg-btn danger">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-                    Delete All
-                </button>
+               >
             </form>
 
             @if ($subjects->isNotEmpty())
