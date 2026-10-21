@@ -25,7 +25,7 @@
             <form method="POST" action="{{ route('tasks.destroy_all') }}"
                   onsubmit="return confirm('Are you sure you want to delete all tasks? This action cannot be undone.');">
                 @csrf
-               >
+               
             </form>
 
             @if ($subjects->isNotEmpty())
