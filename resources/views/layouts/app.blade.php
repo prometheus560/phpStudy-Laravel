@@ -248,6 +248,8 @@
             ['Subjects', 'subjects.index', 'subjects.*', 'book'],
             ['Tasks', 'tasks.index', 'tasks.*', 'tasks'],
             ['Schedule', 'schedule.index', 'schedule.*', 'calendar'],
+            ['Study Plan', 'study_plan.index', 'study_plan.index', 'layers'],
+            ['Today', 'study_plan.today', 'study_plan.today', 'list'],
         ],
 
         'Study Space' => [
@@ -536,5 +538,3 @@
 
 </body>
 </html>
-
-

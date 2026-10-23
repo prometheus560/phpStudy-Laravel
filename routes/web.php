@@ -12,6 +12,7 @@ use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\SelectionSortController;
 use App\Http\Controllers\SortedTaskController;
 use App\Http\Controllers\StudyFileController;
+use App\Http\Controllers\StudyPlanController;
 use App\Http\Controllers\SubjectController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UpcomingTaskController;
@@ -147,6 +148,22 @@ Route::middleware('auth')->group(function () {
     Route::delete('/schedule/{schedule}', [ScheduleController::class, 'destroy'])
         ->name('schedule.destroy');
 
+    // Study Plan (NEW)
+    Route::get('/study-plan', [StudyPlanController::class, 'index'])
+        ->name('study_plan.index');
+
+    Route::get('/study-plan/setup', [StudyPlanController::class, 'setup'])
+        ->name('study_plan.setup');
+
+    Route::post('/study-plan', [StudyPlanController::class, 'save'])
+        ->name('study_plan.save');
+
+    Route::post('/study-plan/schedule', [StudyPlanController::class, 'schedule'])
+        ->name('study_plan.schedule');
+
+    Route::get('/study-plan/today', [StudyPlanController::class, 'today'])
+        ->name('study_plan.today');
+
     // Notes
     Route::get('/notes', [NoteController::class, 'index'])
         ->name('notes.index');
@@ -186,13 +203,13 @@ Route::middleware('auth')->group(function () {
     // DSA - Binary Search
     Route::get('/binary-search', [BinarySearchController::class, 'index'])
         ->name('binary_search.index');
-    
+
     // DSA - Selection Sort
     Route::get('/selection-sort', [SelectionSortController::class, 'index'])
         ->name('selection_sort.index');
-// DSA - Sorted Tasks (Bubble Sort)
-    Route::get('/sorted-tasks', [SortedTaskController::class, 'index'])->name('sorted_tasks.index');
+
+    // DSA - Sorted Tasks (Bubble Sort)
+    Route::get('/sorted-tasks', [SortedTaskController::class, 'index'])
+        ->name('sorted_tasks.index');
 
 });
-
-
