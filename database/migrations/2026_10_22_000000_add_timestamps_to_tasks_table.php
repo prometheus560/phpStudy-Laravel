@@ -27,7 +27,7 @@ return new class extends Migration
 
         // Give the tasks that already exist a date (the Completed Tasks page orders by updated_at)
         DB::table('tasks')->whereNull('created_at')->update(['created_at' => now()]);
-        DB::table('tasks')->whereNull('updated_at')->update(['updated_at' => DB::raw('COALESCE(created_at, NOW())')]);
+        DB::table('tasks')->whereNull('updated_at')->update(['updated_at' => DB::raw('COALESCE(created_at, CURRENT_TIMESTAMP)')]);
     }
 
     public function down(): void
