@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -297,6 +297,10 @@
     // Navigation: [label, route name, active pattern, icon]
     // 'home' has no heading. Dashboard is reached from the brand link, as in the design.
     $nav = [
+        'Overview' => [
+            ['Dashboard', 'dashboard', 'dashboard', 'chart'],
+        ],
+
         'Work' => [
             ['Subjects', 'subjects.index', 'subjects.*', 'book'],
             ['Tasks', 'tasks.index', 'tasks.*', 'tasks'],
