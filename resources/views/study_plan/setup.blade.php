@@ -1,5 +1,4 @@
 @php $todayPlan = $todayPlan ?? collect(); @endphp
-@php $todayPlan = $todayPlan ?? collect(); @endphp
 @extends('layouts.app')
 
 @section('title', "Today's Checklist")
