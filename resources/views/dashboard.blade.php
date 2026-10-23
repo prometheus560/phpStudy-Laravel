@@ -3,309 +3,94 @@
 @section('title', 'Dashboard')
 
 @section('content')
-
 @php
-    $priorityChip = [
-        'High'   => 'chip-high',
-        'Medium' => 'chip-med',
-        'Low'    => 'chip-low',
-    ];
-
-    // Countdown text for a deadline (e.g. "Overdue by 2d", "Due today", "5 days left")
+    $priorityChip = ['High' => 'chip-high', 'Medium' => 'chip-med', 'Low' => 'chip-low'];
     $dueLabel = function ($deadline) {
         $days = (int) today()->diffInDays($deadline->copy()->startOfDay(), false);
-        if ($days < 0)   return 'Overdue by ' . abs($days) . 'd';
+        if ($days < 0) return 'Overdue by ' . abs($days) . 'd';
         if ($days === 0) return 'Due today';
         if ($days === 1) return 'Due tomorrow';
         return $days . ' days left';
     };
-
-    // Overall progress
     $overallTotal = $stats['pending'] + $stats['completed'];
-    $overallPct   = $overallTotal > 0 ? (int) round($stats['completed'] / $overallTotal * 100) : 0;
-
-    // Greeting line
+    $overallPct = $overallTotal > 0 ? (int) round($stats['completed'] / $overallTotal * 100) : 0;
     $todayCount = $sessions->filter(fn ($s) => $s->study_date->isToday())->count();
     $parts = [];
-    if ($dueThisWeek > 0) { $parts[] = $dueThisWeek . ($dueThisWeek == 1 ? ' task' : ' tasks') . ' due this week'; }
-    if ($todayCount > 0)  { $parts[] = $todayCount . ($todayCount == 1 ? ' study session' : ' study sessions') . ' today'; }
+    if ($dueThisWeek > 0) $parts[] = $dueThisWeek . ($dueThisWeek === 1 ? ' task' : ' tasks') . ' due this week';
+    if ($todayCount > 0) $parts[] = $todayCount . ($todayCount === 1 ? ' study session' : ' study sessions') . ' today';
     $summary = count($parts) ? 'You have ' . implode(' and ', $parts) . '.' : 'Nothing urgent right now. A good day to get ahead.';
-
-    // Subjects with the most pending work first, top 5
     $topSubjects = $subjects->sortByDesc('pending_tasks_count')->take(5);
 @endphp
 
-<div class="max-w-6xl mx-auto px-4 py-5 sm:px-6 sm:py-8">
+<style>
+    .dash-page{width:100%;max-width:none;margin:0 auto;padding:0 0 28px;color:#f4f4fb}
+    .dash-hero{position:relative;isolation:isolate;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:32px;min-height:300px;padding:42px 3.6%;border:1px solid rgba(190,175,255,.12);border-radius:28px;background:rgba(14,13,30,.66);margin-bottom:20px}
+    .dash-hero:before,.dash-hero:after{content:"";position:absolute;z-index:-1;top:-55%;height:210%;border:1px solid rgba(190,175,255,.08);border-radius:50%;pointer-events:none}
+    .dash-hero:before{right:22%;width:60%}.dash-hero:after{right:5%;width:43%}
+    .dash-hero-copy{min-width:0}.dash-eyebrow{margin-bottom:10px;color:#9ca3bd;font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+    .dash-hero h1{font-size:clamp(38px,5vw,68px);font-weight:800;letter-spacing:-.045em;line-height:1.04;color:#fff;margin:0}
+    .dash-hero h1 span{display:block;background:linear-gradient(90deg,#60a5fa,#a78bfa 62%,#d8a8ff);-webkit-background-clip:text;background-clip:text;color:transparent;overflow-wrap:anywhere}
+    .dash-hero p{margin-top:20px;color:#9aa0b8;font-size:18px}
+    .dash-progress{position:relative;flex:0 0 234px;width:234px;height:234px;display:grid;place-items:center}
+    .dash-progress svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+    .dash-progress .progress-track{fill:none;stroke:rgba(255,255,255,.075);stroke-width:10}
+    .dash-progress .progress-value{fill:none;stroke:url(#dashGradient);stroke-width:10;stroke-linecap:round;stroke-dasharray:289.03;transition:stroke-dashoffset .4s ease}
+    .dash-progress-copy{position:relative;text-align:center}.dash-progress-copy strong{display:block;font-size:52px;line-height:1;font-weight:800;letter-spacing:-.04em}.dash-progress-copy span{display:block;margin-top:8px;color:#9298b0;font-size:14px}
+    .dash-stat-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));overflow:hidden;border:1px solid rgba(190,175,255,.12);border-radius:22px;background:rgba(14,13,30,.66);margin-bottom:20px}
+    .dash-stat{position:relative;padding:27px 28px 24px;border-left:1px solid rgba(190,175,255,.10);min-width:0}
+    .dash-stat:first-child{border-left:0}.dash-stat:before{content:"";position:absolute;left:0;top:22px;bottom:22px;width:3px;border-radius:3px;background:var(--stat-color)}
+    .dash-stat-value{display:block;font-size:54px;line-height:1;font-weight:800;letter-spacing:-.04em;color:#f8f8ff}
+    .dash-stat-label{display:flex;align-items:center;gap:10px;margin-top:15px;color:#a6abc1;font-size:16px}.dash-stat-label svg{width:20px;height:20px;color:var(--stat-color);flex-shrink:0}
+    .dash-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(300px,1fr);gap:20px}
+    .dash-column{display:flex;flex-direction:column;gap:20px;min-width:0}.dash-panel{min-width:0;padding:25px 27px;border:1px solid rgba(190,175,255,.12);border-radius:27px;background:rgba(14,13,30,.68);box-shadow:inset 0 1px 0 rgba(255,255,255,.025)}
+    .dash-panel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:17px;border-bottom:1px solid rgba(190,175,255,.12);margin-bottom:8px}
+    .dash-panel-title{display:flex;align-items:center;gap:12px;min-width:0;font-size:22px;font-weight:750;letter-spacing:-.025em;color:#f3f3fb}
+    .dash-panel-link{flex-shrink:0;color:#8f96b0;font-size:15px;text-decoration:none;white-space:nowrap}.dash-panel-link:hover{color:#fff}
+    .dash-count{font-family:Inter,sans-serif;font-size:13px;font-weight:700;padding:5px 12px;border-radius:99px;background:rgba(59,130,246,.13);color:#7db4ff;white-space:nowrap}
+    .dash-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:15px 3px;border-bottom:1px solid rgba(190,175,255,.08)}.dash-row:last-child{border-bottom:0}
+    .dash-row-main{min-width:0}.dash-row-name{font-size:15px;font-weight:600;color:#f2f2fa;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dash-row-sub{margin-top:5px;font-size:13px;color:#858ca6}
+    .dash-row-side{display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-shrink:0}.dash-badge{display:inline-flex;align-items:center;justify-content:center;padding:5px 11px;border-radius:99px;border:1px solid rgba(190,175,255,.13);background:rgba(255,255,255,.035);font-size:12px;color:#b7bdd1;white-space:nowrap}.dash-badge.today{color:#7db4ff;border-color:rgba(96,165,250,.4);background:rgba(59,130,246,.07)}
+    .dash-empty{text-align:center;padding:35px 10px 27px}.dash-empty strong{display:block;font-size:20px;color:#f5f5fb;font-weight:750}.dash-empty p{margin-top:8px;color:#8f96b0;font-size:15px}
+    .dash-subject{margin:16px 0 18px}.dash-subject:last-child{margin-bottom:0}.dash-subject-line{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px;font-size:14px}.dash-subject-name{color:#d9dbea;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dash-subject-status{font-size:13px;color:#858ca6;white-space:nowrap}.dash-bar{height:7px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}.dash-bar span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#3b82f6,#8b5cf6)}
+    .dash-notice{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 18px;margin-bottom:18px;border:1px solid rgba(251,191,36,.25);border-radius:15px;background:rgba(251,191,36,.07);color:#fcd34d;text-decoration:none}
+    .dash-notice strong{font-weight:700}
+    @media(max-width:1050px){.dash-hero{padding:34px 28px;min-height:260px}.dash-progress{width:190px;height:190px;flex-basis:190px}.dash-progress-copy strong{font-size:43px}.dash-stat{padding:23px 20px}.dash-stat-value{font-size:46px}.dash-grid{grid-template-columns:minmax(0,1.5fr) minmax(260px,1fr);gap:14px}.dash-column{gap:14px}.dash-panel{padding:21px}}
+    @media(max-width:760px){.dash-page{padding-bottom:18px}.dash-hero{min-height:0;align-items:flex-start;flex-direction:column;gap:24px;padding:28px 22px;border-radius:22px}.dash-hero h1{font-size:clamp(34px,9vw,52px)}.dash-hero p{font-size:15px;margin-top:14px}.dash-progress{width:148px;height:148px;flex-basis:auto;align-self:center}.dash-progress-copy strong{font-size:34px}.dash-progress-copy span{font-size:12px}.dash-stat-strip{grid-template-columns:repeat(2,minmax(0,1fr));border-radius:18px}.dash-stat{padding:21px 19px;border-top:1px solid rgba(190,175,255,.10)}.dash-stat:nth-child(1),.dash-stat:nth-child(2){border-top:0}.dash-stat:nth-child(3){border-left:0}.dash-stat-value{font-size:42px}.dash-stat-label{font-size:14px;margin-top:11px}.dash-grid{grid-template-columns:minmax(0,1fr);gap:14px}.dash-column{gap:14px}.dash-panel{padding:19px 17px;border-radius:20px}.dash-panel-title{font-size:18px;gap:8px}.dash-panel-link{font-size:12px}.dash-count{font-size:11px;padding:4px 8px}.dash-row{align-items:flex-start}.dash-row-side{gap:6px}.dash-badge{font-size:11px;padding:4px 8px}.dash-notice{font-size:13px}}
+    @media(max-width:390px){.dash-stat{padding:18px 13px}.dash-stat-value{font-size:36px}.dash-stat-label{font-size:12px;gap:7px}.dash-panel-head{align-items:flex-start}.dash-row{flex-wrap:wrap}.dash-row-side{justify-content:flex-start;width:100%}}
+    @media(prefers-reduced-motion:reduce){.dash-progress .progress-value{transition:none}}
+</style>
 
-    {{-- Greeting --}}
-    <div class="flex flex-wrap items-center justify-between gap-4 sm:gap-5 mb-5 sm:mb-8">
-        <div>
-            <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">{{ $greeting }}, <span class="grad-text">{{ $user->name }}</span></h2>
-            <p class="text-gray-400 text-sm mt-1">{{ $summary }}</p>
+<div class="dash-page">
+    <section class="dash-hero">
+        <div class="dash-hero-copy">
+            <div class="dash-eyebrow">Your learning overview</div>
+            <h1>{{ $greeting }}<span>{{ $user->name }}</span></h1>
+            <p>{{ $summary }}</p>
         </div>
-
-        <div class="flex items-center gap-3 w-full sm:w-auto rounded-2xl border border-white/10 bg-white/[.03] px-4 py-3 sm:rounded-none sm:border-0 sm:bg-transparent sm:p-0">
-            <div class="relative w-12 h-12 sm:w-14 sm:h-14 rounded-full grid place-items-center"
-                 style="background: conic-gradient(#6366f1 {{ $overallPct }}%, rgba(255,255,255,.08) 0)">
-                <div class="w-9 h-9 sm:w-11 sm:h-11 rounded-full grid place-items-center text-[10px] sm:text-xs font-bold text-white" style="background:#0c0b1a">{{ $overallPct }}%</div>
-            </div>
-            <div>
-                <p class="text-sm font-semibold text-white leading-tight">Overall progress</p>
-                <p class="text-xs text-gray-500">{{ $stats['completed'] }} of {{ $overallTotal }} tasks done</p>
-            </div>
+        <div class="dash-progress" style="--progress: {{ $overallPct }}" role="img" aria-label="{{ $overallPct }} percent of tasks completed">
+            <svg viewBox="0 0 100 100" aria-hidden="true">
+                <defs><linearGradient id="dashGradient" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#c084fc"/></linearGradient></defs>
+                <circle class="progress-track" cx="50" cy="50" r="46"/>
+                <circle class="progress-value" cx="50" cy="50" r="46" style="stroke-dashoffset: {{ 289.03 - (289.03 * $overallPct / 100) }}"/>
+            </svg>
+            <div class="dash-progress-copy"><strong>{{ $overallPct }}%</strong><span>{{ $stats['completed'] }} of {{ $overallTotal }} done</span></div>
         </div>
-    </div>
+    </section>
 
-    {{-- Success message after clicking Done --}}
     @if (session('success'))
         <div class="alert alert-ok" role="status">{{ session('success') }}</div>
     @endif
 
-    {{-- Alert banner --}}
     @if ($dueSoon > 0)
-        <a href="{{ route('tasks.index') }}"
-           class="flex items-center justify-between bg-yellow-500/10 border border-yellow-500/25 text-yellow-300 text-[13px] sm:text-sm rounded-xl px-4 py-3 mb-4 sm:mb-6 hover:bg-yellow-500/15">
-            <span class="flex items-center gap-3">
-                <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                <span>
-                    {{ $dueSoon }} {{ $dueSoon == 1 ? 'task is' : 'tasks are' }} due soon:
-                    <strong class="font-semibold">
-                        @foreach (collect($dueSoonTasks ?? [])->take(2) as $t)
-                            {{ \Illuminate\Support\Str::limit($t->task_name, 40) }} ({{ strtolower($dueLabel($t->deadline)) }}){{ !$loop->last ? ',' : '' }}
-                        @endforeach
-                        @if ($dueSoon > 2) and {{ $dueSoon - 2 }} more @endif
-                    </strong>
-                </span>
-            </span>
-            <span>&rsaquo;</span>
+        <a href="{{ route('tasks.index') }}" class="dash-notice">
+            <span>{{ $dueSoon }} {{ $dueSoon === 1 ? 'task is' : 'tasks are' }} due soon: <strong>
+                @foreach (collect($dueSoonTasks ?? [])->take(2) as $task)
+                    {{ \Illuminate\Support\Str::limit($task->task_name, 40) }} ({{ strtolower($dueLabel($task->deadline)) }}){{ !$loop->last ? ', ' : '' }}
+                @endforeach
+                @if ($dueSoon > 2) and {{ $dueSoon - 2 }} more @endif
+            </strong></span><span aria-hidden="true">→</span>
         </a>
     @endif
 
-    {{-- Stat cards (each one opens its page) --}}
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6">
-
-        <a href="{{ route('subjects.index') }}" class="stat block"
-           style="--glow:rgba(59,130,246,.22);--c:#60a5fa;--bg:rgba(59,130,246,.12);--bd:rgba(59,130,246,.25)">
-            <div class="flex items-start justify-between mb-3 sm:mb-4">
-                <span class="stat-icon"><svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
-            </div>
-            <p class="text-2xl sm:text-3xl font-bold text-white relative">{{ $stats['subjects'] }}</p>
-            <p class="text-gray-400 text-[13px] sm:text-sm mt-1 relative">Subjects</p>
-        </a>
-
-        <a href="{{ route('tasks.index') }}" class="stat block"
-           style="--glow:rgba(249,115,22,.20);--c:#fb923c;--bg:rgba(249,115,22,.12);--bd:rgba(249,115,22,.25)">
-            <div class="flex items-start justify-between mb-3 sm:mb-4">
-                <span class="stat-icon"><svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
-                @if ($stats['overdue'] > 0)
-                    <span class="relative text-[11px] font-semibold bg-rose-500/15 text-rose-400 px-2 py-0.5 rounded-md">{{ $stats['overdue'] }} overdue</span>
-                @endif
-            </div>
-            <p class="text-2xl sm:text-3xl font-bold text-white relative">{{ $stats['pending'] }}</p>
-            <p class="text-gray-400 text-[13px] sm:text-sm mt-1 relative">Pending Tasks</p>
-        </a>
-
-        <a href="{{ route('completed_tasks.index') }}" class="stat block"
-           style="--glow:rgba(34,197,94,.18);--c:#4ade80;--bg:rgba(34,197,94,.12);--bd:rgba(34,197,94,.25)">
-            <div class="flex items-start justify-between mb-3 sm:mb-4">
-                <span class="stat-icon"><svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>
-            </div>
-            <p class="text-2xl sm:text-3xl font-bold text-white relative">{{ $stats['completed'] }}</p>
-            <p class="text-gray-400 text-[13px] sm:text-sm mt-1 relative">Completed Tasks</p>
-        </a>
-
-        <a href="{{ route('priority_tasks.index') }}" class="stat block"
-           style="--glow:rgba(244,63,94,.18);--c:#fb7185;--bg:rgba(244,63,94,.12);--bd:rgba(244,63,94,.25)">
-            <div class="flex items-start justify-between mb-3 sm:mb-4">
-                <span class="stat-icon"><svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></span>
-            </div>
-            <p class="text-2xl sm:text-3xl font-bold text-white relative">{{ $stats['high'] }}</p>
-            <p class="text-gray-400 text-[13px] sm:text-sm mt-1 relative">High Priority</p>
-        </a>
-
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4">
-
-        {{-- LEFT COLUMN --}}
-        <div class="lg:col-span-2 flex flex-col gap-3 sm:gap-4">
-
-            {{-- Active workbench --}}
-            <div class="glass glass-accent p-4 sm:p-5">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="flex items-center gap-3">
-                        <span class="pulse-dot"></span>
-                        <h3 class="font-semibold text-blue-300">Active Workbench</h3>
-                        <span class="chip chip-blue">{{ $workbench->count() }} / {{ $stats['pending'] }}</span>
-                    </div>
-                    <a href="{{ route('tasks.index') }}" class="text-xs text-gray-400 hover:text-white">View All &rarr;</a>
-                </div>
-
-                @forelse ($workbench as $task)
-                    @php
-                        $days  = (int) today()->diffInDays($task->deadline->copy()->startOfDay(), false);
-                        $dueCl = $days < 0 ? 'text-rose-400' : ($days === 0 ? 'text-amber-300' : 'text-gray-400');
-                    @endphp
-                    <div class="row-item flex flex-wrap items-center justify-between gap-3 py-3.5 px-2 -mx-2 rounded-lg">
-                        <div class="min-w-0">
-                            <p class="text-sm font-medium text-white truncate">{{ $task->task_name }}</p>
-                            <span class="inline-block mt-1 chip chip-muted" style="font-size:10px;padding:2px 8px">{{ $task->subject->subject_name }}</span>
-                        </div>
-                        <div class="flex items-center justify-between gap-3 w-full sm:w-auto sm:shrink-0">
-                            <div class="flex items-center gap-3 min-w-0">
-                                <span class="chip {{ $priorityChip[$task->priority] ?? 'chip-muted' }}">{{ $task->priority }}</span>
-                                <span class="text-xs {{ $dueCl }}">{{ $task->deadline->format('M d') }} &middot; {{ $dueLabel($task->deadline) }}</span>
-                            </div>
-                            <form method="POST" action="{{ route('tasks.complete', $task) }}" data-once>
-                                @csrf
-                                @method('PATCH')
-                                <button type="submit" title="Mark as done" class="btn-sm btn-ok">&#10003; Done</button>
-                            </form>
-                        </div>
-                    </div>
-                @empty
-                    <div class="text-center py-10 border-t border-white/10">
-                        <span class="w-12 h-12 mx-auto rounded-2xl bg-green-500/12 border border-green-500/25 text-green-400 grid place-items-center mb-3">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                        </span>
-                        <p class="text-white font-semibold">You're all caught up</p>
-                        <p class="text-gray-400 text-sm mt-1">No pending tasks right now.</p>
-                    </div>
-                @endforelse
-            </div>
-
-            {{-- Recently completed --}}
-            <div class="glass p-4 sm:p-5">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="font-semibold text-white">Recently Completed</h3>
-                    <a href="{{ route('completed_tasks.index') }}" class="text-xs text-gray-400 hover:text-white">Full List &rarr;</a>
-                </div>
-
-                @forelse ($recentCompleted as $task)
-                    <div class="row-item flex items-center justify-between gap-4 py-3 px-2 -mx-2 rounded-lg">
-                        <div class="min-w-0">
-                            <p class="text-sm text-gray-200 truncate">{{ $task->task_name }}</p>
-                            <p class="text-xs text-gray-500">{{ $task->subject->subject_name }}</p>
-                        </div>
-                        <span class="chip chip-low">Completed</span>
-                    </div>
-                @empty
-                    <p class="text-center text-gray-500 text-sm py-6 border-t border-white/10">Finished tasks will show up here.</p>
-                @endforelse
-            </div>
-
-        </div>
-
-        {{-- RIGHT COLUMN --}}
-        <div class="flex flex-col gap-3 sm:gap-4">
-
-            {{-- Study sessions --}}
-            <div class="glass p-4 sm:p-5">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="font-semibold text-white">Study Sessions</h3>
-                    <a href="{{ route('schedule.index') }}" class="text-xs text-gray-400 hover:text-white">Schedule &rarr;</a>
-                </div>
-
-                @forelse ($sessions as $session)
-                    @php
-                        $diff = (int) today()->diffInDays($session->study_date->copy()->startOfDay(), false);
-                        $tag  = $diff === 0 ? 'Today' : ($diff === 1 ? 'Tomorrow' : $session->study_date->format('D, M d'));
-                    @endphp
-                    <div class="row-item flex items-start justify-between gap-3 py-3 px-2 -mx-2 rounded-lg">
-                        <div class="min-w-0">
-                            <p class="text-sm font-medium text-white truncate">{{ $session->subject->subject_name }}</p>
-                            <p class="text-xs text-gray-500 mt-0.5">{{ date('g:i A', strtotime($session->start_time)) }} &ndash; {{ date('g:i A', strtotime($session->end_time)) }}</p>
-                        </div>
-                        <span class="chip {{ $diff === 0 ? 'chip-blue' : 'chip-muted' }} shrink-0">{{ $tag }}</span>
-                    </div>
-                @empty
-                    <div class="text-center py-6 border-t border-white/10">
-                        <p class="text-gray-400 text-sm">No study sessions planned.</p>
-                        <a href="{{ route('schedule.index') }}" class="inline-block mt-2 text-sm font-semibold text-blue-400 hover:text-blue-300">Plan a session &rarr;</a>
-                    </div>
-                @endforelse
-            </div>
-
-            {{-- Subject overview --}}
-            <div class="glass p-4 sm:p-5">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="font-semibold text-white">Subject Overview</h3>
-                    <a href="{{ route('subjects.index') }}" class="text-xs text-gray-400 hover:text-white">
-                        {{ $subjects->count() > 5 ? 'See all ' . $subjects->count() : 'Manage' }} &rarr;
-                    </a>
-                </div>
-
-                @forelse ($topSubjects as $subject)
-                    @php
-                        $done = $subject->tasks_count - $subject->pending_tasks_count;
-                        $pct  = $subject->tasks_count > 0 ? round($done / $subject->tasks_count * 100) : 0;
-                    @endphp
-                    <div class="mb-4 last:mb-0">
-                        <div class="flex items-center justify-between gap-3 text-sm mb-1.5">
-                            <span class="text-gray-200 truncate">{{ $subject->subject_name }}</span>
-                            <span class="text-xs shrink-0 {{ $subject->tasks_count == 0 ? 'text-gray-600' : ($subject->pending_tasks_count > 0 ? 'text-amber-300' : 'text-green-400') }}">
-                                @if ($subject->tasks_count == 0)
-                                    No tasks yet
-                                @elseif ($subject->pending_tasks_count > 0)
-                                    {{ $subject->pending_tasks_count }} pending
-                                @else
-                                    All done
-                                @endif
-                            </span>
-                        </div>
-                        <div class="bar"><i style="width: {{ $pct }}%"></i></div>
-                    </div>
-                @empty
-                    <p class="text-center text-gray-500 text-sm py-6">No subjects yet.</p>
-                @endforelse
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
-
-@push('scripts')
-{{-- Refreshes the dashboard by itself when the date changes (midnight),
-     so "Due tomorrow" becomes "Due today", "Overdue", etc. without pressing refresh. --}}
-<script>
-    (function () {
-        function today() {
-            var d = new Date();
-            return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
-        }
-
-        var loadedOn = today();
-
-        function check() {
-            if (today() !== loadedOn) {
-                window.location.reload();
-            }
-        }
-
-        setInterval(check, 30000);                       // every 30 seconds
-        window.addEventListener('focus', check);         // when you come back to the window
-        document.addEventListener('visibilitychange', function () {
-            if (!document.hidden) check();               // when you switch back to the tab
-        });
-
-        // Stops a double click on "Done" from sending the form twice
-        document.querySelectorAll('form[data-once]').forEach(function (f) {
-            f.addEventListener('submit', function () {
-                var b = f.querySelector('button[type="submit"]');
-                if (b) { b.disabled = true; b.style.opacity = '.6'; }
-            });
-        });
-
-        window.addEventListener('pageshow', function () {
-            document.querySelectorAll('form[data-once] button[type="submit"]').forEach(function (b) {
-                b.disabled = false;
-                b.style.opacity = '';
-            });
-        });
-    })();
-</script>
-@endpush
-
-@endsection
+    <section class="dash-stat-strip" aria-label="Study statistics">
+        <a href="{{ route('subjects.index') }}" class="dash-stat" style="--stat-color:#60a5fa;text-decoration:none">
